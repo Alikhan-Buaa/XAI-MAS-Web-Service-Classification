@@ -838,7 +838,7 @@ def main():
             pipeline.run_benchmark_generation_phase()
         elif args.phase == "analysis":
             pipeline.run_data_analysis_phase()
-            pipeline.run_enhanced_data_analysis_phase()
+            #pipeline.run_enhanced_data_analysis_phase()
         elif args.phase == "preprocessing":
             pipeline.run_preprocessing_phase()
         elif args.phase == "features":

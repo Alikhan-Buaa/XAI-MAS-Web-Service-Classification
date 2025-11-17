@@ -90,7 +90,7 @@ The modular architecture ensures easy extension for additional models, features,
 ## Project Directory Structure
 
 ```
-Phase-04/
+XAI-MAS-Web-Service-Classification/
 ├── web_services_classification/      # Main project directory
 │   ├── data/                        # Data pipeline
 │   │   ├── raw/                     # Original dataset
@@ -158,10 +158,10 @@ Ensure you have the following installed:
 #### 1. Environment Setup
 ```bash
 # Clone the repository
-git clone git@github.com:Alikhan-Buaa/MAS-Web-Service-Classification.git
+git clone git@github.com:Alikhan-Buaa/XAI-MAS-Web-Service-Classification.git
 
 # Navigate to project directory
-cd MAS-Web-Service-Classification/Phase-04/web_services_classification/
+cd XAI-MAS-Web-Service-Classification/web_services_classification/
 
 # Create virtual environment (recommended)
 python -m venv venv
