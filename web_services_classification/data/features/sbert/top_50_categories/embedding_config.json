@@ -1,0 +1,16 @@
+{
+  "feature_type": "sbert",
+  "n_categories": 50,
+  "embedding_dimension": 384,
+  "model_name": "all-MiniLM-L6-v2",
+  "config": {
+    "model_name": "all-MiniLM-L6-v2",
+    "max_length": 512,
+    "batch_size": 32,
+    "device": "cpu",
+    "normalize_embeddings": true,
+    "show_progress_bar": true,
+    "convert_to_tensor": false,
+    "convert_to_numpy": true
+  }
+}

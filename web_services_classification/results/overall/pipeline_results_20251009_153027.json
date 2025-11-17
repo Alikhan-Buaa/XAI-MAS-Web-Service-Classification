@@ -1,0 +1,11 @@
+{
+  "fusion_training": {
+    "status": "completed",
+    "summary": "Trained 0  Fusion models",
+    "fusion_types": [],
+    "categories_processed": [
+      50
+    ],
+    "pickle_file": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/fusion/comparisons/fusion_final_results.pkl"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "feature_extraction": {
+    "status": "completed",
+    "summary": "Extracted 2 feature types for 1 categories",
+    "feature_types": [
+      "tfidf",
+      "sbert"
+    ],
+    "categories_processed": [
+      50
+    ],
+    "outputs": "Feature extraction completed successfully"
+  }
+}

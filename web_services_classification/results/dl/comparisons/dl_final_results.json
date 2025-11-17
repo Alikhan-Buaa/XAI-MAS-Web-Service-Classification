@@ -1,0 +1,148 @@
+{
+  "50": {
+    "BiLSTM_tfidf": {
+      "model_name": "BiLSTM",
+      "feature_type": "tfidf",
+      "n_categories": 50,
+      "top1_accuracy": 0.7617124394184168,
+      "top3_accuracy": 0.8901453957996769,
+      "top5_accuracy": 0.9273021001615509,
+      "accuracy": 0.7617124394184168,
+      "macro_precision": 0.7777721212499923,
+      "macro_recall": 0.7708129870129871,
+      "macro_f1": 0.7703408123025721,
+      "micro_precision": 0.7617124394184168,
+      "micro_recall": 0.7617124394184168,
+      "micro_f1": 0.7617124394184168,
+      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_TFIDF_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_TFIDF_top_50_categories_classification_report.csv",
+      "inference_time": 0.2968297004699707,
+      "training_time": 99.96754479408264,
+      "training_history": {
+        "loss": [
+          2.61023211479187,
+          0.7810671329498291,
+          0.30006518959999084,
+          0.13361623883247375,
+          0.06079070270061493,
+          0.03896225988864899,
+          0.02709345705807209,
+          0.022949138656258583,
+          0.01895821839570999,
+          0.018442269414663315
+        ],
+        "accuracy": [
+          0.3556857109069824,
+          0.7956978678703308,
+          0.9208240509033203,
+          0.964754581451416,
+          0.9853565096855164,
+          0.9919208288192749,
+          0.993536651134491,
+          0.9945465326309204,
+          0.9968693256378174,
+          0.996061384677887
+        ],
+        "val_loss": [
+          1.1660985946655273,
+          0.9883353114128113,
+          1.061722755432129,
+          1.1923859119415283,
+          1.205641746520996,
+          1.2749367952346802,
+          1.2845860719680786,
+          1.3164098262786865,
+          1.2925785779953003,
+          1.3043266534805298
+        ],
+        "val_accuracy": [
+          0.7205169796943665,
+          0.7560581564903259,
+          0.7576736807823181,
+          0.7528271675109863,
+          0.7689822316169739,
+          0.7649434804916382,
+          0.7705977559089661,
+          0.7722132205963135,
+          0.7705977559089661,
+          0.7730209827423096
+        ]
+      },
+      "training_history_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_training_history_top_50_categories_tfidf.png",
+      "training_history_json": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_training_history_top_50_categories_tfidf.json",
+      "model_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/models/saved_models/dl_models/top_50_categories/BiLSTM_TFIDF_top_50_categories_model.h5"
+    },
+    "BiLSTM_sbert": {
+      "model_name": "BiLSTM",
+      "feature_type": "sbert",
+      "n_categories": 50,
+      "top1_accuracy": 0.752827140549273,
+      "top3_accuracy": 0.8869143780290791,
+      "top5_accuracy": 0.9337641357027464,
+      "accuracy": 0.752827140549273,
+      "macro_precision": 0.7619239632464663,
+      "macro_recall": 0.7590069264069264,
+      "macro_f1": 0.753067379487494,
+      "micro_precision": 0.752827140549273,
+      "micro_recall": 0.752827140549273,
+      "micro_f1": 0.752827140549273,
+      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_SBERT_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_SBERT_top_50_categories_classification_report.csv",
+      "inference_time": 0.1513965129852295,
+      "training_time": 7.1718761920928955,
+      "training_history": {
+        "loss": [
+          3.1483728885650635,
+          1.9220799207687378,
+          1.5594452619552612,
+          1.370662808418274,
+          1.2587088346481323,
+          1.1731371879577637,
+          1.0960441827774048,
+          1.0310035943984985,
+          0.9632473587989807,
+          0.917060911655426
+        ],
+        "accuracy": [
+          0.19480912387371063,
+          0.4723288118839264,
+          0.5620076656341553,
+          0.6203797459602356,
+          0.6527974009513855,
+          0.6712785363197327,
+          0.6935972571372986,
+          0.7082407474517822,
+          0.72480309009552,
+          0.739749550819397
+        ],
+        "val_loss": [
+          1.9041335582733154,
+          1.3992934226989746,
+          1.234114408493042,
+          1.1565712690353394,
+          1.1084203720092773,
+          1.086299180984497,
+          1.0414214134216309,
+          1.0208650827407837,
+          1.0130531787872314,
+          0.9968042969703674
+        ],
+        "val_accuracy": [
+          0.5516963005065918,
+          0.6268174648284912,
+          0.6736671924591064,
+          0.6906300187110901,
+          0.6954765915870667,
+          0.7027463912963867,
+          0.716478168964386,
+          0.723747968673706,
+          0.7116316556930542,
+          0.7310177683830261
+        ]
+      },
+      "training_history_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_training_history_top_50_categories_sbert.png",
+      "training_history_json": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/dl/top_50_categories/BiLSTM_training_history_top_50_categories_sbert.json",
+      "model_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/models/saved_models/dl_models/top_50_categories/BiLSTM_SBERT_top_50_categories_model.h5"
+    }
+  }
+}

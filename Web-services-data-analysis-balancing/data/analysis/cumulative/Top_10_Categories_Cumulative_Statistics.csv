@@ -1,0 +1,11 @@
+Category,Sample_Count,Word_Count_Min,Word_Count_Max,Word_Count_Avg,Char_Length_Min,Char_Length_Max,Char_Length_Avg,Top_10_Words
+Mapping,359,4,355,78.52089136490251,18,1982,451.21448467966576,"api(599), data(329), maps(254), map(236), service(200), location(181), developers(179), allows(176), applications(165), provides(157)"
+Social,432,18,413,78.29629629629629,85,2131,447.5208333333333,"api(757), social(453), users(402), data(282), allows(261), developers(235), access(213), applications(197), user(170), service(154)"
+eCommerce,462,13,229,75.88528138528139,68,1284,442.74675324675326,"api(846), developers(269), allows(257), users(239), data(205), access(203), information(195), applications(193), product(192), products(190)"
+Messaging,509,16,207,73.13163064833006,88,1208,417.0196463654224,"sms(1032), api(839), messages(489), users(415), send(367), messaging(356), service(293), allows(284), applications(263), developers(230)"
+Tools,758,19,257,73.60686015831135,109,1350,422.41820580474933,"api(1294), users(542), allows(438), service(427), data(407), developers(378), applications(345), provides(295), web(253), access(249)"
+Payments,457,25,216,76.38730853391685,150,1263,458.1859956236324,"api(762), payment(674), payments(439), allows(298), service(256), online(238), developers(227), applications(214), services(183), card(181)"
+Enterprise,410,25,218,78.25853658536586,116,1285,472.1951219512195,"api(663), data(281), allows(249), service(232), users(226), applications(219), access(219), developers(211), information(192), provides(186)"
+Government,302,16,222,84.38741721854305,83,1118,490.50993377483445,"data(497), api(487), information(253), government(173), access(165), provides(159), service(141), available(119), open(119), json(106)"
+Financial,682,16,252,77.42375366568915,92,1459,451.94281524926686,"api(1183), data(583), users(418), allows(388), provides(366), service(344), access(281), information(269), account(230), financial(228)"
+Science,297,35,257,81.13131313131314,183,1482,485.2996632996633,"data(326), api(326), provides(156), information(156), service(142), access(129), database(125), methods(121), available(114), users(105)"

@@ -1,0 +1,16 @@
+{
+  "start_time": "2025-11-11T12:23:07.670029",
+  "phases_completed": [],
+  "phases_failed": [
+    {
+      "phase": "deepseek_training",
+      "error": "'available_models'",
+      "duration": 0.0016009807586669922
+    }
+  ],
+  "total_execution_time": 0.0016009807586669922,
+  "phase_timings": {
+    "deepseek_training": 0.0016009807586669922
+  },
+  "end_time": "2025-11-11T12:23:07.673583"
+}

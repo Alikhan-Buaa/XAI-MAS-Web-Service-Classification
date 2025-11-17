@@ -1,0 +1,52 @@
+{
+  "50": {
+    "RoBERTa_Base_raw_text": {
+      "model_name": "RoBERTa_Base",
+      "feature_type": "raw_text",
+      "n_categories": 50,
+      "top1_accuracy": 0.7689822294022617,
+      "top3_accuracy": 0.8990306946688207,
+      "top5_accuracy": 0.9369951534733441,
+      "accuracy": 0.7689822294022617,
+      "macro_precision": 0.7774888277550569,
+      "macro_recall": 0.7747842231842234,
+      "macro_f1": 0.7661354813452417,
+      "micro_precision": 0.7689822294022617,
+      "micro_recall": 0.7689822294022617,
+      "micro_f1": 0.7689822294022616,
+      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/top_50_categories/RoBERTa_Base_RawText_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/top_50_categories/RoBERTa_Base_RawText_top_50_categories_classification_report.csv",
+      "inference_time": 7.940631866455078,
+      "training_time": 638.9657881259918,
+      "model_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/models/saved_models/bert_models/top_50_categories/RoBERTa_Base_RawText_top_50_categories_model.model",
+      "model_variant": "roberta-base",
+      "training_history_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/top_50_categories/RoBERTa_Base_training_history_top_50_categories.png",
+      "batch_size": 16,
+      "learning_rate": 2e-05
+    },
+    "RoBERTa_Large_raw_text": {
+      "model_name": "RoBERTa_Large",
+      "feature_type": "raw_text",
+      "n_categories": 50,
+      "top1_accuracy": 0.7972536348949919,
+      "top3_accuracy": 0.9168012924071083,
+      "top5_accuracy": 0.9458804523424879,
+      "accuracy": 0.7972536348949919,
+      "macro_precision": 0.8023647011253421,
+      "macro_recall": 0.8023461279461279,
+      "macro_f1": 0.79685028239507,
+      "micro_precision": 0.7972536348949919,
+      "micro_recall": 0.7972536348949919,
+      "micro_f1": 0.7972536348949919,
+      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/top_50_categories/RoBERTa_Large_RawText_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/top_50_categories/RoBERTa_Large_RawText_top_50_categories_classification_report.csv",
+      "inference_time": 25.410869121551514,
+      "training_time": 2094.1313931941986,
+      "model_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/models/saved_models/bert_models/top_50_categories/RoBERTa_Large_RawText_top_50_categories_model.model",
+      "model_variant": "roberta-large",
+      "training_history_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/top_50_categories/RoBERTa_Large_training_history_top_50_categories.png",
+      "batch_size": 8,
+      "learning_rate": 1e-05
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "bert_training": {
+    "status": "completed",
+    "summary": "Trained 2 BERT/RoBERTa models",
+    "models_trained": [
+      "roberta_base",
+      "roberta_large"
+    ],
+    "categories_processed": [
+      50
+    ],
+    "pickle_file": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/bert/comparisons/bert_final_results.pkl"
+  }
+}

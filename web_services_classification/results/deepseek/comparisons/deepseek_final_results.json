@@ -1,0 +1,28 @@
+{
+  "50": {
+    "DeepSeek_7B_Base_raw_text": {
+      "model_name": "DeepSeek_7B_Base",
+      "feature_type": "raw_text",
+      "n_categories": 50,
+      "top1_accuracy": 0.8012924071082391,
+      "top3_accuracy": 0.9305331179321487,
+      "top5_accuracy": 0.9555735056542811,
+      "accuracy": 0.8012924071082391,
+      "macro_precision": 0.8088216499402465,
+      "macro_recall": 0.8043100529100529,
+      "macro_f1": 0.8005010729440185,
+      "micro_precision": 0.8012924071082391,
+      "micro_recall": 0.8012924071082391,
+      "micro_f1": 0.8012924071082392,
+      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/deepseek/top_50_categories/DeepSeek_7B_Base_RawText_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/deepseek/top_50_categories/DeepSeek_7B_Base_RawText_top_50_categories_classification_report.csv",
+      "inference_time": 69.98113536834717,
+      "training_time": 6310.455130815506,
+      "model_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/models/saved_models/deepseek_models/top_50_categories/DeepSeek_7B_Base_RawText_top_50_categories_model.model",
+      "model_variant": "deepseek-ai/deepseek-llm-7b-base",
+      "training_history_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/deepseek/top_50_categories/DeepSeek_7B_Base_training_history_top_50_categories.png",
+      "batch_size": 4,
+      "learning_rate": 0.0001
+    }
+  }
+}

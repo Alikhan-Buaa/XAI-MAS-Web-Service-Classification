@@ -1,0 +1,12 @@
+{
+  "start_time": "2025-10-09T12:38:10.688163",
+  "phases_completed": [
+    "fusion_training"
+  ],
+  "phases_failed": [],
+  "total_execution_time": 10337.093205928802,
+  "phase_timings": {
+    "fusion_training": 10337.093205928802
+  },
+  "end_time": "2025-10-09T15:30:27.813736"
+}

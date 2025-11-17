@@ -1,0 +1,12 @@
+{
+  "start_time": "2025-10-09T11:38:15.902089",
+  "phases_completed": [
+    "bert_training"
+  ],
+  "phases_failed": [],
+  "total_execution_time": 3267.9460711479187,
+  "phase_timings": {
+    "bert_training": 3267.9460711479187
+  },
+  "end_time": "2025-10-09T12:32:43.856896"
+}

@@ -1,0 +1,19 @@
+{
+  "ml_training": {
+    "status": "completed",
+    "summary": "Trained 6 ML models across 3 model types",
+    "models_trained": [
+      "LogisticRegression",
+      "XGBoost",
+      "RandomForest"
+    ],
+    "feature_types": [
+      "tfidf",
+      "sbert"
+    ],
+    "categories_processed": [
+      50
+    ],
+    "pickle_file": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/comparisons/ml_final_results.pkl"
+  }
+}

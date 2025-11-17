@@ -1,0 +1,11 @@
+Category,Sample_Count,Word_Count_Min,Word_Count_Max,Word_Count_Avg,Char_Length_Min,Char_Length_Max,Char_Length_Avg,Top_10_Words
+Video,249,20,264,72.87951807228916,124,1463,417.87550200803213,"video(487), api(470), videos(193), allows(158), users(154), developers(140), applications(118), platform(108), content(107), service(102)"
+Telephony,297,17,199,74.56565656565657,84,1154,432.7239057239057,"api(460), phone(184), applications(165), calls(162), allows(162), service(161), users(156), mobile(148), voice(147), services(147)"
+Search,251,7,275,79.22310756972112,34,1566,458.0876494023904,"api(450), search(410), service(136), data(135), users(133), developers(118), access(115), allows(113), provides(104), results(93)"
+Advertising,224,30,197,78.34375,173,1089,465.35714285714283,"api(428), advertising(169), developers(161), allows(153), users(142), access(138), service(115), applications(114), platform(110), marketing(101)"
+Reference,250,20,244,80.452,89,1391,464.988,"api(378), data(210), information(143), service(126), access(125), provides(120), xml(96), users(93), web(83), search(80)"
+Travel,240,6,271,80.02916666666667,30,1570,466.09583333333336,"api(417), travel(268), information(162), data(116), booking(114), users(113), access(109), search(104), allows(102), provides(101)"
+Transportation,217,32,319,73.96774193548387,165,1747,430.9815668202765,"api(367), data(197), information(162), provides(139), service(118), applications(109), developers(91), access(91), allows(80), transit(79)"
+Email,252,20,209,75.86111111111111,136,1129,445.74603174603175,"email(545), api(459), users(148), allows(138), service(136), emails(128), marketing(125), developers(109), provides(99), applications(90)"
+Security,248,19,192,77.58064516129032,98,1123,458.1733870967742,"api(414), service(165), users(161), allows(133), developers(132), security(123), access(123), applications(115), data(110), web(106)"
+Sports,228,14,214,77.75877192982456,89,1060,440.06140350877195,"api(429), data(255), sports(169), provides(135), sportradar(127), developers(114), applications(113), live(107), league(106), information(98)"

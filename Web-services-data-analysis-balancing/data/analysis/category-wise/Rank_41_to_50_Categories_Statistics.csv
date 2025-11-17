@@ -1,0 +1,11 @@
+Category,Sample_Count,Word_Count_Min,Word_Count_Max,Word_Count_Avg,Char_Length_Min,Char_Length_Max,Char_Length_Avg,Top_10_Words
+Storage,99,25,157,76.56565656565657,126,901,442.8484848484849,"api(169), storage(121), users(81), data(80), cloud(77), service(74), files(73), access(65), allows(62), file(53)"
+Media,82,28,138,78.5609756097561,172,851,447.8292682926829,"api(119), media(101), content(62), allows(52), users(42), video(41), service(40), applications(40), access(38), developers(34)"
+Office,81,27,180,72.55555555555556,138,1112,418.037037037037,"api(135), data(54), allows(54), users(50), applications(44), service(42), developers(40), documents(31), online(27), integrate(26)"
+Chat,82,14,175,69.98780487804878,95,1044,408.4390243902439,"api(138), chat(115), users(49), service(35), applications(34), liveperson(34), allows(33), developers(32), messaging(29), live(29)"
+News Services,82,17,133,67.35365853658537,86,750,378.2682926829268,"api(148), news(119), data(50), provides(49), content(49), access(45), developers(38), allows(35), users(35), articles(31)"
+Entertainment,94,14,138,71.96808510638297,70,688,404.5,"api(169), users(61), allows(53), information(48), access(46), service(45), developers(41), provides(36), data(34), video(32)"
+Real Estate,108,14,193,73.12037037037037,77,1053,418.712962962963,"api(171), estate(101), real(100), property(99), data(88), listings(47), users(47), provides(46), allows(44), search(42)"
+Images,82,23,186,71.79268292682927,124,1016,416.4756097560976,"api(163), image(90), images(75), developers(49), allows(46), users(35), applications(31), integrate(28), data(27), access(23)"
+File Sharing,80,17,365,69.7875,75,2202,401.9375,"api(136), file(102), files(97), users(69), allows(69), access(60), sharing(54), developers(49), applications(37), provides(36)"
+Domains,82,21,148,68.5609756097561,131,862,398.5365853658537,"domain(200), api(152), name(65), services(65), service(54), users(53), domains(48), provides(44), developers(44), dns(43)"

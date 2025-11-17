@@ -1,0 +1,155 @@
+categories:
+- Mapping
+- Enterprise
+- eCommerce
+- Financial
+- Government
+- Social
+- Payments
+- Tools
+- Messaging
+- Science
+- Telephony
+- Video
+- Search
+- Advertising
+- Reference
+- Travel
+- Transportation
+- Email
+- Sports
+- Project Management
+- Data
+- Games
+- Bitcoin
+- Education
+- Cloud
+- Music
+- Photos
+- Database
+- Internet of Things
+- Shipping
+- Application Development
+- Events
+- Banking
+- Stocks
+- Medical
+- Analytics
+- Other
+- Security
+- Backend
+- News Services
+- Domains
+- File Sharing
+- Images
+- Real Estate
+- Entertainment
+- Chat
+- Media
+- Storage
+- Office
+- Weather
+id_to_label:
+  0: Advertising
+  1: Analytics
+  2: Application Development
+  3: Backend
+  4: Banking
+  5: Bitcoin
+  6: Chat
+  7: Cloud
+  8: Data
+  9: Database
+  10: Domains
+  11: Education
+  12: Email
+  13: Enterprise
+  14: Entertainment
+  15: Events
+  16: File Sharing
+  17: Financial
+  18: Games
+  19: Government
+  20: Images
+  21: Internet of Things
+  22: Mapping
+  23: Media
+  24: Medical
+  25: Messaging
+  26: Music
+  27: News Services
+  28: Office
+  29: Other
+  30: Payments
+  31: Photos
+  32: Project Management
+  33: Real Estate
+  34: Reference
+  35: Science
+  36: Search
+  37: Security
+  38: Shipping
+  39: Social
+  40: Sports
+  41: Stocks
+  42: Storage
+  43: Telephony
+  44: Tools
+  45: Transportation
+  46: Travel
+  47: Video
+  48: Weather
+  49: eCommerce
+label_to_id:
+  Advertising: 0
+  Analytics: 1
+  Application Development: 2
+  Backend: 3
+  Banking: 4
+  Bitcoin: 5
+  Chat: 6
+  Cloud: 7
+  Data: 8
+  Database: 9
+  Domains: 10
+  Education: 11
+  Email: 12
+  Enterprise: 13
+  Entertainment: 14
+  Events: 15
+  File Sharing: 16
+  Financial: 17
+  Games: 18
+  Government: 19
+  Images: 20
+  Internet of Things: 21
+  Mapping: 22
+  Media: 23
+  Medical: 24
+  Messaging: 25
+  Music: 26
+  News Services: 27
+  Office: 28
+  Other: 29
+  Payments: 30
+  Photos: 31
+  Project Management: 32
+  Real Estate: 33
+  Reference: 34
+  Science: 35
+  Search: 36
+  Security: 37
+  Shipping: 38
+  Social: 39
+  Sports: 40
+  Stocks: 41
+  Storage: 42
+  Telephony: 43
+  Tools: 44
+  Transportation: 45
+  Travel: 46
+  Video: 47
+  Weather: 48
+  eCommerce: 49
+n_categories: 50
+random_state: 42

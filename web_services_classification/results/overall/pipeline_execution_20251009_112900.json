@@ -1,0 +1,12 @@
+{
+  "start_time": "2025-10-09T11:28:54.008433",
+  "phases_completed": [
+    "preprocessing"
+  ],
+  "phases_failed": [],
+  "total_execution_time": 6.116896867752075,
+  "phase_timings": {
+    "preprocessing": 6.116896867752075
+  },
+  "end_time": "2025-10-09T11:29:00.126202"
+}

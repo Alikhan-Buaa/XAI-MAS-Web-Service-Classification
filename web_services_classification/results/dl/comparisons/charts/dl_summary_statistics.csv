@@ -1,0 +1,3 @@
+Categories,Model,Feature,Accuracy,F1-Score,Top-1,Top-3,Top-5,Training Time,Inference Time
+50,BiLSTM,tfidf,0.7617,0.7703,0.7617,0.8901,0.9273,99.9675,0.2968
+50,BiLSTM,sbert,0.7528,0.7531,0.7528,0.8869,0.9338,7.1719,0.1514

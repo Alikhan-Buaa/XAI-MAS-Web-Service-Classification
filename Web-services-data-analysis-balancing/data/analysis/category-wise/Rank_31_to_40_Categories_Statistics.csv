@@ -1,0 +1,11 @@
+Category,Sample_Count,Word_Count_Min,Word_Count_Max,Word_Count_Avg,Char_Length_Min,Char_Length_Max,Char_Length_Avg,Top_10_Words
+Analytics,115,31,150,68.24347826086957,191,840,397.3565217391304,"api(210), data(118), analytics(98), developers(64), provides(53), access(51), allows(48), json(47), service(42), users(42)"
+Events,108,18,179,76.52777777777777,90,982,438.06481481481484,"api(202), events(178), event(112), developers(64), users(64), information(64), data(57), allows(55), access(45), applications(36)"
+Weather,131,25,174,80.69465648854961,142,1027,478.6793893129771,"weather(325), api(226), data(208), provides(89), information(69), location(67), service(61), developers(57), forecast(54), forecasts(52)"
+Shipping,134,24,229,78.76865671641791,168,1303,469.05223880597015,"shipping(197), api(193), service(102), delivery(89), tracking(75), provides(74), services(70), allows(60), available(56), information(55)"
+Medical,110,8,140,81.34545454545454,34,838,494.2818181818182,"api(155), data(107), health(101), information(94), service(65), users(58), access(54), medical(53), provides(52), allows(47)"
+Stocks,133,45,167,100.69924812030075,217,926,555.6992481203008,"data(427), prices(410), exchange(356), api(239), stock(219), intrinio(188), available(179), day(151), close(137), trading(122)"
+Banking,110,24,283,82.22727272727273,133,1715,480.3727272727273,"api(258), banking(85), account(72), access(63), financial(62), bank(61), services(61), allows(57), developers(45), provides(45)"
+Backend,133,12,143,70.34586466165413,79,790,416.1203007518797,"api(225), applications(182), developers(120), data(79), users(77), allows(76), service(71), mobile(67), access(63), platform(59)"
+Internet of Things,112,36,183,71.24107142857143,230,1069,420.2767857142857,"api(193), devices(98), data(81), developers(66), things(58), internet(55), platform(55), iot(53), applications(48), allows(46)"
+Application Development,123,21,233,70.2439024390244,105,1374,415.6422764227642,"api(215), applications(96), developers(93), allows(76), application(57), users(49), access(45), platform(45), create(41), development(41)"

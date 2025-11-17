@@ -1,0 +1,13 @@
+{
+  "deepseek_training": {
+    "status": "completed",
+    "summary": "Trained 1 DeepSeek models",
+    "models_trained": [
+      "deepseek"
+    ],
+    "categories_processed": [
+      50
+    ],
+    "pickle_file": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/deepseek/comparisons/deepseek_final_results.pkl"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "start_time": "2025-11-11T15:29:21.161553",
+  "phases_completed": [
+    "overall_visualization"
+  ],
+  "phases_failed": [],
+  "total_execution_time": 22.12285566329956,
+  "phase_timings": {
+    "overall_visualization": 22.12285566329956
+  },
+  "end_time": "2025-11-11T15:29:43.285532"
+}
