@@ -15,8 +15,8 @@
 6. **Balanced Datasets:** Fixed 80/10/10 train/validation/test splits.
 7. **Reproducibility:** Configurations stored in YAML files.
 8. **Benchmarking:** Leaderboards, Top-K curves, confusion matrices.
-9. **Total Models Trained:** 12  
-(6 ML + 2 DL + 2 RoBERTa + 1 DeepSeek + 1 Fusion)
+9. **Total Models Trained:** 18  
+(6 ML + 2 DL + 4 RoBERTa + 2 DeepSeek + 4 Fusion)
 10. **Analysis:** Cross-model comparison, ranking quality, and category difficulty.
 
 ---
