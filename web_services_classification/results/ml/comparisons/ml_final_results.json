@@ -14,10 +14,10 @@
       "micro_precision": 0.8037156704361874,
       "micro_recall": 0.8037156704361874,
       "micro_f1": 0.8037156704361873,
-      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/LogisticRegression_TFIDF_top_50_categories_confusion_matrix.png",
-      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/LogisticRegression_TFIDF_top_50_categories_classification_report.csv",
-      "inference_time": 0.010247230529785156,
-      "training_time": 9.428144454956055
+      "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_TFIDF_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_TFIDF_top_50_categories_classification_report.csv",
+      "inference_time": 0.009506702423095703,
+      "training_time": 10.058149576187134
     },
     "RandomForest_tfidf": {
       "model_name": "RandomForest",
@@ -25,18 +25,18 @@
       "n_categories": 50,
       "accuracy": 0.7617124394184168,
       "top1_accuracy": 0.7617124394184168,
-      "top3_accuracy": 0.8990306946688207,
-      "top5_accuracy": 0.931340872374798,
+      "top3_accuracy": 0.9006462035541195,
+      "top5_accuracy": 0.9281098546042004,
       "macro_precision": 0.7775590665793513,
       "macro_recall": 0.7712087542087541,
       "macro_f1": 0.7667327763797067,
       "micro_precision": 0.7617124394184168,
       "micro_recall": 0.7617124394184168,
       "micro_f1": 0.7617124394184168,
-      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/RandomForest_TFIDF_top_50_categories_confusion_matrix.png",
-      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/RandomForest_TFIDF_top_50_categories_classification_report.csv",
-      "inference_time": 0.10465455055236816,
-      "training_time": 2.6677868366241455
+      "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_TFIDF_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_TFIDF_top_50_categories_classification_report.csv",
+      "inference_time": 0.11558246612548828,
+      "training_time": 0.5304701328277588
     },
     "XGBoost_tfidf": {
       "model_name": "XGBoost",
@@ -52,10 +52,10 @@
       "micro_precision": 0.747172859450727,
       "micro_recall": 0.747172859450727,
       "micro_f1": 0.747172859450727,
-      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/XGBoost_TFIDF_top_50_categories_confusion_matrix.png",
-      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/XGBoost_TFIDF_top_50_categories_classification_report.csv",
-      "inference_time": 0.2002096176147461,
-      "training_time": 78.0792076587677
+      "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_TFIDF_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_TFIDF_top_50_categories_classification_report.csv",
+      "inference_time": 0.14947795867919922,
+      "training_time": 131.4447362422943
     },
     "LogisticRegression_sbert": {
       "model_name": "LogisticRegression",
@@ -71,10 +71,10 @@
       "micro_precision": 0.7794830371567044,
       "micro_recall": 0.7794830371567044,
       "micro_f1": 0.7794830371567044,
-      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/LogisticRegression_SBERT_top_50_categories_confusion_matrix.png",
-      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/LogisticRegression_SBERT_top_50_categories_classification_report.csv",
-      "inference_time": 0.005267143249511719,
-      "training_time": 3.4838433265686035
+      "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_SBERT_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_SBERT_top_50_categories_classification_report.csv",
+      "inference_time": 0.009112358093261719,
+      "training_time": 3.838837146759033
     },
     "RandomForest_sbert": {
       "model_name": "RandomForest",
@@ -82,18 +82,18 @@
       "n_categories": 50,
       "accuracy": 0.7237479806138933,
       "top1_accuracy": 0.7237479806138933,
-      "top3_accuracy": 0.8562197092084006,
-      "top5_accuracy": 0.9006462035541195,
+      "top3_accuracy": 0.8505654281098546,
+      "top5_accuracy": 0.8966074313408724,
       "macro_precision": 0.7306878252256175,
       "macro_recall": 0.7345375661375659,
       "macro_f1": 0.7245683044440419,
       "micro_precision": 0.7237479806138933,
       "micro_recall": 0.7237479806138933,
       "micro_f1": 0.7237479806138933,
-      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/RandomForest_SBERT_top_50_categories_confusion_matrix.png",
-      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/RandomForest_SBERT_top_50_categories_classification_report.csv",
-      "inference_time": 0.09225797653198242,
-      "training_time": 5.623678207397461
+      "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_SBERT_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_SBERT_top_50_categories_classification_report.csv",
+      "inference_time": 0.11728143692016602,
+      "training_time": 1.038403034210205
     },
     "XGBoost_sbert": {
       "model_name": "XGBoost",
@@ -109,10 +109,10 @@
       "micro_precision": 0.7237479806138933,
       "micro_recall": 0.7237479806138933,
       "micro_f1": 0.7237479806138933,
-      "confusion_matrix_plot": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/XGBoost_SBERT_top_50_categories_confusion_matrix.png",
-      "classification_report_path": "/workspace/axolotl/MAS-Web-Service-Classification/Phase-04/web_services_classification/results/ml/top_50_categories/XGBoost_SBERT_top_50_categories_classification_report.csv",
-      "inference_time": 0.0494229793548584,
-      "training_time": 252.76490998268127
+      "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_SBERT_top_50_categories_confusion_matrix.png",
+      "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_SBERT_top_50_categories_classification_report.csv",
+      "inference_time": 0.03321576118469238,
+      "training_time": 164.01522588729858
     }
   }
 }

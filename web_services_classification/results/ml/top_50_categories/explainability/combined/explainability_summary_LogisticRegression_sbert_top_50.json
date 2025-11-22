@@ -1,0 +1,21 @@
+{
+  "model_name": "LogisticRegression",
+  "n_categories": 50,
+  "feature_type": "sbert",
+  "n_test_samples": 1238,
+  "n_features": 384,
+  "config": {
+    "plot_dpi": 300,
+    "max_features": 20,
+    "shap_background_samples": 100,
+    "shap_explain_samples": 50,
+    "lime_num_instances": 5
+  },
+  "shap": {
+    "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (384, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+  },
+  "lime": {
+    "error": "1"
+  },
+  "comparison": null
+}
