@@ -116,9 +116,12 @@ class MLExplainability:
         
         # Load model
         model_dir = SAVED_MODELS_CONFIG["ml_models_path"] / f"top_{n_categories}_categories"
-        model_filename = f"{model_name}_{feature_type}_top_{n_categories}.pkl"
+        # Match actual saved model pattern: ModelName_FEATURETYPE_top_N_categories_model.pkl
+        feature_type_upper = feature_type.upper()  # TFIDF or SBERT
+        model_filename = f"{model_name}_{feature_type_upper}_top_{n_categories}_categories_model.pkl"
         model_path = model_dir / model_filename
         
+
         if not model_path.exists():
             raise FileNotFoundError(f"Model not found: {model_path}")
         
