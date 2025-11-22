@@ -430,6 +430,37 @@ FEATURE_NAME_MAPPING = {
     'Gating': 'Gating',
 }
 
+EXPLAINABILITY_CONFIG = {
+    # ML Explainability Results
+    'ml_explainability_path': RESULTS_PATH / "ml" / "explainability",
+    'ml_explainability_category_paths': {
+        n: RESULTS_PATH / "ml" / f"top_{n}_categories" / "explainability" 
+        for n in CATEGORY_SIZES
+    },
+    
+    # Subdirectories for different explainability methods
+    'explainability_subdirs': {
+        'shap': 'shap',
+        'lime': 'lime',
+        'combined': 'combined',
+        'feature_importance': 'feature_importance'
+    },
+    
+    # Output formats
+    'plot_dpi': 300,
+    'plot_format': 'png',
+    'max_features_display': 20,
+    
+    # SHAP specific settings
+    'shap_background_samples': 100,
+    'shap_explain_samples': 50,
+    
+    # LIME specific settings
+    'lime_num_samples': 5000,
+    'lime_num_features': 20,
+    'lime_num_instances': 5
+}
+
 def create_all_directories():
     """Create all necessary directories"""
     directories = [
@@ -451,6 +482,7 @@ def create_all_directories():
         RESULTS_PATH / "deepseek" / "comparisons",
         RESULTS_PATH / "fusion" / "comparisons",
         RESULTS_PATH / "overall",
+        RESULTS_PATH / "ml" / "explainability",
         LOGS_PATH
     ]
     
@@ -466,7 +498,14 @@ def create_all_directories():
             RESULTS_PATH / "dl" / f"top_{n_categories}_categories", 
             RESULTS_PATH / "bert" / f"top_{n_categories}_categories",
             RESULTS_PATH / "deepseek" / f"top_{n_categories}_categories",
-            RESULTS_PATH / "fusion" / f"top_{n_categories}_categories"
+            RESULTS_PATH / "fusion" / f"top_{n_categories}_categories",
+            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability",
+            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "shap",
+            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "lime",
+            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "combined",
+            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "feature_importance"
+            
+
         ])
     
     for directory in directories:

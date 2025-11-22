@@ -29,6 +29,7 @@ from src.modeling.bert_models import RoBERTaModelTrainer
 from src.modeling.deepseek_models import DeepSeekModelTrainer
 from src.modeling.fusion_models import DeepSeekRoBERTaFusionTrainer
 from src.utils.utils import setup_logging, get_timestamp
+from src.explainability.ml_explainability import MLExplainability
 
 
 class PipelineManager:
@@ -786,7 +787,43 @@ class PipelineManager:
         
         print(f"{'='*100}")
 
-
+    def run_ml_explainability_phase(self):
+        """Run ML explainability analysis phase with SHAP and LIME"""
+        phase_name = "ml_explainability"
+        start_time = self.log_phase_start(phase_name)
+        
+        try:
+            self.logger.info("Starting ML Model Explainability Analysis (SHAP & LIME)")
+            
+            explainer = MLExplainability()
+            
+            # Run explainability for first category size (or all if needed)
+            n_categories = CATEGORY_SIZES[0]
+            feature_types = ["tfidf", "sbert"]
+            
+            self.logger.info(f"Analyzing top_{n_categories}_categories")
+            self.logger.info(f"Feature types: {feature_types}")
+            
+            results = explainer.explain_all_models(n_categories, feature_types)
+            
+            self.results[phase_name] = {
+                'status': 'completed',
+                'summary': 'ML explainability analysis completed successfully',
+                'n_categories': n_categories,
+                'feature_types': feature_types,
+                'models_analyzed': list(results.get('tfidf', {}).keys()) if 'tfidf' in results else []
+            }
+            
+            self.log_phase_end(phase_name, start_time, success=True)
+            return results
+            
+        except Exception as e:
+            self.results[phase_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            self.log_phase_end(phase_name, start_time, success=False, error=e)
+            raise
 def main():
     """Enhanced main function with comprehensive pipeline management"""
     parser = argparse.ArgumentParser(description="Web Services Classification Pipeline")
@@ -795,7 +832,7 @@ def main():
         choices=[
             "all", "analysis", "preprocessing", "features", "ml_training", 
             "dl_training", "bert_training", "fusion_training", "deepseek_training", 
-            "evaluation", "visualize", "benchmarks"
+            "evaluation", "visualize", "benchmarks","ml_explainability"
         ],
         default="all",
         help="Which phase to run"
@@ -834,6 +871,7 @@ def main():
             pipeline.run_fusion_training_phase()
             pipeline.run_deepseek_training_phase()
             pipeline.run_evaluation_phase()
+            pipeline.run_ml_explainability_phase()
             pipeline.run_visualize_phase()
             pipeline.run_benchmark_generation_phase()
         elif args.phase == "analysis":
@@ -859,6 +897,8 @@ def main():
             pipeline.run_visualize_phase()
         elif args.phase == "benchmarks":
             pipeline.run_benchmark_generation_phase()
+        elif args.phase == "ml_explainability":
+            pipeline.run_ml_explainability_phase()
         
         # Save execution summary and print final results
         pipeline.save_execution_summary()
