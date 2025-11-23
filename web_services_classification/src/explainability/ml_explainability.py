@@ -183,13 +183,14 @@ class MLExplainability:
             if model_name == "LogisticRegression":
                 explainer = shap.LinearExplainer(model, background_sample, feature_names=feature_names)
             elif model_name in ["RandomForest", "XGBoost"]:
-                explainer = shap.TreeExplainer(model)
+                # Use TreeExplainer with check_additivity=False to handle numerical issues
+                explainer = shap.TreeExplainer(model, feature_perturbation='interventional', check_additivity=False)
             else:
                 explainer = shap.KernelExplainer(model.predict_proba, background_sample)
             
             # Calculate SHAP values
             logger.info("Calculating SHAP values...")
-            shap_values = explainer.shap_values(test_sample)
+            shap_values = explainer.shap_values(test_sample, check_additivity=False)
             
             # Handle different SHAP value formats
             if isinstance(shap_values, list):
@@ -349,35 +350,43 @@ class MLExplainability:
             explanations = []
             
             for idx, sample_idx in enumerate(sample_indices):
-                instance = X_test_dense[sample_idx]
-                
-                # Generate explanation with config num_features
-                exp = explainer.explain_instance(
-                    data_row=instance,
-                    predict_fn=model.predict_proba,
-                    num_features=self.lime_num_features,
-                    top_labels=3
-                )
-                
-                # Save explanation visualization
-                fig = exp.as_pyplot_figure()
-                fig.suptitle(f"LIME Explanation - Sample {idx+1}\n{model_name} ({feature_type.upper()})", 
-                            fontsize=14, fontweight='bold')
-                plt.tight_layout()
-                lime_path = dirs['lime'] / f"lime_explanation_{model_name}_{feature_type}_sample_{idx+1}_top_{n_categories}.{self.plot_format}"
-                plt.savefig(lime_path, dpi=self.plot_dpi, bbox_inches='tight')
-                plt.close()
-                
-                # Get explanation as list
-                exp_list = exp.as_list()
-                
-                explanations.append({
-                    'sample_index': int(sample_idx),
-                    'plot_path': str(lime_path),
-                    'top_features': exp_list[:10]
-                })
-                
-                logger.info(f"LIME explanation {idx+1}/{n_samples} saved: {lime_path}")
+                try:
+                    instance = X_test_dense[sample_idx]
+                    
+                    # Get actual prediction
+                    pred = model.predict(instance.reshape(1, -1))[0]
+                    
+                    # Generate explanation with config num_features
+                    exp = explainer.explain_instance(
+                        data_row=instance,
+                        predict_fn=model.predict_proba,
+                        num_features=self.lime_num_features,
+                        top_labels=1
+                    )
+                    
+                    # Save explanation visualization
+                    fig = exp.as_pyplot_figure(label=pred)
+                    fig.suptitle(f"LIME Explanation - Sample {idx+1}\n{model_name} ({feature_type.upper()})", 
+                                fontsize=14, fontweight='bold')
+                    plt.tight_layout()
+                    lime_path = dirs['lime'] / f"lime_explanation_{model_name}_{feature_type}_sample_{idx+1}_top_{n_categories}.{self.plot_format}"
+                    plt.savefig(lime_path, dpi=self.plot_dpi, bbox_inches='tight')
+                    plt.close()
+                    
+                    # Get explanation as list
+                    exp_list = exp.as_list(label=pred)
+                    
+                    explanations.append({
+                        'sample_index': int(sample_idx),
+                        'plot_path': str(lime_path),
+                        'top_features': exp_list[:10]
+                    })
+                    
+                    logger.info(f"LIME explanation {idx+1}/{n_samples} saved: {lime_path}")
+                    
+                except Exception as e:
+                    logger.warning(f"Error generating LIME explanation for sample {idx+1}: {e}")
+                    continue
             
             # Create summary visualization
             all_features = {}
@@ -434,12 +443,28 @@ class MLExplainability:
         try:
             logger.info(f"Generating combined SHAP-LIME comparison for {model_name}")
             
-            # Load importance data
-            shap_importance_path = Path(shap_results.get('feature_importance', ''))
-            lime_importance_path = Path(lime_results.get('feature_importance', ''))
+            # Check if we have the necessary data
+            if not shap_results or not lime_results:
+                logger.warning("Missing SHAP or LIME results for comparison")
+                return None
             
-            if not (shap_importance_path.exists() and lime_importance_path.exists()):
-                logger.warning("Missing importance data for comparison")
+            # Load importance data
+            shap_importance_path = shap_results.get('feature_importance')
+            lime_importance_path = lime_results.get('feature_importance')
+            
+            if not shap_importance_path or not lime_importance_path:
+                logger.warning("Missing importance paths in results")
+                return None
+            
+            shap_importance_path = Path(shap_importance_path)
+            lime_importance_path = Path(lime_importance_path)
+            
+            if not shap_importance_path.exists():
+                logger.warning(f"SHAP importance file not found: {shap_importance_path}")
+                return None
+            
+            if not lime_importance_path.exists():
+                logger.warning(f"LIME importance file not found: {lime_importance_path}")
                 return None
             
             shap_df = pd.read_csv(shap_importance_path).head(15)
@@ -659,7 +684,7 @@ class MLExplainability:
                 background_sample = X_train_dense[np.random.choice(X_train_dense.shape[0], n_background, replace=False)]
                 shap_explainer = shap.LinearExplainer(model, background_sample, feature_names=feature_names)
             elif model_name in ["RandomForest", "XGBoost"]:
-                shap_explainer = shap.TreeExplainer(model)
+                shap_explainer = shap.TreeExplainer(model, feature_perturbation='interventional', check_additivity=False)
             else:
                 n_background = min(50, X_train_dense.shape[0])
                 background_sample = X_train_dense[np.random.choice(X_train_dense.shape[0], n_background, replace=False)]
@@ -671,7 +696,7 @@ class MLExplainability:
             for idx in sample_indices[:min(20, sample_size)]:  # Limit for speed
                 try:
                     instance = X_test_dense[idx:idx+1]
-                    shap_vals = shap_explainer.shap_values(instance)
+                    shap_vals = shap_explainer.shap_values(instance, check_additivity=False)
                     
                     # Handle different SHAP value formats
                     if isinstance(shap_vals, list):
@@ -722,7 +747,7 @@ class MLExplainability:
                 for idx in class_samples:
                     try:
                         instance = X_test_dense[idx:idx+1]
-                        shap_vals = shap_explainer.shap_values(instance)
+                        shap_vals = shap_explainer.shap_values(instance, check_additivity=False)
                         
                         # Extract SHAP values for this class
                         if isinstance(shap_vals, list) and class_idx < len(shap_vals):
