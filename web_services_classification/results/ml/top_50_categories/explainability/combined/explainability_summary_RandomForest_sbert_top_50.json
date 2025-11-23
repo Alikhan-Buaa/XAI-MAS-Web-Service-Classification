@@ -12,10 +12,286 @@
     "lime_num_instances": 5
   },
   "shap": {
-    "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (384, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+    "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
   },
   "lime": {
-    "error": "1"
+    "explanations": [
+      {
+        "sample_index": 0,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_1_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_115 > 0.06",
+            0.003897506624609583
+          ],
+          [
+            "sbert_dim_279 > 0.06",
+            0.0035575057991374197
+          ],
+          [
+            "sbert_dim_178 <= -0.04",
+            0.003116996960830194
+          ],
+          [
+            "sbert_dim_246 > 0.04",
+            0.0028341838684887003
+          ],
+          [
+            "0.02 < sbert_dim_328 <= 0.05",
+            -0.0022985131890540136
+          ],
+          [
+            "sbert_dim_79 > 0.01",
+            0.0020677862670819276
+          ],
+          [
+            "0.01 < sbert_dim_286 <= 0.04",
+            0.0019763803122468068
+          ],
+          [
+            "sbert_dim_93 <= -0.05",
+            0.00188427940692455
+          ],
+          [
+            "sbert_dim_217 <= -0.02",
+            0.0018622868528835692
+          ],
+          [
+            "-0.06 < sbert_dim_285 <= -0.03",
+            -0.0016340917811053335
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_2_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_170 > -0.02",
+            0.004453684883305986
+          ],
+          [
+            "sbert_dim_286 <= -0.03",
+            0.004011605825767634
+          ],
+          [
+            "sbert_dim_301 > 0.02",
+            0.0034381237891793256
+          ],
+          [
+            "sbert_dim_342 <= -0.02",
+            0.0020391913105796775
+          ],
+          [
+            "sbert_dim_228 <= -0.03",
+            0.0019845895453473052
+          ],
+          [
+            "sbert_dim_351 <= -0.03",
+            -0.0019124757607977866
+          ],
+          [
+            "sbert_dim_23 <= -0.02",
+            0.0018192550710705126
+          ],
+          [
+            "sbert_dim_115 <= -0.00",
+            0.0017723068135102845
+          ],
+          [
+            "sbert_dim_13 <= -0.03",
+            0.0016230621076214076
+          ],
+          [
+            "sbert_dim_22 > -0.02",
+            -0.0015712054104307527
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_3_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_326 <= -0.02",
+            0.003858984804626009
+          ],
+          [
+            "sbert_dim_265 > 0.01",
+            0.003320684423095188
+          ],
+          [
+            "sbert_dim_75 > 0.02",
+            0.00324459656055851
+          ],
+          [
+            "sbert_dim_16 <= 0.01",
+            0.0032357831132193552
+          ],
+          [
+            "sbert_dim_126 <= -0.01",
+            0.0031862044192052467
+          ],
+          [
+            "sbert_dim_266 <= -0.05",
+            0.0027389193840776935
+          ],
+          [
+            "sbert_dim_73 > 0.05",
+            0.0026737350324446078
+          ],
+          [
+            "sbert_dim_237 <= -0.03",
+            0.002643742753020126
+          ],
+          [
+            "sbert_dim_194 <= -0.01",
+            0.002642568239286503
+          ],
+          [
+            "-0.01 < sbert_dim_328 <= 0.02",
+            0.0023834177932083823
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_4_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_328 <= -0.01",
+            0.003403445624931706
+          ],
+          [
+            "sbert_dim_272 > 0.01",
+            0.002171430783467576
+          ],
+          [
+            "sbert_dim_162 <= -0.01",
+            0.00208317802115612
+          ],
+          [
+            "sbert_dim_83 <= 0.02",
+            0.0019020833710605709
+          ],
+          [
+            "0.04 < sbert_dim_176 <= 0.07",
+            -0.0018450040756846909
+          ],
+          [
+            "sbert_dim_131 <= -0.05",
+            0.001777335211679532
+          ],
+          [
+            "sbert_dim_103 <= -0.06",
+            0.0017184276949150134
+          ],
+          [
+            "sbert_dim_196 <= -0.01",
+            0.0017134644022431032
+          ],
+          [
+            "sbert_dim_78 <= -0.02",
+            0.00168122548665448
+          ],
+          [
+            "0.03 < sbert_dim_87 <= 0.06",
+            0.00165836943898907
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_5_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_162 <= -0.01",
+            0.0028218322085562524
+          ],
+          [
+            "-0.01 < sbert_dim_328 <= 0.02",
+            0.0026490890372989477
+          ],
+          [
+            "-0.01 < sbert_dim_178 <= 0.02",
+            -0.002322994322859059
+          ],
+          [
+            "sbert_dim_42 <= -0.08",
+            0.0021172730616912786
+          ],
+          [
+            "sbert_dim_192 <= -0.05",
+            0.002018561391833418
+          ],
+          [
+            "sbert_dim_122 > 0.04",
+            0.002005491088310581
+          ],
+          [
+            "sbert_dim_184 <= -0.02",
+            0.0018860104830699864
+          ],
+          [
+            "sbert_dim_45 <= -0.04",
+            0.0017369332045611978
+          ],
+          [
+            "sbert_dim_234 <= -0.06",
+            0.0017239667800226794
+          ],
+          [
+            "sbert_dim_179 <= -0.01",
+            0.0016289706786256732
+          ]
+        ]
+      }
+    ],
+    "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_RandomForest_sbert_top_50.png",
+    "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_RandomForest_sbert_top_50.csv",
+    "top_features": [
+      {
+        "feature": "sbert_dim_170 > -0.02",
+        "importance": 0.004453684883305986
+      },
+      {
+        "feature": "sbert_dim_286 <= -0.03",
+        "importance": 0.004011605825767634
+      },
+      {
+        "feature": "sbert_dim_115 > 0.06",
+        "importance": 0.003897506624609583
+      },
+      {
+        "feature": "sbert_dim_326 <= -0.02",
+        "importance": 0.003858984804626009
+      },
+      {
+        "feature": "sbert_dim_279 > 0.06",
+        "importance": 0.0035575057991374197
+      },
+      {
+        "feature": "sbert_dim_301 > 0.02",
+        "importance": 0.0034381237891793256
+      },
+      {
+        "feature": "sbert_dim_328 <= -0.01",
+        "importance": 0.003403445624931706
+      },
+      {
+        "feature": "sbert_dim_265 > 0.01",
+        "importance": 0.003320684423095188
+      },
+      {
+        "feature": "sbert_dim_75 > 0.02",
+        "importance": 0.00324459656055851
+      },
+      {
+        "feature": "sbert_dim_16 <= 0.01",
+        "importance": 0.0032357831132193552
+      }
+    ]
   },
-  "comparison": null
+  "comparison": null,
+  "global_insights": {}
 }

@@ -12,10 +12,286 @@
     "lime_num_instances": 5
   },
   "shap": {
-    "error": "Additivity check failed in TreeExplainer! Please ensure the data matrix you passed to the explainer is the same shape that the model was trained on. If your data shape is correct then please report this on GitHub. Consider retrying with the feature_perturbation='interventional' option. This check failed because for one of the samples the sum of the SHAP values was 3601904289165523394911561394366406169443812407644751876809818112.000000, while the model output was 0.000000. If this difference is acceptable you can set check_additivity=False to disable this check."
+    "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
   },
   "lime": {
-    "error": "1"
+    "explanations": [
+      {
+        "sample_index": 0,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_1_top_50.png",
+        "top_features": [
+          [
+            "storage > 0.00",
+            0.10507401521061754
+          ],
+          [
+            "between two <= 0.00",
+            -0.060203488933196374
+          ],
+          [
+            "file <= 0.00",
+            -0.05455718113911321
+          ],
+          [
+            "storage service > 0.00",
+            0.03817812160537449
+          ],
+          [
+            "provides detailed <= 0.00",
+            -0.03018858933421354
+          ],
+          [
+            "protocol for <= 0.00",
+            0.028444920800824204
+          ],
+          [
+            "any data <= 0.00",
+            -0.028020884091350153
+          ],
+          [
+            "store <= 0.00",
+            -0.023667938542102473
+          ],
+          [
+            "apps for <= 0.00",
+            -0.02302611976220663
+          ],
+          [
+            "of music <= 0.00",
+            -0.020132179940618923
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_2_top_50.png",
+        "top_features": [
+          [
+            "search > 0.00",
+            0.07648406226172873
+          ],
+          [
+            "population > 0.00",
+            0.053681847187569014
+          ],
+          [
+            "adhere <= 0.00",
+            -0.0452869604474065
+          ],
+          [
+            "provides rest <= 0.00",
+            -0.038011503102794456
+          ],
+          [
+            "used search <= 0.00",
+            -0.037065495408698704
+          ],
+          [
+            "scene <= 0.00",
+            -0.03569203017517347
+          ],
+          [
+            "for audio <= 0.00",
+            -0.03508952299507756
+          ],
+          [
+            "management integration <= 0.00",
+            -0.034516056314623754
+          ],
+          [
+            "search engine <= 0.00",
+            -0.03390461303748238
+          ],
+          [
+            "data processing <= 0.00",
+            -0.025246196459546944
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_3_top_50.png",
+        "top_features": [
+          [
+            "protein > 0.00",
+            0.1541323632344806
+          ],
+          [
+            "sequence > 0.00",
+            0.15076144589041218
+          ],
+          [
+            "gene <= 0.00",
+            -0.07643783659258704
+          ],
+          [
+            "alignment > 0.00",
+            0.07063227526122018
+          ],
+          [
+            "nucleotide > 0.00",
+            0.06360536582289393
+          ],
+          [
+            "biological <= 0.00",
+            -0.06265532717024319
+          ],
+          [
+            "specie <= 0.00",
+            -0.05233797322190339
+          ],
+          [
+            "data returned <= 0.00",
+            -0.04199257190370589
+          ],
+          [
+            "sequence alignment > 0.00",
+            0.039042408451318254
+          ],
+          [
+            "for performing > 0.00",
+            0.037963228963773805
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_4_top_50.png",
+        "top_features": [
+          [
+            "search > 0.00",
+            0.0756639667935521
+          ],
+          [
+            "achieve <= 0.00",
+            -0.059320396774679394
+          ],
+          [
+            "video web <= 0.00",
+            -0.0480604413392478
+          ],
+          [
+            "business organization <= 0.00",
+            -0.04278424158087935
+          ],
+          [
+            "virtual contact <= 0.00",
+            -0.04190072840943608
+          ],
+          [
+            "call over <= 0.00",
+            -0.03873608764390587
+          ],
+          [
+            "regardless <= 0.00",
+            -0.03843421076988521
+          ],
+          [
+            "localized <= 0.00",
+            0.03637117357530308
+          ],
+          [
+            "with return <= 0.00",
+            -0.03503081994766871
+          ],
+          [
+            "availability of <= 0.00",
+            -0.034805473393202696
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_5_top_50.png",
+        "top_features": [
+          [
+            "advertiser <= 0.00",
+            -0.19280526440845186
+          ],
+          [
+            "advertising > 0.00",
+            0.1742783420803516
+          ],
+          [
+            "ad > 0.00",
+            0.14789042611847714
+          ],
+          [
+            "campaign <= 0.00",
+            -0.07202189239003474
+          ],
+          [
+            "is method <= 0.00",
+            -0.045656437824871915
+          ],
+          [
+            "publisher <= 0.00",
+            -0.04190320671984643
+          ],
+          [
+            "describe <= 0.00",
+            -0.03765488035216913
+          ],
+          [
+            "wistia <= 0.00",
+            0.03681234907786942
+          ],
+          [
+            "with website <= 0.00",
+            -0.036017757412142824
+          ],
+          [
+            "update their <= 0.00",
+            -0.03103663959618173
+          ]
+        ]
+      }
+    ],
+    "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_RandomForest_tfidf_top_50.png",
+    "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_RandomForest_tfidf_top_50.csv",
+    "top_features": [
+      {
+        "feature": "advertiser <= 0.00",
+        "importance": 0.19280526440845186
+      },
+      {
+        "feature": "advertising > 0.00",
+        "importance": 0.1742783420803516
+      },
+      {
+        "feature": "protein > 0.00",
+        "importance": 0.1541323632344806
+      },
+      {
+        "feature": "sequence > 0.00",
+        "importance": 0.15076144589041218
+      },
+      {
+        "feature": "ad > 0.00",
+        "importance": 0.14789042611847714
+      },
+      {
+        "feature": "storage > 0.00",
+        "importance": 0.10507401521061754
+      },
+      {
+        "feature": "gene <= 0.00",
+        "importance": 0.07643783659258704
+      },
+      {
+        "feature": "search > 0.00",
+        "importance": 0.07607401452764041
+      },
+      {
+        "feature": "campaign <= 0.00",
+        "importance": 0.07202189239003474
+      },
+      {
+        "feature": "alignment > 0.00",
+        "importance": 0.07063227526122018
+      }
+    ]
   },
-  "comparison": null
+  "comparison": null,
+  "global_insights": {}
 }

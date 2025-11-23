@@ -12,10 +12,286 @@
     "lime_num_instances": 5
   },
   "shap": {
-    "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (10000, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+    "error": "LinearExplainer.shap_values() got an unexpected keyword argument 'check_additivity'"
   },
   "lime": {
-    "error": "1"
+    "explanations": [
+      {
+        "sample_index": 0,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_1_top_50.png",
+        "top_features": [
+          [
+            "storage > 0.00",
+            0.02967704279017172
+          ],
+          [
+            "fulfill <= 0.00",
+            -0.019113998507570937
+          ],
+          [
+            "file <= 0.00",
+            -0.017159348891678566
+          ],
+          [
+            "exchange provides <= 0.00",
+            -0.01589559139006668
+          ],
+          [
+            "from file <= 0.00",
+            -0.012335447964064935
+          ],
+          [
+            "steam <= 0.00",
+            -0.011589013855265404
+          ],
+          [
+            "store <= 0.00",
+            -0.010003007353437454
+          ],
+          [
+            "spark <= 0.00",
+            -0.009531162084092494
+          ],
+          [
+            "appear <= 0.00",
+            -0.008802909538517287
+          ],
+          [
+            "storage service > 0.00",
+            0.00857789642039205
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_2_top_50.png",
+        "top_features": [
+          [
+            "government <= 0.00",
+            -0.037847168188431396
+          ],
+          [
+            "low high <= 0.00",
+            -0.025126655656337427
+          ],
+          [
+            "with listing <= 0.00",
+            -0.014280766962416393
+          ],
+          [
+            "gov <= 0.00",
+            -0.01293252021384365
+          ],
+          [
+            "agency <= 0.00",
+            -0.012652500157773668
+          ],
+          [
+            "state <= 0.00",
+            -0.012241493444921906
+          ],
+          [
+            "federal <= 0.00",
+            -0.012239021929004668
+          ],
+          [
+            "official <= 0.00",
+            -0.011401258660570736
+          ],
+          [
+            "congress <= 0.00",
+            -0.011266290095368914
+          ],
+          [
+            "citizen <= 0.00",
+            -0.010859321275756803
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_3_top_50.png",
+        "top_features": [
+          [
+            "nucleotide > 0.00",
+            0.0640917498295785
+          ],
+          [
+            "api via > 0.00",
+            0.04377323919341208
+          ],
+          [
+            "sequence alignment > 0.00",
+            0.04171146909867643
+          ],
+          [
+            "bioinformatics institute > 0.00",
+            0.03849118586269451
+          ],
+          [
+            "dna > 0.00",
+            0.0366825870324498
+          ],
+          [
+            "is program > 0.00",
+            0.036033093707929044
+          ],
+          [
+            "for performing > 0.00",
+            0.03509218032690385
+          ],
+          [
+            "alignment > 0.00",
+            0.03475492354500925
+          ],
+          [
+            "protein > 0.00",
+            0.033792767850006386
+          ],
+          [
+            "sequence > 0.00",
+            0.032006001122740935
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_4_top_50.png",
+        "top_features": [
+          [
+            "detail for <= 0.00",
+            -0.035439368815754616
+          ],
+          [
+            "search > 0.00",
+            0.02809308523669969
+          ],
+          [
+            "is australian <= 0.00",
+            -0.021432079452004506
+          ],
+          [
+            "value added <= 0.00",
+            -0.020289365954447924
+          ],
+          [
+            "with minimal <= 0.00",
+            -0.016574692239358858
+          ],
+          [
+            "though > 0.00",
+            0.015635603476890365
+          ],
+          [
+            "this database <= 0.00",
+            -0.015601768290837289
+          ],
+          [
+            "engine > 0.00",
+            0.012592596023107461
+          ],
+          [
+            "engine for > 0.00",
+            0.011694186024971676
+          ],
+          [
+            "result <= 0.00",
+            -0.011507341850352184
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_5_top_50.png",
+        "top_features": [
+          [
+            "legislation > 0.00",
+            0.06031689859472469
+          ],
+          [
+            "is marketing > 0.00",
+            0.058156597870254234
+          ],
+          [
+            "ad > 0.00",
+            0.05453788134855253
+          ],
+          [
+            "advertising > 0.00",
+            0.04287431900578359
+          ],
+          [
+            "messagebird <= 0.00",
+            -0.040697548047604545
+          ],
+          [
+            "for device <= 0.00",
+            -0.03717604719054945
+          ],
+          [
+            "eu > 0.00",
+            0.03673721535165768
+          ],
+          [
+            "advertising platform > 0.00",
+            0.03429662891740602
+          ],
+          [
+            "rest search <= 0.00",
+            -0.030617207816816427
+          ],
+          [
+            "law > 0.00",
+            0.023071717666138577
+          ]
+        ]
+      }
+    ],
+    "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_LogisticRegression_tfidf_top_50.png",
+    "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_LogisticRegression_tfidf_top_50.csv",
+    "top_features": [
+      {
+        "feature": "nucleotide > 0.00",
+        "importance": 0.0640917498295785
+      },
+      {
+        "feature": "legislation > 0.00",
+        "importance": 0.06031689859472469
+      },
+      {
+        "feature": "is marketing > 0.00",
+        "importance": 0.058156597870254234
+      },
+      {
+        "feature": "ad > 0.00",
+        "importance": 0.05453788134855253
+      },
+      {
+        "feature": "api via > 0.00",
+        "importance": 0.04377323919341208
+      },
+      {
+        "feature": "advertising > 0.00",
+        "importance": 0.04287431900578359
+      },
+      {
+        "feature": "sequence alignment > 0.00",
+        "importance": 0.04171146909867643
+      },
+      {
+        "feature": "messagebird <= 0.00",
+        "importance": 0.040697548047604545
+      },
+      {
+        "feature": "bioinformatics institute > 0.00",
+        "importance": 0.03849118586269451
+      },
+      {
+        "feature": "government <= 0.00",
+        "importance": 0.037847168188431396
+      }
+    ]
   },
-  "comparison": null
+  "comparison": null,
+  "global_insights": {}
 }

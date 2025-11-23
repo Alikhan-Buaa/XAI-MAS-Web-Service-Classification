@@ -12,10 +12,286 @@
     "lime_num_instances": 5
   },
   "shap": {
-    "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (384, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+    "error": "LinearExplainer.shap_values() got an unexpected keyword argument 'check_additivity'"
   },
   "lime": {
-    "error": "1"
+    "explanations": [
+      {
+        "sample_index": 0,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_1_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_301 <= -0.05",
+            0.0030234428265152272
+          ],
+          [
+            "sbert_dim_369 > 0.02",
+            0.0026516325265332472
+          ],
+          [
+            "sbert_dim_53 > 0.04",
+            0.002559253549080434
+          ],
+          [
+            "sbert_dim_367 > -0.01",
+            0.0025279720832975007
+          ],
+          [
+            "sbert_dim_221 <= 0.01",
+            0.002404364488920876
+          ],
+          [
+            "sbert_dim_340 > 0.03",
+            0.0023954523421470825
+          ],
+          [
+            "sbert_dim_146 > 0.08",
+            0.0023701723373394643
+          ],
+          [
+            "sbert_dim_112 <= -0.07",
+            0.002338258345777931
+          ],
+          [
+            "sbert_dim_192 <= -0.05",
+            0.002309780283520836
+          ],
+          [
+            "sbert_dim_51 > -0.01",
+            0.0022586707970146873
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_2_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_205 <= -0.02",
+            0.006700735989418994
+          ],
+          [
+            "sbert_dim_115 <= -0.00",
+            0.006059907482640341
+          ],
+          [
+            "sbert_dim_96 > 0.01",
+            0.005821118587617949
+          ],
+          [
+            "sbert_dim_31 > 0.04",
+            0.004946531821957534
+          ],
+          [
+            "sbert_dim_275 > 0.03",
+            -0.0049318934134960635
+          ],
+          [
+            "sbert_dim_39 > 0.01",
+            0.004708684716912734
+          ],
+          [
+            "sbert_dim_38 > 0.01",
+            0.0046027701057237665
+          ],
+          [
+            "sbert_dim_142 > 0.05",
+            -0.0045175371854491424
+          ],
+          [
+            "sbert_dim_243 > 0.05",
+            0.004485937765930477
+          ],
+          [
+            "sbert_dim_225 <= -0.07",
+            0.004353422072428275
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_3_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_192 > 0.02",
+            0.005328215010903902
+          ],
+          [
+            "sbert_dim_14 <= 0.02",
+            0.004918652323515618
+          ],
+          [
+            "sbert_dim_11 <= -0.03",
+            0.004782892397679145
+          ],
+          [
+            "sbert_dim_265 > 0.01",
+            0.004701173992184704
+          ],
+          [
+            "sbert_dim_146 <= 0.02",
+            0.004582260506991276
+          ],
+          [
+            "sbert_dim_298 > 0.04",
+            0.00437767011370447
+          ],
+          [
+            "sbert_dim_240 <= -0.05",
+            0.0043486174844618065
+          ],
+          [
+            "sbert_dim_75 > 0.02",
+            0.004161355116173843
+          ],
+          [
+            "sbert_dim_266 <= -0.05",
+            0.004015141009945519
+          ],
+          [
+            "sbert_dim_134 <= -0.03",
+            0.0038216961006370498
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_4_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_50 <= -0.07",
+            0.00540999421736087
+          ],
+          [
+            "sbert_dim_27 <= -0.02",
+            0.004826556715913666
+          ],
+          [
+            "sbert_dim_328 <= -0.01",
+            0.004772142582454236
+          ],
+          [
+            "sbert_dim_174 <= -0.06",
+            0.004583004581218232
+          ],
+          [
+            "sbert_dim_280 <= -0.01",
+            0.004473694061181733
+          ],
+          [
+            "sbert_dim_198 > 0.02",
+            0.004116297998773016
+          ],
+          [
+            "sbert_dim_129 > 0.04",
+            0.0040978136030034315
+          ],
+          [
+            "sbert_dim_358 <= -0.04",
+            0.003890068885073354
+          ],
+          [
+            "sbert_dim_91 <= -0.04",
+            0.0038023079918066056
+          ],
+          [
+            "sbert_dim_9 <= -0.04",
+            0.003676534702385871
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_5_top_50.png",
+        "top_features": [
+          [
+            "sbert_dim_298 <= -0.02",
+            0.006642891829775236
+          ],
+          [
+            "sbert_dim_368 > 0.06",
+            0.004185887636946781
+          ],
+          [
+            "sbert_dim_107 > 0.05",
+            0.004153919351595775
+          ],
+          [
+            "sbert_dim_251 > 0.04",
+            0.004058131281776448
+          ],
+          [
+            "sbert_dim_278 <= -0.04",
+            0.003993641132383114
+          ],
+          [
+            "sbert_dim_4 > 0.03",
+            0.003916069694692997
+          ],
+          [
+            "sbert_dim_254 > 0.05",
+            0.003837942974347518
+          ],
+          [
+            "sbert_dim_165 <= -0.08",
+            0.003814609680469482
+          ],
+          [
+            "sbert_dim_137 > -0.01",
+            0.00349383325890661
+          ],
+          [
+            "sbert_dim_192 <= -0.05",
+            0.0034636562175024118
+          ]
+        ]
+      }
+    ],
+    "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_LogisticRegression_sbert_top_50.png",
+    "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_LogisticRegression_sbert_top_50.csv",
+    "top_features": [
+      {
+        "feature": "sbert_dim_205 <= -0.02",
+        "importance": 0.006700735989418994
+      },
+      {
+        "feature": "sbert_dim_298 <= -0.02",
+        "importance": 0.006642891829775236
+      },
+      {
+        "feature": "sbert_dim_115 <= -0.00",
+        "importance": 0.006059907482640341
+      },
+      {
+        "feature": "sbert_dim_96 > 0.01",
+        "importance": 0.005821118587617949
+      },
+      {
+        "feature": "sbert_dim_50 <= -0.07",
+        "importance": 0.00540999421736087
+      },
+      {
+        "feature": "sbert_dim_192 > 0.02",
+        "importance": 0.005328215010903902
+      },
+      {
+        "feature": "sbert_dim_31 > 0.04",
+        "importance": 0.004946531821957534
+      },
+      {
+        "feature": "sbert_dim_275 > 0.03",
+        "importance": 0.0049318934134960635
+      },
+      {
+        "feature": "sbert_dim_14 <= 0.02",
+        "importance": 0.004918652323515618
+      },
+      {
+        "feature": "sbert_dim_27 <= -0.02",
+        "importance": 0.004826556715913666
+      }
+    ]
   },
-  "comparison": null
+  "comparison": null,
+  "global_insights": {}
 }

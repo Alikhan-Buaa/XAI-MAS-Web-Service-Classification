@@ -14,12 +14,288 @@
         "lime_num_instances": 5
       },
       "shap": {
-        "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (10000, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+        "error": "LinearExplainer.shap_values() got an unexpected keyword argument 'check_additivity'"
       },
       "lime": {
-        "error": "1"
+        "explanations": [
+          {
+            "sample_index": 0,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_1_top_50.png",
+            "top_features": [
+              [
+                "storage > 0.00",
+                0.02967704279017172
+              ],
+              [
+                "fulfill <= 0.00",
+                -0.019113998507570937
+              ],
+              [
+                "file <= 0.00",
+                -0.017159348891678566
+              ],
+              [
+                "exchange provides <= 0.00",
+                -0.01589559139006668
+              ],
+              [
+                "from file <= 0.00",
+                -0.012335447964064935
+              ],
+              [
+                "steam <= 0.00",
+                -0.011589013855265404
+              ],
+              [
+                "store <= 0.00",
+                -0.010003007353437454
+              ],
+              [
+                "spark <= 0.00",
+                -0.009531162084092494
+              ],
+              [
+                "appear <= 0.00",
+                -0.008802909538517287
+              ],
+              [
+                "storage service > 0.00",
+                0.00857789642039205
+              ]
+            ]
+          },
+          {
+            "sample_index": 309,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_2_top_50.png",
+            "top_features": [
+              [
+                "government <= 0.00",
+                -0.037847168188431396
+              ],
+              [
+                "low high <= 0.00",
+                -0.025126655656337427
+              ],
+              [
+                "with listing <= 0.00",
+                -0.014280766962416393
+              ],
+              [
+                "gov <= 0.00",
+                -0.01293252021384365
+              ],
+              [
+                "agency <= 0.00",
+                -0.012652500157773668
+              ],
+              [
+                "state <= 0.00",
+                -0.012241493444921906
+              ],
+              [
+                "federal <= 0.00",
+                -0.012239021929004668
+              ],
+              [
+                "official <= 0.00",
+                -0.011401258660570736
+              ],
+              [
+                "congress <= 0.00",
+                -0.011266290095368914
+              ],
+              [
+                "citizen <= 0.00",
+                -0.010859321275756803
+              ]
+            ]
+          },
+          {
+            "sample_index": 618,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_3_top_50.png",
+            "top_features": [
+              [
+                "nucleotide > 0.00",
+                0.0640917498295785
+              ],
+              [
+                "api via > 0.00",
+                0.04377323919341208
+              ],
+              [
+                "sequence alignment > 0.00",
+                0.04171146909867643
+              ],
+              [
+                "bioinformatics institute > 0.00",
+                0.03849118586269451
+              ],
+              [
+                "dna > 0.00",
+                0.0366825870324498
+              ],
+              [
+                "is program > 0.00",
+                0.036033093707929044
+              ],
+              [
+                "for performing > 0.00",
+                0.03509218032690385
+              ],
+              [
+                "alignment > 0.00",
+                0.03475492354500925
+              ],
+              [
+                "protein > 0.00",
+                0.033792767850006386
+              ],
+              [
+                "sequence > 0.00",
+                0.032006001122740935
+              ]
+            ]
+          },
+          {
+            "sample_index": 927,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_4_top_50.png",
+            "top_features": [
+              [
+                "detail for <= 0.00",
+                -0.035439368815754616
+              ],
+              [
+                "search > 0.00",
+                0.02809308523669969
+              ],
+              [
+                "is australian <= 0.00",
+                -0.021432079452004506
+              ],
+              [
+                "value added <= 0.00",
+                -0.020289365954447924
+              ],
+              [
+                "with minimal <= 0.00",
+                -0.016574692239358858
+              ],
+              [
+                "though > 0.00",
+                0.015635603476890365
+              ],
+              [
+                "this database <= 0.00",
+                -0.015601768290837289
+              ],
+              [
+                "engine > 0.00",
+                0.012592596023107461
+              ],
+              [
+                "engine for > 0.00",
+                0.011694186024971676
+              ],
+              [
+                "result <= 0.00",
+                -0.011507341850352184
+              ]
+            ]
+          },
+          {
+            "sample_index": 1237,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_tfidf_sample_5_top_50.png",
+            "top_features": [
+              [
+                "legislation > 0.00",
+                0.06031689859472469
+              ],
+              [
+                "is marketing > 0.00",
+                0.058156597870254234
+              ],
+              [
+                "ad > 0.00",
+                0.05453788134855253
+              ],
+              [
+                "advertising > 0.00",
+                0.04287431900578359
+              ],
+              [
+                "messagebird <= 0.00",
+                -0.040697548047604545
+              ],
+              [
+                "for device <= 0.00",
+                -0.03717604719054945
+              ],
+              [
+                "eu > 0.00",
+                0.03673721535165768
+              ],
+              [
+                "advertising platform > 0.00",
+                0.03429662891740602
+              ],
+              [
+                "rest search <= 0.00",
+                -0.030617207816816427
+              ],
+              [
+                "law > 0.00",
+                0.023071717666138577
+              ]
+            ]
+          }
+        ],
+        "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_LogisticRegression_tfidf_top_50.png",
+        "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_LogisticRegression_tfidf_top_50.csv",
+        "top_features": [
+          {
+            "feature": "nucleotide > 0.00",
+            "importance": 0.0640917498295785
+          },
+          {
+            "feature": "legislation > 0.00",
+            "importance": 0.06031689859472469
+          },
+          {
+            "feature": "is marketing > 0.00",
+            "importance": 0.058156597870254234
+          },
+          {
+            "feature": "ad > 0.00",
+            "importance": 0.05453788134855253
+          },
+          {
+            "feature": "api via > 0.00",
+            "importance": 0.04377323919341208
+          },
+          {
+            "feature": "advertising > 0.00",
+            "importance": 0.04287431900578359
+          },
+          {
+            "feature": "sequence alignment > 0.00",
+            "importance": 0.04171146909867643
+          },
+          {
+            "feature": "messagebird <= 0.00",
+            "importance": 0.040697548047604545
+          },
+          {
+            "feature": "bioinformatics institute > 0.00",
+            "importance": 0.03849118586269451
+          },
+          {
+            "feature": "government <= 0.00",
+            "importance": 0.037847168188431396
+          }
+        ]
       },
-      "comparison": null
+      "comparison": null,
+      "global_insights": {}
     },
     "RandomForest": {
       "model_name": "RandomForest",
@@ -35,12 +311,288 @@
         "lime_num_instances": 5
       },
       "shap": {
-        "error": "Additivity check failed in TreeExplainer! Please ensure the data matrix you passed to the explainer is the same shape that the model was trained on. If your data shape is correct then please report this on GitHub. Consider retrying with the feature_perturbation='interventional' option. This check failed because for one of the samples the sum of the SHAP values was 3601904289165523394911561394366406169443812407644751876809818112.000000, while the model output was 0.000000. If this difference is acceptable you can set check_additivity=False to disable this check."
+        "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
       },
       "lime": {
-        "error": "1"
+        "explanations": [
+          {
+            "sample_index": 0,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_1_top_50.png",
+            "top_features": [
+              [
+                "storage > 0.00",
+                0.10507401521061754
+              ],
+              [
+                "between two <= 0.00",
+                -0.060203488933196374
+              ],
+              [
+                "file <= 0.00",
+                -0.05455718113911321
+              ],
+              [
+                "storage service > 0.00",
+                0.03817812160537449
+              ],
+              [
+                "provides detailed <= 0.00",
+                -0.03018858933421354
+              ],
+              [
+                "protocol for <= 0.00",
+                0.028444920800824204
+              ],
+              [
+                "any data <= 0.00",
+                -0.028020884091350153
+              ],
+              [
+                "store <= 0.00",
+                -0.023667938542102473
+              ],
+              [
+                "apps for <= 0.00",
+                -0.02302611976220663
+              ],
+              [
+                "of music <= 0.00",
+                -0.020132179940618923
+              ]
+            ]
+          },
+          {
+            "sample_index": 309,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_2_top_50.png",
+            "top_features": [
+              [
+                "search > 0.00",
+                0.07648406226172873
+              ],
+              [
+                "population > 0.00",
+                0.053681847187569014
+              ],
+              [
+                "adhere <= 0.00",
+                -0.0452869604474065
+              ],
+              [
+                "provides rest <= 0.00",
+                -0.038011503102794456
+              ],
+              [
+                "used search <= 0.00",
+                -0.037065495408698704
+              ],
+              [
+                "scene <= 0.00",
+                -0.03569203017517347
+              ],
+              [
+                "for audio <= 0.00",
+                -0.03508952299507756
+              ],
+              [
+                "management integration <= 0.00",
+                -0.034516056314623754
+              ],
+              [
+                "search engine <= 0.00",
+                -0.03390461303748238
+              ],
+              [
+                "data processing <= 0.00",
+                -0.025246196459546944
+              ]
+            ]
+          },
+          {
+            "sample_index": 618,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_3_top_50.png",
+            "top_features": [
+              [
+                "protein > 0.00",
+                0.1541323632344806
+              ],
+              [
+                "sequence > 0.00",
+                0.15076144589041218
+              ],
+              [
+                "gene <= 0.00",
+                -0.07643783659258704
+              ],
+              [
+                "alignment > 0.00",
+                0.07063227526122018
+              ],
+              [
+                "nucleotide > 0.00",
+                0.06360536582289393
+              ],
+              [
+                "biological <= 0.00",
+                -0.06265532717024319
+              ],
+              [
+                "specie <= 0.00",
+                -0.05233797322190339
+              ],
+              [
+                "data returned <= 0.00",
+                -0.04199257190370589
+              ],
+              [
+                "sequence alignment > 0.00",
+                0.039042408451318254
+              ],
+              [
+                "for performing > 0.00",
+                0.037963228963773805
+              ]
+            ]
+          },
+          {
+            "sample_index": 927,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_4_top_50.png",
+            "top_features": [
+              [
+                "search > 0.00",
+                0.0756639667935521
+              ],
+              [
+                "achieve <= 0.00",
+                -0.059320396774679394
+              ],
+              [
+                "video web <= 0.00",
+                -0.0480604413392478
+              ],
+              [
+                "business organization <= 0.00",
+                -0.04278424158087935
+              ],
+              [
+                "virtual contact <= 0.00",
+                -0.04190072840943608
+              ],
+              [
+                "call over <= 0.00",
+                -0.03873608764390587
+              ],
+              [
+                "regardless <= 0.00",
+                -0.03843421076988521
+              ],
+              [
+                "localized <= 0.00",
+                0.03637117357530308
+              ],
+              [
+                "with return <= 0.00",
+                -0.03503081994766871
+              ],
+              [
+                "availability of <= 0.00",
+                -0.034805473393202696
+              ]
+            ]
+          },
+          {
+            "sample_index": 1237,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_tfidf_sample_5_top_50.png",
+            "top_features": [
+              [
+                "advertiser <= 0.00",
+                -0.19280526440845186
+              ],
+              [
+                "advertising > 0.00",
+                0.1742783420803516
+              ],
+              [
+                "ad > 0.00",
+                0.14789042611847714
+              ],
+              [
+                "campaign <= 0.00",
+                -0.07202189239003474
+              ],
+              [
+                "is method <= 0.00",
+                -0.045656437824871915
+              ],
+              [
+                "publisher <= 0.00",
+                -0.04190320671984643
+              ],
+              [
+                "describe <= 0.00",
+                -0.03765488035216913
+              ],
+              [
+                "wistia <= 0.00",
+                0.03681234907786942
+              ],
+              [
+                "with website <= 0.00",
+                -0.036017757412142824
+              ],
+              [
+                "update their <= 0.00",
+                -0.03103663959618173
+              ]
+            ]
+          }
+        ],
+        "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_RandomForest_tfidf_top_50.png",
+        "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_RandomForest_tfidf_top_50.csv",
+        "top_features": [
+          {
+            "feature": "advertiser <= 0.00",
+            "importance": 0.19280526440845186
+          },
+          {
+            "feature": "advertising > 0.00",
+            "importance": 0.1742783420803516
+          },
+          {
+            "feature": "protein > 0.00",
+            "importance": 0.1541323632344806
+          },
+          {
+            "feature": "sequence > 0.00",
+            "importance": 0.15076144589041218
+          },
+          {
+            "feature": "ad > 0.00",
+            "importance": 0.14789042611847714
+          },
+          {
+            "feature": "storage > 0.00",
+            "importance": 0.10507401521061754
+          },
+          {
+            "feature": "gene <= 0.00",
+            "importance": 0.07643783659258704
+          },
+          {
+            "feature": "search > 0.00",
+            "importance": 0.07607401452764041
+          },
+          {
+            "feature": "campaign <= 0.00",
+            "importance": 0.07202189239003474
+          },
+          {
+            "feature": "alignment > 0.00",
+            "importance": 0.07063227526122018
+          }
+        ]
       },
-      "comparison": null
+      "comparison": null,
+      "global_insights": {}
     },
     "XGBoost": {
       "model_name": "XGBoost",
@@ -56,12 +608,288 @@
         "lime_num_instances": 5
       },
       "shap": {
-        "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (10000, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+        "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
       },
       "lime": {
-        "error": "1"
+        "explanations": [
+          {
+            "sample_index": 0,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_1_top_50.png",
+            "top_features": [
+              [
+                "total <= 0.00",
+                -0.1753438708540876
+              ],
+              [
+                "api event <= 0.00",
+                0.14722393535035225
+              ],
+              [
+                "league <= 0.00",
+                0.09945749706190948
+              ],
+              [
+                "fitness <= 0.00",
+                -0.09279065107188476
+              ],
+              [
+                "mac <= 0.00",
+                0.09223707666120258
+              ],
+              [
+                "string crud <= 0.00",
+                0.0870406370380274
+              ],
+              [
+                "with provides <= 0.00",
+                0.08454030727613975
+              ],
+              [
+                "domain domain <= 0.00",
+                0.0687703784823276
+              ],
+              [
+                "game <= 0.00",
+                0.06790781946663199
+              ],
+              [
+                "match <= 0.00",
+                -0.06620324762482965
+              ]
+            ]
+          },
+          {
+            "sample_index": 309,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_2_top_50.png",
+            "top_features": [
+              [
+                "total <= 0.00",
+                -0.14238767480168807
+              ],
+              [
+                "of local <= 0.00",
+                0.13458771407284914
+              ],
+              [
+                "retrieving data <= 0.00",
+                0.1267529206130063
+              ],
+              [
+                "fitness <= 0.00",
+                -0.10920111067426852
+              ],
+              [
+                "based user <= 0.00",
+                0.08205254590911881
+              ],
+              [
+                "website provides <= 0.00",
+                -0.07881552254333683
+              ],
+              [
+                "data online <= 0.00",
+                -0.07709411874344982
+              ],
+              [
+                "match <= 0.00",
+                -0.07229536684895765
+              ],
+              [
+                "adhere <= 0.00",
+                0.06681503488658401
+              ],
+              [
+                "transmits <= 0.00",
+                -0.06074711710572797
+              ]
+            ]
+          },
+          {
+            "sample_index": 618,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_3_top_50.png",
+            "top_features": [
+              [
+                "total <= 0.00",
+                -0.15566669853109877
+              ],
+              [
+                "search web <= 0.00",
+                -0.09374988572495785
+              ],
+              [
+                "photographer <= 0.00",
+                -0.0851483857447153
+              ],
+              [
+                "receiving <= 0.00",
+                0.08461280186501116
+              ],
+              [
+                "user store <= 0.00",
+                0.0833089118777852
+              ],
+              [
+                "match <= 0.00",
+                -0.08206819484128569
+              ],
+              [
+                "iaa <= 0.00",
+                -0.07459067548995026
+              ],
+              [
+                "transit <= 0.00",
+                0.073760784803281
+              ],
+              [
+                "into user <= 0.00",
+                0.06487859805748006
+              ],
+              [
+                "easily integrate <= 0.00",
+                0.06004713491486635
+              ]
+            ]
+          },
+          {
+            "sample_index": 927,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_4_top_50.png",
+            "top_features": [
+              [
+                "total <= 0.00",
+                -0.1350173707186255
+              ],
+              [
+                "expression <= 0.00",
+                0.13387039136501658
+              ],
+              [
+                "individual business <= 0.00",
+                0.12457479634741439
+              ],
+              [
+                "of messaging <= 0.00",
+                0.08934438471736499
+              ],
+              [
+                "match <= 0.00",
+                -0.07304999646122004
+              ],
+              [
+                "consistent <= 0.00",
+                0.07238167028380538
+              ],
+              [
+                "video hosting <= 0.00",
+                0.07155163268835146
+              ],
+              [
+                "league <= 0.00",
+                0.06560102086201638
+              ],
+              [
+                "can specify <= 0.00",
+                0.063804440315027
+              ],
+              [
+                "establish <= 0.00",
+                0.06379892631734824
+              ]
+            ]
+          },
+          {
+            "sample_index": 1237,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_5_top_50.png",
+            "top_features": [
+              [
+                "total <= 0.00",
+                -0.15947045350104447
+              ],
+              [
+                "league <= 0.00",
+                0.10115354053188635
+              ],
+              [
+                "mobile service <= 0.00",
+                0.10038535842697935
+              ],
+              [
+                "locator <= 0.00",
+                -0.09228874348706341
+              ],
+              [
+                "match <= 0.00",
+                -0.0905634573330239
+              ],
+              [
+                "data database <= 0.00",
+                0.08919420531438765
+              ],
+              [
+                "security stock <= 0.00",
+                -0.08717576430740719
+              ],
+              [
+                "map <= 0.00",
+                0.07370544557241288
+              ],
+              [
+                "that > 0.04",
+                -0.06706854395223202
+              ],
+              [
+                "can interact <= 0.00",
+                0.06215211750573062
+              ]
+            ]
+          }
+        ],
+        "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_XGBoost_tfidf_top_50.png",
+        "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_XGBoost_tfidf_top_50.csv",
+        "top_features": [
+          {
+            "feature": "total <= 0.00",
+            "importance": 0.1535772136813089
+          },
+          {
+            "feature": "api event <= 0.00",
+            "importance": 0.14722393535035225
+          },
+          {
+            "feature": "of local <= 0.00",
+            "importance": 0.13458771407284914
+          },
+          {
+            "feature": "expression <= 0.00",
+            "importance": 0.13387039136501658
+          },
+          {
+            "feature": "retrieving data <= 0.00",
+            "importance": 0.1267529206130063
+          },
+          {
+            "feature": "individual business <= 0.00",
+            "importance": 0.12457479634741439
+          },
+          {
+            "feature": "fitness <= 0.00",
+            "importance": 0.10099588087307665
+          },
+          {
+            "feature": "mobile service <= 0.00",
+            "importance": 0.10038535842697935
+          },
+          {
+            "feature": "search web <= 0.00",
+            "importance": 0.09374988572495785
+          },
+          {
+            "feature": "locator <= 0.00",
+            "importance": 0.09228874348706341
+          }
+        ]
       },
-      "comparison": null
+      "comparison": null,
+      "global_insights": {}
     }
   },
   "sbert": {
@@ -79,12 +907,288 @@
         "lime_num_instances": 5
       },
       "shap": {
-        "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (384, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+        "error": "LinearExplainer.shap_values() got an unexpected keyword argument 'check_additivity'"
       },
       "lime": {
-        "error": "1"
+        "explanations": [
+          {
+            "sample_index": 0,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_1_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_301 <= -0.05",
+                0.0030234428265152272
+              ],
+              [
+                "sbert_dim_369 > 0.02",
+                0.0026516325265332472
+              ],
+              [
+                "sbert_dim_53 > 0.04",
+                0.002559253549080434
+              ],
+              [
+                "sbert_dim_367 > -0.01",
+                0.0025279720832975007
+              ],
+              [
+                "sbert_dim_221 <= 0.01",
+                0.002404364488920876
+              ],
+              [
+                "sbert_dim_340 > 0.03",
+                0.0023954523421470825
+              ],
+              [
+                "sbert_dim_146 > 0.08",
+                0.0023701723373394643
+              ],
+              [
+                "sbert_dim_112 <= -0.07",
+                0.002338258345777931
+              ],
+              [
+                "sbert_dim_192 <= -0.05",
+                0.002309780283520836
+              ],
+              [
+                "sbert_dim_51 > -0.01",
+                0.0022586707970146873
+              ]
+            ]
+          },
+          {
+            "sample_index": 309,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_2_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_205 <= -0.02",
+                0.006700735989418994
+              ],
+              [
+                "sbert_dim_115 <= -0.00",
+                0.006059907482640341
+              ],
+              [
+                "sbert_dim_96 > 0.01",
+                0.005821118587617949
+              ],
+              [
+                "sbert_dim_31 > 0.04",
+                0.004946531821957534
+              ],
+              [
+                "sbert_dim_275 > 0.03",
+                -0.0049318934134960635
+              ],
+              [
+                "sbert_dim_39 > 0.01",
+                0.004708684716912734
+              ],
+              [
+                "sbert_dim_38 > 0.01",
+                0.0046027701057237665
+              ],
+              [
+                "sbert_dim_142 > 0.05",
+                -0.0045175371854491424
+              ],
+              [
+                "sbert_dim_243 > 0.05",
+                0.004485937765930477
+              ],
+              [
+                "sbert_dim_225 <= -0.07",
+                0.004353422072428275
+              ]
+            ]
+          },
+          {
+            "sample_index": 618,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_3_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_192 > 0.02",
+                0.005328215010903902
+              ],
+              [
+                "sbert_dim_14 <= 0.02",
+                0.004918652323515618
+              ],
+              [
+                "sbert_dim_11 <= -0.03",
+                0.004782892397679145
+              ],
+              [
+                "sbert_dim_265 > 0.01",
+                0.004701173992184704
+              ],
+              [
+                "sbert_dim_146 <= 0.02",
+                0.004582260506991276
+              ],
+              [
+                "sbert_dim_298 > 0.04",
+                0.00437767011370447
+              ],
+              [
+                "sbert_dim_240 <= -0.05",
+                0.0043486174844618065
+              ],
+              [
+                "sbert_dim_75 > 0.02",
+                0.004161355116173843
+              ],
+              [
+                "sbert_dim_266 <= -0.05",
+                0.004015141009945519
+              ],
+              [
+                "sbert_dim_134 <= -0.03",
+                0.0038216961006370498
+              ]
+            ]
+          },
+          {
+            "sample_index": 927,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_4_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_50 <= -0.07",
+                0.00540999421736087
+              ],
+              [
+                "sbert_dim_27 <= -0.02",
+                0.004826556715913666
+              ],
+              [
+                "sbert_dim_328 <= -0.01",
+                0.004772142582454236
+              ],
+              [
+                "sbert_dim_174 <= -0.06",
+                0.004583004581218232
+              ],
+              [
+                "sbert_dim_280 <= -0.01",
+                0.004473694061181733
+              ],
+              [
+                "sbert_dim_198 > 0.02",
+                0.004116297998773016
+              ],
+              [
+                "sbert_dim_129 > 0.04",
+                0.0040978136030034315
+              ],
+              [
+                "sbert_dim_358 <= -0.04",
+                0.003890068885073354
+              ],
+              [
+                "sbert_dim_91 <= -0.04",
+                0.0038023079918066056
+              ],
+              [
+                "sbert_dim_9 <= -0.04",
+                0.003676534702385871
+              ]
+            ]
+          },
+          {
+            "sample_index": 1237,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_LogisticRegression_sbert_sample_5_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_298 <= -0.02",
+                0.006642891829775236
+              ],
+              [
+                "sbert_dim_368 > 0.06",
+                0.004185887636946781
+              ],
+              [
+                "sbert_dim_107 > 0.05",
+                0.004153919351595775
+              ],
+              [
+                "sbert_dim_251 > 0.04",
+                0.004058131281776448
+              ],
+              [
+                "sbert_dim_278 <= -0.04",
+                0.003993641132383114
+              ],
+              [
+                "sbert_dim_4 > 0.03",
+                0.003916069694692997
+              ],
+              [
+                "sbert_dim_254 > 0.05",
+                0.003837942974347518
+              ],
+              [
+                "sbert_dim_165 <= -0.08",
+                0.003814609680469482
+              ],
+              [
+                "sbert_dim_137 > -0.01",
+                0.00349383325890661
+              ],
+              [
+                "sbert_dim_192 <= -0.05",
+                0.0034636562175024118
+              ]
+            ]
+          }
+        ],
+        "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_LogisticRegression_sbert_top_50.png",
+        "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_LogisticRegression_sbert_top_50.csv",
+        "top_features": [
+          {
+            "feature": "sbert_dim_205 <= -0.02",
+            "importance": 0.006700735989418994
+          },
+          {
+            "feature": "sbert_dim_298 <= -0.02",
+            "importance": 0.006642891829775236
+          },
+          {
+            "feature": "sbert_dim_115 <= -0.00",
+            "importance": 0.006059907482640341
+          },
+          {
+            "feature": "sbert_dim_96 > 0.01",
+            "importance": 0.005821118587617949
+          },
+          {
+            "feature": "sbert_dim_50 <= -0.07",
+            "importance": 0.00540999421736087
+          },
+          {
+            "feature": "sbert_dim_192 > 0.02",
+            "importance": 0.005328215010903902
+          },
+          {
+            "feature": "sbert_dim_31 > 0.04",
+            "importance": 0.004946531821957534
+          },
+          {
+            "feature": "sbert_dim_275 > 0.03",
+            "importance": 0.0049318934134960635
+          },
+          {
+            "feature": "sbert_dim_14 <= 0.02",
+            "importance": 0.004918652323515618
+          },
+          {
+            "feature": "sbert_dim_27 <= -0.02",
+            "importance": 0.004826556715913666
+          }
+        ]
       },
-      "comparison": null
+      "comparison": null,
+      "global_insights": {}
     },
     "RandomForest": {
       "model_name": "RandomForest",
@@ -100,12 +1204,288 @@
         "lime_num_instances": 5
       },
       "shap": {
-        "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (384, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+        "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
       },
       "lime": {
-        "error": "1"
+        "explanations": [
+          {
+            "sample_index": 0,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_1_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_115 > 0.06",
+                0.003897506624609583
+              ],
+              [
+                "sbert_dim_279 > 0.06",
+                0.0035575057991374197
+              ],
+              [
+                "sbert_dim_178 <= -0.04",
+                0.003116996960830194
+              ],
+              [
+                "sbert_dim_246 > 0.04",
+                0.0028341838684887003
+              ],
+              [
+                "0.02 < sbert_dim_328 <= 0.05",
+                -0.0022985131890540136
+              ],
+              [
+                "sbert_dim_79 > 0.01",
+                0.0020677862670819276
+              ],
+              [
+                "0.01 < sbert_dim_286 <= 0.04",
+                0.0019763803122468068
+              ],
+              [
+                "sbert_dim_93 <= -0.05",
+                0.00188427940692455
+              ],
+              [
+                "sbert_dim_217 <= -0.02",
+                0.0018622868528835692
+              ],
+              [
+                "-0.06 < sbert_dim_285 <= -0.03",
+                -0.0016340917811053335
+              ]
+            ]
+          },
+          {
+            "sample_index": 309,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_2_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_170 > -0.02",
+                0.004453684883305986
+              ],
+              [
+                "sbert_dim_286 <= -0.03",
+                0.004011605825767634
+              ],
+              [
+                "sbert_dim_301 > 0.02",
+                0.0034381237891793256
+              ],
+              [
+                "sbert_dim_342 <= -0.02",
+                0.0020391913105796775
+              ],
+              [
+                "sbert_dim_228 <= -0.03",
+                0.0019845895453473052
+              ],
+              [
+                "sbert_dim_351 <= -0.03",
+                -0.0019124757607977866
+              ],
+              [
+                "sbert_dim_23 <= -0.02",
+                0.0018192550710705126
+              ],
+              [
+                "sbert_dim_115 <= -0.00",
+                0.0017723068135102845
+              ],
+              [
+                "sbert_dim_13 <= -0.03",
+                0.0016230621076214076
+              ],
+              [
+                "sbert_dim_22 > -0.02",
+                -0.0015712054104307527
+              ]
+            ]
+          },
+          {
+            "sample_index": 618,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_3_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_326 <= -0.02",
+                0.003858984804626009
+              ],
+              [
+                "sbert_dim_265 > 0.01",
+                0.003320684423095188
+              ],
+              [
+                "sbert_dim_75 > 0.02",
+                0.00324459656055851
+              ],
+              [
+                "sbert_dim_16 <= 0.01",
+                0.0032357831132193552
+              ],
+              [
+                "sbert_dim_126 <= -0.01",
+                0.0031862044192052467
+              ],
+              [
+                "sbert_dim_266 <= -0.05",
+                0.0027389193840776935
+              ],
+              [
+                "sbert_dim_73 > 0.05",
+                0.0026737350324446078
+              ],
+              [
+                "sbert_dim_237 <= -0.03",
+                0.002643742753020126
+              ],
+              [
+                "sbert_dim_194 <= -0.01",
+                0.002642568239286503
+              ],
+              [
+                "-0.01 < sbert_dim_328 <= 0.02",
+                0.0023834177932083823
+              ]
+            ]
+          },
+          {
+            "sample_index": 927,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_4_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_328 <= -0.01",
+                0.003403445624931706
+              ],
+              [
+                "sbert_dim_272 > 0.01",
+                0.002171430783467576
+              ],
+              [
+                "sbert_dim_162 <= -0.01",
+                0.00208317802115612
+              ],
+              [
+                "sbert_dim_83 <= 0.02",
+                0.0019020833710605709
+              ],
+              [
+                "0.04 < sbert_dim_176 <= 0.07",
+                -0.0018450040756846909
+              ],
+              [
+                "sbert_dim_131 <= -0.05",
+                0.001777335211679532
+              ],
+              [
+                "sbert_dim_103 <= -0.06",
+                0.0017184276949150134
+              ],
+              [
+                "sbert_dim_196 <= -0.01",
+                0.0017134644022431032
+              ],
+              [
+                "sbert_dim_78 <= -0.02",
+                0.00168122548665448
+              ],
+              [
+                "0.03 < sbert_dim_87 <= 0.06",
+                0.00165836943898907
+              ]
+            ]
+          },
+          {
+            "sample_index": 1237,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_RandomForest_sbert_sample_5_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_162 <= -0.01",
+                0.0028218322085562524
+              ],
+              [
+                "-0.01 < sbert_dim_328 <= 0.02",
+                0.0026490890372989477
+              ],
+              [
+                "-0.01 < sbert_dim_178 <= 0.02",
+                -0.002322994322859059
+              ],
+              [
+                "sbert_dim_42 <= -0.08",
+                0.0021172730616912786
+              ],
+              [
+                "sbert_dim_192 <= -0.05",
+                0.002018561391833418
+              ],
+              [
+                "sbert_dim_122 > 0.04",
+                0.002005491088310581
+              ],
+              [
+                "sbert_dim_184 <= -0.02",
+                0.0018860104830699864
+              ],
+              [
+                "sbert_dim_45 <= -0.04",
+                0.0017369332045611978
+              ],
+              [
+                "sbert_dim_234 <= -0.06",
+                0.0017239667800226794
+              ],
+              [
+                "sbert_dim_179 <= -0.01",
+                0.0016289706786256732
+              ]
+            ]
+          }
+        ],
+        "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_RandomForest_sbert_top_50.png",
+        "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_RandomForest_sbert_top_50.csv",
+        "top_features": [
+          {
+            "feature": "sbert_dim_170 > -0.02",
+            "importance": 0.004453684883305986
+          },
+          {
+            "feature": "sbert_dim_286 <= -0.03",
+            "importance": 0.004011605825767634
+          },
+          {
+            "feature": "sbert_dim_115 > 0.06",
+            "importance": 0.003897506624609583
+          },
+          {
+            "feature": "sbert_dim_326 <= -0.02",
+            "importance": 0.003858984804626009
+          },
+          {
+            "feature": "sbert_dim_279 > 0.06",
+            "importance": 0.0035575057991374197
+          },
+          {
+            "feature": "sbert_dim_301 > 0.02",
+            "importance": 0.0034381237891793256
+          },
+          {
+            "feature": "sbert_dim_328 <= -0.01",
+            "importance": 0.003403445624931706
+          },
+          {
+            "feature": "sbert_dim_265 > 0.01",
+            "importance": 0.003320684423095188
+          },
+          {
+            "feature": "sbert_dim_75 > 0.02",
+            "importance": 0.00324459656055851
+          },
+          {
+            "feature": "sbert_dim_16 <= 0.01",
+            "importance": 0.0032357831132193552
+          }
+        ]
       },
-      "comparison": null
+      "comparison": null,
+      "global_insights": {}
     },
     "XGBoost": {
       "model_name": "XGBoost",
@@ -121,12 +1501,288 @@
         "lime_num_instances": 5
       },
       "shap": {
-        "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (384, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+        "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
       },
       "lime": {
-        "error": "1"
+        "explanations": [
+          {
+            "sample_index": 0,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_sbert_sample_1_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_221 <= 0.01",
+                0.007572467639049389
+              ],
+              [
+                "sbert_dim_367 > -0.01",
+                0.007310832095959156
+              ],
+              [
+                "sbert_dim_146 > 0.08",
+                0.006946323706253405
+              ],
+              [
+                "sbert_dim_112 <= -0.07",
+                0.006451600408662265
+              ],
+              [
+                "sbert_dim_344 > 0.06",
+                0.00638691204590702
+              ],
+              [
+                "sbert_dim_42 <= -0.08",
+                0.004823282635888913
+              ],
+              [
+                "sbert_dim_84 <= -0.04",
+                0.004527883351643327
+              ],
+              [
+                "sbert_dim_346 > 0.04",
+                0.004179573730648197
+              ],
+              [
+                "sbert_dim_27 <= -0.02",
+                0.003913254765767029
+              ],
+              [
+                "sbert_dim_19 > -0.03",
+                0.0034134927706219397
+              ]
+            ]
+          },
+          {
+            "sample_index": 309,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_sbert_sample_2_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_170 > -0.02",
+                0.01419729632259855
+              ],
+              [
+                "-0.08 < sbert_dim_34 <= -0.05",
+                -0.011208488545822655
+              ],
+              [
+                "sbert_dim_268 <= -0.04",
+                0.010884354191135977
+              ],
+              [
+                "sbert_dim_371 <= -0.05",
+                0.01050265024608327
+              ],
+              [
+                "sbert_dim_256 <= -0.04",
+                0.008261298204630937
+              ],
+              [
+                "0.02 < sbert_dim_280 <= 0.06",
+                0.007917543431590636
+              ],
+              [
+                "-0.07 < sbert_dim_295 <= -0.04",
+                0.006879039896421686
+              ],
+              [
+                "sbert_dim_55 <= -0.03",
+                0.0064657733541192
+              ],
+              [
+                "-0.03 < sbert_dim_160 <= -0.00",
+                0.006316714188353397
+              ],
+              [
+                "sbert_dim_310 > 0.06",
+                0.006158889272945656
+              ]
+            ]
+          },
+          {
+            "sample_index": 618,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_sbert_sample_3_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_265 > 0.01",
+                0.01603457103573615
+              ],
+              [
+                "sbert_dim_57 <= -0.01",
+                0.015788167865202388
+              ],
+              [
+                "sbert_dim_14 <= 0.02",
+                0.014542580581511446
+              ],
+              [
+                "sbert_dim_75 > 0.02",
+                0.014378130247389815
+              ],
+              [
+                "sbert_dim_298 > 0.04",
+                0.014175371519603385
+              ],
+              [
+                "sbert_dim_192 > 0.02",
+                0.011045342817684557
+              ],
+              [
+                "sbert_dim_16 <= 0.01",
+                0.008987966965794304
+              ],
+              [
+                "-0.03 < sbert_dim_121 <= 0.00",
+                0.008057238414108572
+              ],
+              [
+                "sbert_dim_218 > -0.00",
+                0.008004983816029604
+              ],
+              [
+                "sbert_dim_326 <= -0.02",
+                0.007954463285471485
+              ]
+            ]
+          },
+          {
+            "sample_index": 927,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_sbert_sample_4_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_174 <= -0.06",
+                0.014563274755951806
+              ],
+              [
+                "sbert_dim_183 > 0.03",
+                0.012339929899421105
+              ],
+              [
+                "sbert_dim_50 <= -0.07",
+                0.01226081288016033
+              ],
+              [
+                "sbert_dim_9 <= -0.04",
+                0.009450070971260601
+              ],
+              [
+                "sbert_dim_129 > 0.04",
+                0.009427629744545918
+              ],
+              [
+                "sbert_dim_316 <= -0.09",
+                0.008657039416600686
+              ],
+              [
+                "sbert_dim_328 <= -0.01",
+                0.008159058246241961
+              ],
+              [
+                "sbert_dim_83 <= 0.02",
+                0.006332979345635677
+              ],
+              [
+                "sbert_dim_358 <= -0.04",
+                0.006023866197227599
+              ],
+              [
+                "sbert_dim_269 <= -0.03",
+                0.005836474492230194
+              ]
+            ]
+          },
+          {
+            "sample_index": 1237,
+            "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_sbert_sample_5_top_50.png",
+            "top_features": [
+              [
+                "sbert_dim_42 <= -0.08",
+                0.026403268718069993
+              ],
+              [
+                "sbert_dim_10 > 0.03",
+                0.01935632496340476
+              ],
+              [
+                "sbert_dim_137 > -0.01",
+                0.014148635639382887
+              ],
+              [
+                "sbert_dim_162 <= -0.01",
+                0.009505860745220477
+              ],
+              [
+                "sbert_dim_124 > 0.06",
+                -0.00916034740267327
+              ],
+              [
+                "sbert_dim_272 <= -0.06",
+                -0.008134512552669405
+              ],
+              [
+                "sbert_dim_319 > -0.00",
+                -0.007806849637763636
+              ],
+              [
+                "sbert_dim_204 > 0.03",
+                0.006916671126170493
+              ],
+              [
+                "sbert_dim_373 <= -0.02",
+                0.006797706665826778
+              ],
+              [
+                "sbert_dim_192 <= -0.05",
+                0.006753900843529963
+              ]
+            ]
+          }
+        ],
+        "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_XGBoost_sbert_top_50.png",
+        "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_XGBoost_sbert_top_50.csv",
+        "top_features": [
+          {
+            "feature": "sbert_dim_10 > 0.03",
+            "importance": 0.01935632496340476
+          },
+          {
+            "feature": "sbert_dim_265 > 0.01",
+            "importance": 0.01603457103573615
+          },
+          {
+            "feature": "sbert_dim_57 <= -0.01",
+            "importance": 0.015788167865202388
+          },
+          {
+            "feature": "sbert_dim_42 <= -0.08",
+            "importance": 0.015613275676979453
+          },
+          {
+            "feature": "sbert_dim_174 <= -0.06",
+            "importance": 0.014563274755951806
+          },
+          {
+            "feature": "sbert_dim_14 <= 0.02",
+            "importance": 0.014542580581511446
+          },
+          {
+            "feature": "sbert_dim_75 > 0.02",
+            "importance": 0.014378130247389815
+          },
+          {
+            "feature": "sbert_dim_170 > -0.02",
+            "importance": 0.01419729632259855
+          },
+          {
+            "feature": "sbert_dim_298 > 0.04",
+            "importance": 0.014175371519603385
+          },
+          {
+            "feature": "sbert_dim_137 > -0.01",
+            "importance": 0.014148635639382887
+          }
+        ]
       },
-      "comparison": null
+      "comparison": null,
+      "global_insights": {}
     }
   }
 }

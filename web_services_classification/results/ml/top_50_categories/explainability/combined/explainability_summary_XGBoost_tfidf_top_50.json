@@ -12,10 +12,286 @@
     "lime_num_instances": 5
   },
   "shap": {
-    "error": "The waterfall plot can currently only plot a single explanation, but a matrix of explanations (shape (10000, 50)) was passed! Perhaps try `shap.plots.waterfall(shap_values[0])` or for multi-output models, try `shap.plots.waterfall(shap_values[0, 0])`."
+    "error": "TreeExplainer.__init__() got an unexpected keyword argument 'check_additivity'"
   },
   "lime": {
-    "error": "1"
+    "explanations": [
+      {
+        "sample_index": 0,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_1_top_50.png",
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.1753438708540876
+          ],
+          [
+            "api event <= 0.00",
+            0.14722393535035225
+          ],
+          [
+            "league <= 0.00",
+            0.09945749706190948
+          ],
+          [
+            "fitness <= 0.00",
+            -0.09279065107188476
+          ],
+          [
+            "mac <= 0.00",
+            0.09223707666120258
+          ],
+          [
+            "string crud <= 0.00",
+            0.0870406370380274
+          ],
+          [
+            "with provides <= 0.00",
+            0.08454030727613975
+          ],
+          [
+            "domain domain <= 0.00",
+            0.0687703784823276
+          ],
+          [
+            "game <= 0.00",
+            0.06790781946663199
+          ],
+          [
+            "match <= 0.00",
+            -0.06620324762482965
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_2_top_50.png",
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.14238767480168807
+          ],
+          [
+            "of local <= 0.00",
+            0.13458771407284914
+          ],
+          [
+            "retrieving data <= 0.00",
+            0.1267529206130063
+          ],
+          [
+            "fitness <= 0.00",
+            -0.10920111067426852
+          ],
+          [
+            "based user <= 0.00",
+            0.08205254590911881
+          ],
+          [
+            "website provides <= 0.00",
+            -0.07881552254333683
+          ],
+          [
+            "data online <= 0.00",
+            -0.07709411874344982
+          ],
+          [
+            "match <= 0.00",
+            -0.07229536684895765
+          ],
+          [
+            "adhere <= 0.00",
+            0.06681503488658401
+          ],
+          [
+            "transmits <= 0.00",
+            -0.06074711710572797
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_3_top_50.png",
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.15566669853109877
+          ],
+          [
+            "search web <= 0.00",
+            -0.09374988572495785
+          ],
+          [
+            "photographer <= 0.00",
+            -0.0851483857447153
+          ],
+          [
+            "receiving <= 0.00",
+            0.08461280186501116
+          ],
+          [
+            "user store <= 0.00",
+            0.0833089118777852
+          ],
+          [
+            "match <= 0.00",
+            -0.08206819484128569
+          ],
+          [
+            "iaa <= 0.00",
+            -0.07459067548995026
+          ],
+          [
+            "transit <= 0.00",
+            0.073760784803281
+          ],
+          [
+            "into user <= 0.00",
+            0.06487859805748006
+          ],
+          [
+            "easily integrate <= 0.00",
+            0.06004713491486635
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_4_top_50.png",
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.1350173707186255
+          ],
+          [
+            "expression <= 0.00",
+            0.13387039136501658
+          ],
+          [
+            "individual business <= 0.00",
+            0.12457479634741439
+          ],
+          [
+            "of messaging <= 0.00",
+            0.08934438471736499
+          ],
+          [
+            "match <= 0.00",
+            -0.07304999646122004
+          ],
+          [
+            "consistent <= 0.00",
+            0.07238167028380538
+          ],
+          [
+            "video hosting <= 0.00",
+            0.07155163268835146
+          ],
+          [
+            "league <= 0.00",
+            0.06560102086201638
+          ],
+          [
+            "can specify <= 0.00",
+            0.063804440315027
+          ],
+          [
+            "establish <= 0.00",
+            0.06379892631734824
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "plot_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_explanation_XGBoost_tfidf_sample_5_top_50.png",
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.15947045350104447
+          ],
+          [
+            "league <= 0.00",
+            0.10115354053188635
+          ],
+          [
+            "mobile service <= 0.00",
+            0.10038535842697935
+          ],
+          [
+            "locator <= 0.00",
+            -0.09228874348706341
+          ],
+          [
+            "match <= 0.00",
+            -0.0905634573330239
+          ],
+          [
+            "data database <= 0.00",
+            0.08919420531438765
+          ],
+          [
+            "security stock <= 0.00",
+            -0.08717576430740719
+          ],
+          [
+            "map <= 0.00",
+            0.07370544557241288
+          ],
+          [
+            "that > 0.04",
+            -0.06706854395223202
+          ],
+          [
+            "can interact <= 0.00",
+            0.06215211750573062
+          ]
+        ]
+      }
+    ],
+    "aggregate_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/lime/lime_aggregate_XGBoost_tfidf_top_50.png",
+    "feature_importance": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_XGBoost_tfidf_top_50.csv",
+    "top_features": [
+      {
+        "feature": "total <= 0.00",
+        "importance": 0.1535772136813089
+      },
+      {
+        "feature": "api event <= 0.00",
+        "importance": 0.14722393535035225
+      },
+      {
+        "feature": "of local <= 0.00",
+        "importance": 0.13458771407284914
+      },
+      {
+        "feature": "expression <= 0.00",
+        "importance": 0.13387039136501658
+      },
+      {
+        "feature": "retrieving data <= 0.00",
+        "importance": 0.1267529206130063
+      },
+      {
+        "feature": "individual business <= 0.00",
+        "importance": 0.12457479634741439
+      },
+      {
+        "feature": "fitness <= 0.00",
+        "importance": 0.10099588087307665
+      },
+      {
+        "feature": "mobile service <= 0.00",
+        "importance": 0.10038535842697935
+      },
+      {
+        "feature": "search web <= 0.00",
+        "importance": 0.09374988572495785
+      },
+      {
+        "feature": "locator <= 0.00",
+        "importance": 0.09228874348706341
+      }
+    ]
   },
-  "comparison": null
+  "comparison": null,
+  "global_insights": {}
 }

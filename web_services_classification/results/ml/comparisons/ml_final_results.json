@@ -16,8 +16,8 @@
       "micro_f1": 0.8037156704361873,
       "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_TFIDF_top_50_categories_confusion_matrix.png",
       "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_TFIDF_top_50_categories_classification_report.csv",
-      "inference_time": 0.009506702423095703,
-      "training_time": 10.058149576187134
+      "inference_time": 0.008676528930664062,
+      "training_time": 9.927221536636353
     },
     "RandomForest_tfidf": {
       "model_name": "RandomForest",
@@ -35,8 +35,8 @@
       "micro_f1": 0.7617124394184168,
       "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_TFIDF_top_50_categories_confusion_matrix.png",
       "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_TFIDF_top_50_categories_classification_report.csv",
-      "inference_time": 0.11558246612548828,
-      "training_time": 0.5304701328277588
+      "inference_time": 0.1338493824005127,
+      "training_time": 0.5442495346069336
     },
     "XGBoost_tfidf": {
       "model_name": "XGBoost",
@@ -54,8 +54,8 @@
       "micro_f1": 0.747172859450727,
       "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_TFIDF_top_50_categories_confusion_matrix.png",
       "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_TFIDF_top_50_categories_classification_report.csv",
-      "inference_time": 0.14947795867919922,
-      "training_time": 131.4447362422943
+      "inference_time": 0.1357581615447998,
+      "training_time": 73.35767817497253
     },
     "LogisticRegression_sbert": {
       "model_name": "LogisticRegression",
@@ -73,8 +73,8 @@
       "micro_f1": 0.7794830371567044,
       "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_SBERT_top_50_categories_confusion_matrix.png",
       "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/LogisticRegression_SBERT_top_50_categories_classification_report.csv",
-      "inference_time": 0.009112358093261719,
-      "training_time": 3.838837146759033
+      "inference_time": 0.015603065490722656,
+      "training_time": 3.7554068565368652
     },
     "RandomForest_sbert": {
       "model_name": "RandomForest",
@@ -92,8 +92,8 @@
       "micro_f1": 0.7237479806138933,
       "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_SBERT_top_50_categories_confusion_matrix.png",
       "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/RandomForest_SBERT_top_50_categories_classification_report.csv",
-      "inference_time": 0.11728143692016602,
-      "training_time": 1.038403034210205
+      "inference_time": 0.11743688583374023,
+      "training_time": 1.024754285812378
     },
     "XGBoost_sbert": {
       "model_name": "XGBoost",
@@ -111,8 +111,8 @@
       "micro_f1": 0.7237479806138933,
       "confusion_matrix_plot": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_SBERT_top_50_categories_confusion_matrix.png",
       "classification_report_path": "/root/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/XGBoost_SBERT_top_50_categories_classification_report.csv",
-      "inference_time": 0.03321576118469238,
-      "training_time": 164.01522588729858
+      "inference_time": 0.03373122215270996,
+      "training_time": 77.1027319431305
     }
   }
 }
