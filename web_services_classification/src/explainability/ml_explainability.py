@@ -95,18 +95,23 @@ class MLExplainability:
         logger.info(f"  - LIME instances: {self.lime_num_instances}")
         
     def setup_directories(self, n_categories):
-        """Setup explainability output directories"""
+        """Setup explainability output directories with enhanced structure"""
         base_path = RESULTS_CONFIG['ml_results_path'] / f"top_{n_categories}_categories" / "explainability"
         
+        # Create comprehensive directory structure
         dirs = {
             'shap': base_path / "shap",
             'lime': base_path / "lime",
             'combined': base_path / "combined",
-            'feature_importance': base_path / "feature_importance"
+            'feature_importance': base_path / "feature_importance",
+            'visualizations': base_path / "visualizations",
+            'reports': base_path / "reports"
         }
         
         for dir_path in dirs.values():
             dir_path.mkdir(parents=True, exist_ok=True)
+        
+        logger.info(f"Created explainability directories under {base_path}")
         
         return dirs
     
@@ -535,6 +540,17 @@ class MLExplainability:
         )
         results['comparison'] = comparison_path
         
+        # Generate global insights
+        logger.info("\n" + "="*60)
+        logger.info("GLOBAL INSIGHTS")
+        logger.info("="*60)
+        y_test = test_df['category'].values if 'category' in test_df.columns else test_df.iloc[:, -1].values
+        global_insights = self.aggregate_global_insights(
+            model, model_name, X_train, X_test, y_test,
+            feature_names, class_labels, n_categories, feature_type, dirs
+        )
+        results['global_insights'] = global_insights
+        
         # Save results summary
         summary_path = dirs['combined'] / f"explainability_summary_{model_name}_{feature_type}_top_{n_categories}.json"
         with open(summary_path, 'w') as f:
@@ -598,6 +614,213 @@ class MLExplainability:
         print(f"{'='*100}\n")
         
         return all_results
+
+    def aggregate_global_insights(self, model, model_name, X_train, X_test, y_test,
+                                  feature_names, class_labels, n_categories, feature_type, dirs, n_samples=50):
+        """
+        Aggregate global feature importance insights with proper error handling
+        
+        Args:
+            model: Trained model
+            model_name: Name of the model
+            X_train: Training features
+            X_test: Test features
+            y_test: Test labels
+            feature_names: List of feature names
+            class_labels: List of class labels
+            n_categories: Number of categories
+            feature_type: Type of features (tfidf/sbert)
+            dirs: Dictionary of output directories
+            n_samples: Number of samples to use for aggregation
+        
+        Returns:
+            Dictionary containing global insights
+        """
+        logger.info(f"Aggregating global insights for {model_name}")
+        
+        try:
+            # Convert sparse matrices to dense if needed
+            if hasattr(X_train, 'toarray'):
+                X_train_dense = X_train.toarray()
+                X_test_dense = X_test.toarray()
+            else:
+                X_train_dense = X_train
+                X_test_dense = X_test
+            
+            # Sample data
+            sample_size = min(n_samples, X_test_dense.shape[0])
+            sample_indices = np.random.choice(X_test_dense.shape[0], sample_size, replace=False)
+            
+            logger.info(f"Computing global feature importance from {sample_size} samples...")
+            
+            # Create SHAP explainer
+            if model_name == "LogisticRegression":
+                n_background = min(50, X_train_dense.shape[0])
+                background_sample = X_train_dense[np.random.choice(X_train_dense.shape[0], n_background, replace=False)]
+                shap_explainer = shap.LinearExplainer(model, background_sample, feature_names=feature_names)
+            elif model_name in ["RandomForest", "XGBoost"]:
+                shap_explainer = shap.TreeExplainer(model)
+            else:
+                n_background = min(50, X_train_dense.shape[0])
+                background_sample = X_train_dense[np.random.choice(X_train_dense.shape[0], n_background, replace=False)]
+                shap_explainer = shap.KernelExplainer(model.predict_proba, background_sample)
+            
+            # Collect SHAP values
+            all_shap_values = []
+            
+            for idx in sample_indices[:min(20, sample_size)]:  # Limit for speed
+                try:
+                    instance = X_test_dense[idx:idx+1]
+                    shap_vals = shap_explainer.shap_values(instance)
+                    
+                    # Handle different SHAP value formats
+                    if isinstance(shap_vals, list):
+                        # Multi-class: average across classes
+                        avg_shap = np.mean([np.abs(sv[0]) for sv in shap_vals], axis=0)
+                    else:
+                        # Binary or single output
+                        avg_shap = np.abs(shap_vals[0])
+                    
+                    all_shap_values.append(avg_shap)
+                    
+                except Exception as e:
+                    logger.warning(f"Error processing instance {idx}: {e}")
+                    continue
+            
+            if not all_shap_values:
+                logger.error("No SHAP values computed")
+                return {}
+            
+            # Average absolute SHAP values across samples
+            global_importance = np.mean(all_shap_values, axis=0)
+            
+            # Get top features
+            top_k = min(25, len(global_importance))
+            top_global_indices = np.argsort(global_importance)[-top_k:][::-1]
+            top_global_features = [
+                {'feature': feature_names[i], 'importance': float(global_importance[i])}
+                for i in top_global_indices if i < len(feature_names)
+            ]
+            
+            logger.info(f"Top 10 most influential features:")
+            for i, feat_dict in enumerate(top_global_features[:10], 1):
+                logger.info(f"{i:2d}. '{feat_dict['feature']}': {feat_dict['importance']:.4f}")
+            
+            # Per-class importance
+            logger.info("Computing per-class feature importance...")
+            per_class_importance = {}
+            
+            # Limit to first 10 classes for speed
+            for class_idx, class_name in enumerate(class_labels[:min(10, len(class_labels))]):
+                class_samples = [i for i in sample_indices if y_test[i] == class_idx][:10]
+                
+                if not class_samples:
+                    per_class_importance[class_name] = []
+                    continue
+                
+                class_shap_values = []
+                for idx in class_samples:
+                    try:
+                        instance = X_test_dense[idx:idx+1]
+                        shap_vals = shap_explainer.shap_values(instance)
+                        
+                        # Extract SHAP values for this class
+                        if isinstance(shap_vals, list) and class_idx < len(shap_vals):
+                            class_shap = shap_vals[class_idx][0]
+                        elif isinstance(shap_vals, list):
+                            class_shap = shap_vals[0][0]
+                        else:
+                            class_shap = shap_vals[0]
+                        
+                        class_shap_values.append(np.abs(class_shap))
+                        
+                    except Exception as e:
+                        logger.warning(f"Error processing class {class_name}, instance {idx}: {e}")
+                        continue
+                
+                if class_shap_values:
+                    class_importance = np.mean(class_shap_values, axis=0)
+                    top_class_k = min(10, len(class_importance))
+                    top_class_indices = np.argsort(class_importance)[-top_class_k:][::-1]
+                    top_class_features = [
+                        {'feature': feature_names[i], 'importance': float(class_importance[i])}
+                        for i in top_class_indices if i < len(feature_names)
+                    ]
+                    per_class_importance[class_name] = top_class_features
+                else:
+                    per_class_importance[class_name] = []
+            
+            # Create results dictionary
+            global_insights = {
+                'overall_top_features': top_global_features,
+                'per_class_features': per_class_importance
+            }
+            
+            # Create visualization
+            self._plot_global_insights(top_global_features, model_name, n_categories, feature_type, dirs)
+            
+            # Save insights to JSON
+            insights_path = dirs['reports'] / f"global_insights_{model_name}_{feature_type}_top_{n_categories}.json"
+            with open(insights_path, 'w') as f:
+                json.dump(global_insights, f, indent=2)
+            
+            logger.info(f"Global insights saved to {insights_path}")
+            
+            return global_insights
+            
+        except Exception as e:
+            logger.error(f"Error aggregating global insights: {e}")
+            return {}
+    
+    def _plot_global_insights(self, global_features, model_name, n_categories, feature_type, dirs):
+        """
+        Create a visualization of global feature importance insights
+        
+        Args:
+            global_features: List of feature importance dictionaries
+            model_name: Name of the model
+            n_categories: Number of categories
+            feature_type: Type of features
+            dirs: Dictionary of output directories
+        """
+        try:
+            fig, ax = plt.subplots(figsize=(12, 10))
+            
+            # Extract features and importances
+            top_k = min(20, len(global_features))
+            features = [f['feature'] for f in global_features[:top_k]]
+            importances = [f['importance'] for f in global_features[:top_k]]
+            
+            # Create color gradient
+            y_pos = np.arange(len(features))
+            colors = plt.cm.viridis(np.linspace(0.3, 0.9, len(features)))
+            
+            # Create horizontal bar chart
+            ax.barh(y_pos, importances, color=colors, alpha=0.8, edgecolor='black', linewidth=0.5)
+            ax.set_yticks(y_pos)
+            ax.set_yticklabels(features, fontsize=10)
+            ax.set_xlabel('Average Absolute SHAP Value', fontsize=12, fontweight='bold')
+            ax.set_title(f'Top {top_k} Most Influential Features\n{model_name} ({feature_type.upper()}) - Top {n_categories} Categories',
+                        fontsize=14, fontweight='bold')
+            ax.invert_yaxis()
+            ax.grid(True, alpha=0.3, axis='x')
+            
+            # Add value labels
+            for i, (pos, imp) in enumerate(zip(y_pos, importances)):
+                ax.text(imp, pos, f' {imp:.4f}', va='center', fontsize=8)
+            
+            plt.tight_layout()
+            
+            # Save visualization
+            viz_file = dirs['visualizations'] / f"global_insights_{model_name}_{feature_type}_top_{n_categories}.{self.plot_format}"
+            plt.savefig(viz_file, dpi=self.plot_dpi, bbox_inches='tight')
+            plt.close()
+            
+            logger.info(f"Global insights visualization saved to {viz_file}")
+            
+        except Exception as e:
+            logger.error(f"Error creating global insights visualization: {e}")
+
 
 
 def main():
