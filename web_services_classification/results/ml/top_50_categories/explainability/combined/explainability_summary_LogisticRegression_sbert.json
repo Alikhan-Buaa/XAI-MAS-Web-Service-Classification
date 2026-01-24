@@ -1,0 +1,244 @@
+{
+  "model_name": "LogisticRegression",
+  "n_categories": 50,
+  "feature_type": "sbert",
+  "shap": {
+    "feature_importance": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/shap_importance_LogisticRegression_sbert.csv"
+  },
+  "lime": {
+    "feature_importance": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_LogisticRegression_sbert.csv",
+    "explanations": [
+      {
+        "sample_index": 259,
+        "predicted_label": 4,
+        "top_features": [
+          [
+            "banking",
+            0.43481988832955737
+          ],
+          [
+            "yodlee",
+            -0.18996914215531183
+          ],
+          [
+            "api",
+            0.08953415957661155
+          ],
+          [
+            "account",
+            0.039310065517683096
+          ],
+          [
+            "allows",
+            -0.03372554081539636
+          ],
+          [
+            "digital",
+            -0.03084773561391492
+          ],
+          [
+            "access",
+            0.026708727337116687
+          ],
+          [
+            "financial",
+            0.02645373789823457
+          ],
+          [
+            "institution",
+            0.017581672599978712
+          ],
+          [
+            "connects",
+            0.016717414484139798
+          ]
+        ]
+      },
+      {
+        "sample_index": 622,
+        "predicted_label": 12,
+        "top_features": [
+          [
+            "emailmanager",
+            0.4824758619490793
+          ],
+          [
+            "email",
+            0.1691595999686033
+          ],
+          [
+            "commerce",
+            -0.05819038860048111
+          ],
+          [
+            "sending",
+            0.04684899133930857
+          ],
+          [
+            "cart",
+            -0.04301541772191095
+          ],
+          [
+            "with",
+            -0.04149740783655913
+          ],
+          [
+            "shopping",
+            -0.031745357876036974
+          ],
+          [
+            "customer",
+            0.031167342920917364
+          ],
+          [
+            "marketing",
+            0.02833931903730746
+          ],
+          [
+            "campaign",
+            0.02732786597996357
+          ]
+        ]
+      },
+      {
+        "sample_index": 364,
+        "predicted_label": 41,
+        "top_features": [
+          [
+            "ipo",
+            0.07504490895995342
+          ],
+          [
+            "provides",
+            -0.059590336645257216
+          ],
+          [
+            "stock",
+            0.056041749660213594
+          ],
+          [
+            "data",
+            -0.03251065245174547
+          ],
+          [
+            "nyse",
+            0.03219226035015643
+          ],
+          [
+            "market",
+            0.029927146962399388
+          ],
+          [
+            "news",
+            0.028712496652356156
+          ],
+          [
+            "chart",
+            0.026641127495143625
+          ],
+          [
+            "api",
+            0.024178223705325137
+          ],
+          [
+            "amex",
+            0.023342425833850378
+          ]
+        ]
+      },
+      {
+        "sample_index": 327,
+        "predicted_label": 7,
+        "top_features": [
+          [
+            "cloud",
+            0.26035024563079645
+          ],
+          [
+            "qubole",
+            -0.14205880878093993
+          ],
+          [
+            "aws",
+            0.07973219225010124
+          ],
+          [
+            "data",
+            -0.07128052124395147
+          ],
+          [
+            "azure",
+            0.05905821514926603
+          ],
+          [
+            "processing",
+            -0.04452201489200361
+          ],
+          [
+            "analytics",
+            -0.04242411967216509
+          ],
+          [
+            "api",
+            0.037993953743085396
+          ],
+          [
+            "allows",
+            -0.03220307949175753
+          ],
+          [
+            "is",
+            -0.027174136227944384
+          ]
+        ]
+      },
+      {
+        "sample_index": 532,
+        "predicted_label": 47,
+        "top_features": [
+          [
+            "video",
+            0.6940411659083976
+          ],
+          [
+            "medium",
+            -0.0580736916573576
+          ],
+          [
+            "access",
+            -0.048456731413889065
+          ],
+          [
+            "are",
+            -0.03799138695393034
+          ],
+          [
+            "is",
+            -0.03561069282797755
+          ],
+          [
+            "streaming",
+            0.03201272709683099
+          ],
+          [
+            "can",
+            -0.024806162882757443
+          ],
+          [
+            "via",
+            0.024507765358094298
+          ],
+          [
+            "category",
+            0.015581856802085571
+          ],
+          [
+            "account",
+            0.015201010649522501
+          ]
+        ]
+      }
+    ]
+  },
+  "comparison": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/combined/shap_lime_comparison_LogisticRegression_sbert.png"
+}

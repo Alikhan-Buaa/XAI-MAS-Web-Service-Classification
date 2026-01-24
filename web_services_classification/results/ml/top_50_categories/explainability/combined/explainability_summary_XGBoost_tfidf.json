@@ -1,0 +1,244 @@
+{
+  "model_name": "XGBoost",
+  "n_categories": 50,
+  "feature_type": "tfidf",
+  "shap": {
+    "feature_importance": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/shap_importance_XGBoost_tfidf.csv"
+  },
+  "lime": {
+    "feature_importance": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_XGBoost_tfidf.csv",
+    "explanations": [
+      {
+        "sample_index": 0,
+        "predicted_label": 40,
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.15685235938305392
+          ],
+          [
+            "bound <= 0.00",
+            0.1094185524344411
+          ],
+          [
+            "interpreting <= 0.00",
+            0.09893359194753097
+          ],
+          [
+            "extensive database <= 0.00",
+            -0.09313287199002881
+          ],
+          [
+            "for communication <= 0.00",
+            0.0846789025814095
+          ],
+          [
+            "developer list <= 0.00",
+            -0.08286925534463124
+          ],
+          [
+            "presentation <= 0.00",
+            0.07029705156038192
+          ],
+          [
+            "game <= 0.00",
+            0.06354084433141101
+          ],
+          [
+            "by type <= 0.00",
+            0.050886899053088706
+          ],
+          [
+            "web apps <= 0.00",
+            0.02192293335439742
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "predicted_label": 40,
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.1480497160537668
+          ],
+          [
+            "league <= 0.00",
+            0.1109401535880239
+          ],
+          [
+            "build custom <= 0.00",
+            0.1013628595034878
+          ],
+          [
+            "transit <= 0.00",
+            0.07550602710354161
+          ],
+          [
+            "custom application <= 0.00",
+            -0.07047309533664883
+          ],
+          [
+            "ability access <= 0.00",
+            -0.06879489790052623
+          ],
+          [
+            "wallet <= 0.00",
+            0.049611871576275245
+          ],
+          [
+            "sort of <= 0.00",
+            -0.04847874098815718
+          ],
+          [
+            "map <= 0.00",
+            0.04718446214085966
+          ],
+          [
+            "helper <= 0.00",
+            -0.043054811196944126
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "predicted_label": 40,
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.1349653684170166
+          ],
+          [
+            "league <= 0.00",
+            0.1176865370752646
+          ],
+          [
+            "address phone <= 0.00",
+            -0.0784031533620343
+          ],
+          [
+            "any user <= 0.00",
+            0.07085456777234703
+          ],
+          [
+            "developer make <= 0.00",
+            -0.06590500325933674
+          ],
+          [
+            "keep up <= 0.00",
+            -0.05857090510477415
+          ],
+          [
+            "deploying application <= 0.00",
+            0.049792529061316926
+          ],
+          [
+            "ltd <= 0.00",
+            0.03792728333065044
+          ],
+          [
+            "data analytics <= 0.00",
+            0.027760808307427713
+          ],
+          [
+            "source project <= 0.00",
+            0.02729171131956724
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "predicted_label": 40,
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.12956011909049822
+          ],
+          [
+            "non commercial <= 0.00",
+            0.09755448560230606
+          ],
+          [
+            "image of <= 0.00",
+            0.09506224027759122
+          ],
+          [
+            "freely available <= 0.00",
+            0.08240138584143074
+          ],
+          [
+            "difficulty <= 0.00",
+            -0.07799012752885907
+          ],
+          [
+            "league <= 0.00",
+            0.0756002074110285
+          ],
+          [
+            "venture <= 0.00",
+            -0.057482329208870434
+          ],
+          [
+            "individual organization <= 0.00",
+            0.05718986575648337
+          ],
+          [
+            "proximity <= 0.00",
+            0.03766715144522535
+          ],
+          [
+            "detail about <= 0.00",
+            -0.029922161868395355
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "predicted_label": 40,
+        "top_features": [
+          [
+            "total <= 0.00",
+            -0.14445507988476547
+          ],
+          [
+            "document online <= 0.00",
+            0.11173270878340034
+          ],
+          [
+            "platform create <= 0.00",
+            0.0924371531784568
+          ],
+          [
+            "time provides <= 0.00",
+            0.09203395537512316
+          ],
+          [
+            "league <= 0.00",
+            0.08076927615032437
+          ],
+          [
+            "city of <= 0.00",
+            0.07772539404057607
+          ],
+          [
+            "sorted <= 0.00",
+            -0.056965331685608925
+          ],
+          [
+            "server developer <= 0.00",
+            -0.05172048396355052
+          ],
+          [
+            "vin <= 0.00",
+            -0.04914638437399196
+          ],
+          [
+            "business service <= 0.00",
+            0.03055904632249968
+          ]
+        ]
+      }
+    ]
+  },
+  "comparison": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/combined/shap_lime_comparison_XGBoost_tfidf.png"
+}

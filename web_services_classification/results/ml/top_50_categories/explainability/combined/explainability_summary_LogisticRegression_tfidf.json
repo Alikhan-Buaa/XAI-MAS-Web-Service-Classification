@@ -1,0 +1,244 @@
+{
+  "model_name": "LogisticRegression",
+  "n_categories": 50,
+  "feature_type": "tfidf",
+  "shap": {
+    "feature_importance": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/shap_importance_LogisticRegression_tfidf.csv"
+  },
+  "lime": {
+    "feature_importance": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/feature_importance/lime_importance_LogisticRegression_tfidf.csv",
+    "explanations": [
+      {
+        "sample_index": 0,
+        "predicted_label": 42,
+        "top_features": [
+          [
+            "storage > 0.00",
+            0.030119077516396153
+          ],
+          [
+            "fulfill <= 0.00",
+            -0.018920048216567766
+          ],
+          [
+            "file <= 0.00",
+            -0.017242672295942344
+          ],
+          [
+            "steam <= 0.00",
+            -0.013793059986526019
+          ],
+          [
+            "appear <= 0.00",
+            -0.010858963926519178
+          ],
+          [
+            "store <= 0.00",
+            -0.0099679870412358
+          ],
+          [
+            "product image <= 0.00",
+            -0.009335095143625903
+          ],
+          [
+            "cloud <= 0.00",
+            -0.0065070170693803595
+          ],
+          [
+            "cloud storage <= 0.00",
+            -0.005793372347291837
+          ],
+          [
+            "cloud api <= 0.00",
+            -0.004904974294314838
+          ]
+        ]
+      },
+      {
+        "sample_index": 309,
+        "predicted_label": 19,
+        "top_features": [
+          [
+            "government <= 0.00",
+            -0.038374816424868514
+          ],
+          [
+            "gov <= 0.00",
+            -0.012843529542929475
+          ],
+          [
+            "agency <= 0.00",
+            -0.01249846992289679
+          ],
+          [
+            "state <= 0.00",
+            -0.012069992535772168
+          ],
+          [
+            "federal <= 0.00",
+            -0.01191812289413546
+          ],
+          [
+            "official <= 0.00",
+            -0.011259500949015627
+          ],
+          [
+            "administration <= 0.00",
+            -0.010690427664618697
+          ],
+          [
+            "citizen <= 0.00",
+            -0.01053820836179552
+          ],
+          [
+            "tax <= 0.00",
+            -0.010367035641072568
+          ],
+          [
+            "open <= 0.00",
+            -0.007305856037187857
+          ]
+        ]
+      },
+      {
+        "sample_index": 618,
+        "predicted_label": 35,
+        "top_features": [
+          [
+            "nucleotide > 0.00",
+            0.08392668711750917
+          ],
+          [
+            "api via > 0.00",
+            0.06624923439146352
+          ],
+          [
+            "dna > 0.00",
+            0.05229348562269424
+          ],
+          [
+            "sequence alignment > 0.00",
+            0.05128624035024628
+          ],
+          [
+            "is program > 0.00",
+            0.04903565436682425
+          ],
+          [
+            "bioinformatics institute > 0.00",
+            0.04806573043029405
+          ],
+          [
+            "for performing > 0.00",
+            0.04466581085961353
+          ],
+          [
+            "alignment > 0.00",
+            0.04090693903800683
+          ],
+          [
+            "european bioinformatics > 0.00",
+            0.03388362909564119
+          ],
+          [
+            "similarity > 0.00",
+            0.029398697438930456
+          ]
+        ]
+      },
+      {
+        "sample_index": 927,
+        "predicted_label": 36,
+        "top_features": [
+          [
+            "detail for <= 0.00",
+            -0.03505511996419999
+          ],
+          [
+            "search > 0.00",
+            0.028246047111332367
+          ],
+          [
+            "with minimal <= 0.00",
+            -0.021102699872714153
+          ],
+          [
+            "value added <= 0.00",
+            -0.020542061951493266
+          ],
+          [
+            "though > 0.00",
+            0.018198900091405623
+          ],
+          [
+            "this database <= 0.00",
+            -0.017453669785018302
+          ],
+          [
+            "engine > 0.00",
+            0.012881721201577002
+          ],
+          [
+            "result <= 0.00",
+            -0.011594532642786176
+          ],
+          [
+            "search engine > 0.00",
+            0.011447120368186145
+          ],
+          [
+            "index <= 0.00",
+            -0.011199513677502769
+          ]
+        ]
+      },
+      {
+        "sample_index": 1237,
+        "predicted_label": 0,
+        "top_features": [
+          [
+            "is marketing > 0.00",
+            0.06438117151361208
+          ],
+          [
+            "legislation > 0.00",
+            0.06240767080705264
+          ],
+          [
+            "ad > 0.00",
+            0.05524616407388638
+          ],
+          [
+            "for device <= 0.00",
+            -0.04767351458849216
+          ],
+          [
+            "advertising > 0.00",
+            0.043496584923592325
+          ],
+          [
+            "eu > 0.00",
+            0.03546951877719154
+          ],
+          [
+            "advertising platform > 0.00",
+            0.03412069018365581
+          ],
+          [
+            "law > 0.00",
+            0.024445971434328792
+          ],
+          [
+            "displaying > 0.00",
+            0.021786076609624443
+          ],
+          [
+            "web api > 0.00",
+            0.010361590750457112
+          ]
+        ]
+      }
+    ]
+  },
+  "comparison": "/workspace/XAI-MAS-Web-Service-Classification/web_services_classification/results/ml/top_50_categories/explainability/combined/shap_lime_comparison_LogisticRegression_tfidf.png"
+}

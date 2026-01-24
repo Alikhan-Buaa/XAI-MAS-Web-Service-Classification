@@ -1,0 +1,3 @@
+SAMPLE ID: 1
+--------------------------------------------------
+service provides machine translation of any text from one language another it accommodates auto detection of input language specification of desired output language api implement some function of underlying web service api method support submitting text passage with source destination language returned data provide machine translated version of submitted text

@@ -1,0 +1,3 @@
+SAMPLE ID: 4
+--------------------------------------------------
+ma table bank loan advance of acus non bank customer by industry yearly api summarizes year end data of loan advance channeled by singapore is asian currency unit different industry category of non bank customer this includes total breakdown of loan advance loan business consumer loan api is main industry classification include agriculture mining quarrying manufacturing building construction general commerce transport storage communication business service financial institution private professional individual business purpose others this api sends request return response json format
