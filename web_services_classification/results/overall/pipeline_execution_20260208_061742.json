@@ -1,0 +1,16 @@
+{
+  "start_time": "2026-02-08T06:17:41.678675",
+  "phases_completed": [],
+  "phases_failed": [
+    {
+      "phase": "overall_explainability",
+      "error": "name 'defaultdict' is not defined",
+      "duration": 0.7527399063110352
+    }
+  ],
+  "total_execution_time": 0.7527399063110352,
+  "phase_timings": {
+    "overall_explainability": 0.7527399063110352
+  },
+  "end_time": "2026-02-08T06:17:42.435229"
+}

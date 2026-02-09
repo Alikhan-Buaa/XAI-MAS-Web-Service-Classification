@@ -849,10 +849,12 @@ class DeepSeekRoBERTaFusionTrainer:
             model_dir = SAVED_MODELS_CONFIG['fusion_models_path'] / f'top_{n_categories}_categories'
             model_dir.mkdir(parents=True, exist_ok=True)
             
-            # MODIFIED: Simplified feature_type for model filename
-            model_filename = FileNamingStandard.generate_model_filename(
-                model_name, fusion_type, n_categories, 'model'
-            )
+            # ==================================================================================
+            # FORCE .pth EXTENSION STRICTLY
+            # ==================================================================================
+            ft_cap = fusion_type.capitalize()
+            # Manually construct filename to guarantee .pth
+            model_filename = f"DeepSeek_RoBERTa_Fusion_{ft_cap}_top_{n_categories}_categories_model.pth"
             model_path = model_dir / model_filename
             
             torch.save({
@@ -862,7 +864,8 @@ class DeepSeekRoBERTaFusionTrainer:
                 'config': model_config,
                 'best_val_acc': best_val_acc
             }, model_path)
-            logger.info(f"Model saved to {model_path}")
+            logger.info(f"Model STRICTLY saved to {model_path}")
+            # ==================================================================================
             
             # Calibrate temperature
             self.calibrate_temperature(model, val_loader)
@@ -1109,16 +1112,16 @@ def main():
     
     parser = argparse.ArgumentParser(description="DeepSeek-RoBERTa Fusion Model Training (Frozen Base Models)")
     parser.add_argument("--fusion-type", type=str, default="all",
-                       choices=["concat", "average", "weighted", "gating", "all"],
-                       help="Fusion type to train")
+                        choices=["concat", "average", "weighted", "gating", "all"],
+                        help="Fusion type to train")
     parser.add_argument("--categories", nargs="+", type=int, default=CATEGORY_SIZES,
-                       help="Category sizes to train")
+                        help="Category sizes to train")
     parser.add_argument("--epochs", type=int, default=None,
-                       help="Number of epochs")
+                        help="Number of epochs")
     parser.add_argument("--batch-size", type=int, default=None,
-                       help="Batch size")
+                        help="Batch size")
     parser.add_argument("--lr", type=float, default=None,
-                       help="Learning rate")
+                        help="Learning rate")
     
     args = parser.parse_args()
     

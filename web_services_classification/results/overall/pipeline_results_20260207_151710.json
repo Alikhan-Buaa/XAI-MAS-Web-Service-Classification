@@ -1,0 +1,15 @@
+{
+  "fusion_explainability": {
+    "status": "completed",
+    "summary": "Fusion explainability analysis completed successfully",
+    "fusion_types": [
+      "concat",
+      "average",
+      "weighted",
+      "gating"
+    ],
+    "categories": [
+      50
+    ]
+  }
+}

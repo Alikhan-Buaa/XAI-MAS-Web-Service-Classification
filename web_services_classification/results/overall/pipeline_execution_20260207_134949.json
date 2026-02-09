@@ -1,0 +1,12 @@
+{
+  "start_time": "2026-02-07T13:36:00.544317",
+  "phases_completed": [
+    "fusion_explainability"
+  ],
+  "phases_failed": [],
+  "total_execution_time": 828.9497766494751,
+  "phase_timings": {
+    "fusion_explainability": 828.9497766494751
+  },
+  "end_time": "2026-02-07T13:49:49.501748"
+}

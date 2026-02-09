@@ -1,0 +1,6 @@
+{
+  "bert_explainability": {
+    "status": "failed",
+    "error": "name 'RESULTS_PATH' is not defined"
+  }
+}

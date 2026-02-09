@@ -1,0 +1,16 @@
+{
+  "start_time": "2026-02-07T04:46:11.624708",
+  "phases_completed": [],
+  "phases_failed": [
+    {
+      "phase": "bert_explainability",
+      "error": "name 'RESULTS_PATH' is not defined",
+      "duration": 5.2928924560546875e-05
+    }
+  ],
+  "total_execution_time": 5.2928924560546875e-05,
+  "phase_timings": {
+    "bert_explainability": 5.2928924560546875e-05
+  },
+  "end_time": "2026-02-07T04:46:11.632941"
+}

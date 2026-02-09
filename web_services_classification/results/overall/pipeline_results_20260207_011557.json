@@ -1,0 +1,10 @@
+{
+  "preprocessing": {
+    "status": "completed",
+    "summary": "Preprocessed data for 1 category sizes",
+    "categories_processed": [
+      50
+    ],
+    "outputs": "Preprocessing completed successfully"
+  }
+}

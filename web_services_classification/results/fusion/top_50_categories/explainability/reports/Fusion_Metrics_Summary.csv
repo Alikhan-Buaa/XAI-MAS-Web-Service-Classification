@@ -1,0 +1,7 @@
+,Fidelity,Fidelity,Jaccard,Jaccard,Stability,Stability
+,mean,std,mean,std,mean,std
+model,,,,,,
+average_fusion,0.959,0.0046,0.7543,0.0039,0.9247,0.0267
+concat_fusion,0.9353,0.0348,0.753,0.0041,0.8756,0.0214
+gating_fusion,0.9609,0.0175,0.7533,0.0075,0.9036,0.0218
+weighted_fusion,0.9493,0.0222,0.7555,0.0056,0.9236,0.0289

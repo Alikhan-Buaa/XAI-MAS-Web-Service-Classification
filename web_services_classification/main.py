@@ -30,7 +30,11 @@ from src.modeling.deepseek_models import DeepSeekModelTrainer
 from src.modeling.fusion_models import DeepSeekRoBERTaFusionTrainer
 from src.utils.utils import setup_logging, get_timestamp
 from src.explainability.ml_explainability import MLExplainability
-
+from src.explainability.overall_explainability import generate_overall_charts
+from src.explainability.deepseek_explainability import DeepSeekExplainability
+from src.explainability.dl_explainability import DLExplainability
+from src.explainability.bert_explainability import BERTExplainability
+from src.explainability.fusion_explainability import FusionExplainability
 
 class PipelineManager:
     """Enhanced pipeline manager with comprehensive logging and result tracking"""
@@ -184,202 +188,6 @@ class PipelineManager:
                 'error': str(e)
             }
             self.log_phase_end(phase_name, start_time, success=False, error=e)
-            raise
-
-    def run_enhanced_data_analysis_phase(self):
-        """
-        Run ENHANCED data analysis phase with comprehensive logging
-        
-        Performs COMPREHENSIVE analysis including:
-        
-        BASIC ANALYSIS:
-        - Overall dataset statistics and visualizations
-        - Top-N category analysis
-        - Text length and word count distributions
-        - Category distribution plots
-        - Basic per-category statistics
-        
-        ADVANCED ANALYSIS:
-        - Statistical tests (normality, chi-square, correlation)
-        - Class imbalance analysis with Gini coefficient
-        - Automated recommendations (SMOTE, class weights, etc.)
-        - TF-IDF feature importance per category
-        - Topic modeling with LDA
-        - Dimensionality reduction (PCA, t-SNE)
-        - Text complexity metrics (Flesch, lexical diversity)
-        - Feature correlation heatmaps
-        - Outlier detection with IQR method
-        
-        VISUALIZATIONS:
-        - 15+ standard plots
-        - 8+ advanced visualizations
-        - Lorenz curves
-        - Log-scale distributions
-        - Correlation heatmaps
-        - Topic importance plots
-        - PCA/t-SNE scatter plots
-        
-        Returns:
-            bool: True if analysis completed successfully
-        """
-        phase_name = "enhanced_data_analysis"
-        start_time = self.log_phase_start(phase_name)
-        
-        try:
-            
-            self.logger.info("Initializing ENHANCED data analyzer...")
-            self.logger.info("This will perform comprehensive analysis including:")
-            self.logger.info("  - Standard analysis (stats, distributions, categories)")
-            self.logger.info("  - Statistical tests (normality, correlation)")
-            self.logger.info("  - Class imbalance analysis (Gini, entropy)")
-            self.logger.info("  - TF-IDF feature importance")
-            self.logger.info("  - Topic modeling (LDA)")
-            self.logger.info("  - Dimensionality reduction (PCA, t-SNE)")
-            self.logger.info("  - Text complexity metrics")
-            self.logger.info("  - Feature correlations")
-            self.logger.info("  - Outlier detection")
-            
-            analyzer = EnhancedDataAnalyzer()
-            
-            self.logger.info("\nRunning comprehensive enhanced data analysis...")
-            results = analyzer.run_complete_analysis(run_advanced=True)
-            
-            self.results[phase_name] = {
-                'status': 'completed',
-                'mode': 'enhanced',
-                'summary': 'Enhanced data analysis with all advanced features completed successfully',
-                'outputs': {
-                    'overall_analysis': str(analyzer.overall_dir),
-                    'advanced_analysis': str(analyzer.advanced_dir),
-                    'topN_analysis': {n: str(d) for n, d in analyzer.topN_dir.items()}
-                },
-                'analyses_performed': {
-                    'basic': [
-                        'Overall dataset statistics',
-                        'Top-N category analysis',
-                        'Text length distribution',
-                        'Word count distribution',
-                        'Category distribution plots',
-                        'Per-category statistics'
-                    ],
-                    'advanced': [
-                        'Statistical tests (normality, chi-square, Pearson correlation)',
-                        'Class imbalance analysis (Gini coefficient, entropy, imbalance ratio)',
-                        'Recommendations for handling imbalance',
-                        'TF-IDF feature importance per category',
-                        'Topic modeling with LDA (5 topics)',
-                        'Dimensionality reduction (PCA & t-SNE)',
-                        'Text complexity metrics (Flesch reading ease, lexical diversity)',
-                        'Feature correlation analysis',
-                        'Outlier detection (IQR method)'
-                    ]
-                },
-                'visualizations_generated': {
-                    'standard': [
-                        'Text length distribution',
-                        'Word count distribution',
-                        'Word length distribution',
-                        'Category distribution',
-                        'Top-N category distributions',
-                        'Text length boxplots by category',
-                        'Word count boxplots by category'
-                    ],
-                    'advanced': [
-                        'Lorenz curve (class imbalance)',
-                        'Log-scale category distribution',
-                        'Sample distribution boxplot',
-                        'Cumulative percentage plot',
-                        'TF-IDF top features per category',
-                        'Topic modeling visualization',
-                        'PCA scatter plot with variance explained',
-                        't-SNE scatter plot',
-                        'Text complexity boxplots',
-                        'Feature correlation heatmap',
-                        'Outlier detection boxplots'
-                    ]
-                },
-                'files_generated': {
-                    'json': [
-                        'dataset_summary.json',
-                        'category_statistics_topN.json',
-                        'statistical_tests.json',
-                        'class_imbalance_analysis.json',
-                        'tfidf_analysis.json',
-                        'topic_modeling.json',
-                        'dimensionality_reduction_info.json',
-                        'outlier_analysis.json'
-                    ],
-                    'csv': [
-                        'category_statistics_topN.csv',
-                        'text_complexity_by_category.csv',
-                        'feature_correlation_matrix.csv'
-                    ],
-                    'png': [
-                        '15+ standard plots',
-                        '8+ advanced visualizations'
-                    ]
-                }
-            }
-            
-            self.log_phase_end(phase_name, start_time, success=True)
-            
-            self.logger.info("\n" + "=" * 70)
-            self.logger.info("✓ ENHANCED ANALYSIS COMPLETE")
-            self.logger.info("=" * 70)
-            self.logger.info(f"Overall analysis: {analyzer.overall_dir}")
-            self.logger.info(f"Advanced analysis: {analyzer.advanced_dir}")
-            self.logger.info(f"\nTop-N analysis directories:")
-            for n, path in analyzer.topN_dir.items():
-                self.logger.info(f"  - Top-{n}: {path}")
-            self.logger.info("=" * 70)
-            
-            # Log key findings from advanced analysis
-            self.logger.info("\n📊 KEY INSIGHTS:")
-            
-            # Check if imbalance analysis file exists
-            imbalance_file = analyzer.advanced_dir / "class_imbalance_analysis.json"
-            if imbalance_file.exists():
-                import json
-                with open(imbalance_file, 'r') as f:
-                    imbalance_data = json.load(f)
-                
-                self.logger.info(f"\n🔍 Class Imbalance:")
-                self.logger.info(f"  - Imbalance Ratio: {imbalance_data.get('imbalance_ratio', 'N/A'):.2f}")
-                self.logger.info(f"  - Gini Coefficient: {imbalance_data.get('gini_coefficient', 'N/A'):.3f}")
-                
-                recommendations = imbalance_data.get('recommendations', [])
-                if recommendations:
-                    self.logger.info(f"\n💡 Recommendations:")
-                    for rec in recommendations[:3]:  # Show first 3 recommendations
-                        self.logger.info(f"  - {rec}")
-            
-            self.logger.info("\n" + "=" * 70 + "\n")
-            
-            return results
-            
-        except ImportError as e:
-            self.logger.error(f"Enhanced analyzer module not found: {e}")
-            self.logger.error("Please ensure 'data_analysis_enhanced.py' is in your project directory")
-            
-            self.results[phase_name] = {
-                'status': 'failed',
-                'mode': 'enhanced',
-                'error': f"Module not found: {e}",
-                'error_type': 'ImportError',
-                'suggestion': 'Ensure data_analysis_enhanced.py is in the correct location'
-            }
-            self.log_phase_end(phase_name, start_time, success=False, error=e)
-            raise
-            
-        except Exception as e:
-            self.results[phase_name] = {
-                'status': 'failed',
-                'mode': 'enhanced',
-                'error': str(e),
-                'error_type': type(e).__name__
-            }
-            self.log_phase_end(phase_name, start_time, success=False, error=e)
-            self.logger.error(f"✗ Enhanced data analysis failed: {e}", exc_info=True)
             raise
 
     def run_preprocessing_phase(self):
@@ -569,6 +377,14 @@ class PipelineManager:
         
         try:
             fusion_trainer = DeepSeekRoBERTaFusionTrainer()
+            
+            #=================================================
+            # Adding these lines to force only concat category
+            #=================================================
+            # self.logger.info(" FORCING CONFIG : Running only CONCAT category in FUSION")
+            # fusion_trainer.config['fusion_types'] = ['concat']
+            #=================================================
+            
             results = fusion_trainer.train_all_categories()
             
             # Extract summary statistics safely
@@ -824,6 +640,151 @@ class PipelineManager:
             }
             self.log_phase_end(phase_name, start_time, success=False, error=e)
             raise
+
+    def run_dl_explainability_phase(self):
+            """Execute Deep Learning Explainability Phase"""
+            
+            
+            self.logger.info("="*80)
+            self.logger.info("STARTING PHASE: DL_EXPLAINABILITY")
+            self.logger.info("="*80)
+            
+            try:
+                # Initialize the explainer
+                explainer = DLExplainability()
+                
+                # Iterate over all category sizes (e.g., 5, 10) defined in config
+                for n_categories in CATEGORY_SIZES:
+                    self.logger.info(f"Generating DL explanations for top_{n_categories}_categories...")
+                    # This will automatically run for all models (BiLSTM) and features (TFIDF, SBERT)
+                    explainer.explain_all_models(n_categories)
+                    
+                self.logger.info("DL Explainability phase completed successfully.")
+                
+            except Exception as e:
+                self.logger.error(f"DL Explainability phase failed: {e}")
+                raise e
+
+    # --- NEW: BERT EXPLAINABILITY PHASE ---
+    def run_bert_explainability_phase(self):
+        """Execute BERT Explainability Phase"""
+        
+        
+        phase_name = "bert_explainability"
+        start_time = self.log_phase_start(phase_name)
+        
+        try:
+            for n_categories in CATEGORY_SIZES:
+                self.logger.info(f"Generating BERT explanations for top_{n_categories}_categories...")
+                explainer = BERTExplainability(n_categories)
+                explainer.explain_all_models()
+            
+            self.results[phase_name] = {
+                'status': 'completed',
+                'summary': 'BERT explainability analysis completed successfully'
+            }
+            self.log_phase_end(phase_name, start_time, success=True)
+            
+        except Exception as e:
+            self.results[phase_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            self.log_phase_end(phase_name, start_time, success=False, error=e)
+            raise e
+
+    # --- NEW: FUSION EXPLAINABILITY PHASE ---
+    def run_fusion_explainability_phase(self):
+        """Execute Fusion Explainability Phase"""
+        
+        
+        phase_name = "fusion_explainability"
+        start_time = self.log_phase_start(phase_name)
+        
+        try:
+            # Define fusion types to analyze
+            fusion_types = ['concat', 'average', 'weighted', 'gating']
+            
+            for n_categories in CATEGORY_SIZES:
+                self.logger.info(f"Generating Fusion explanations for top_{n_categories}_categories...")
+                self.logger.info(f"Analyzing fusion types: {fusion_types}")
+                
+                explainer = FusionExplainability(
+                    n_categories=n_categories,
+                    fusion_types=fusion_types
+                )
+                explainer.explain_all_models()
+            
+            self.results[phase_name] = {
+                'status': 'completed',
+                'summary': 'Fusion explainability analysis completed successfully',
+                'fusion_types': fusion_types,
+                'categories': CATEGORY_SIZES
+            }
+            self.log_phase_end(phase_name, start_time, success=True)
+            
+        except Exception as e:
+            self.results[phase_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            self.log_phase_end(phase_name, start_time, success=False, error=e)
+            raise e
+
+    # --- NEW: DEEPSEEK EXPLAINABILITY PHASE ---
+    def run_deepseek_explainability_phase(self):
+        """Execute DeepSeek Explainability Phase"""
+        
+        
+        phase_name = "deepseek_explainability"
+        start_time = self.log_phase_start(phase_name)
+        
+        try:
+            for n_categories in CATEGORY_SIZES:
+                self.logger.info(f"Generating DeepSeek explanations for top_{n_categories}_categories...")
+                
+                explainer = DeepSeekExplainability(n_categories=n_categories)
+                explainer.explain()
+            
+            self.results[phase_name] = {
+                'status': 'completed',
+                'summary': 'DeepSeek explainability analysis completed successfully',
+                'categories': CATEGORY_SIZES
+            }
+            self.log_phase_end(phase_name, start_time, success=True)
+            
+        except Exception as e:
+            self.results[phase_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            self.log_phase_end(phase_name, start_time, success=False, error=e)
+            raise e
+    def run_overall_explainability_phase(self):
+        """Run the overall XAI comparison chart generation"""
+        phase_name = "overall_explainability"
+        start_time = self.log_phase_start(phase_name)
+        
+        try:
+            for n_categories in CATEGORY_SIZES:
+                self.logger.info(f"Generating Overall XAI Comparison for top_{n_categories}_categories...")
+                generate_overall_charts(n_categories)
+            
+            self.results[phase_name] = {
+                'status': 'completed',
+                'summary': 'Overall explainability charts generated successfully',
+                'categories': CATEGORY_SIZES
+            }
+            self.log_phase_end(phase_name, start_time, success=True)
+            
+        except Exception as e:
+            self.results[phase_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            self.log_phase_end(phase_name, start_time, success=False, error=e)
+            raise e
+
 def main():
     """Enhanced main function with comprehensive pipeline management"""
     parser = argparse.ArgumentParser(description="Web Services Classification Pipeline")
@@ -832,7 +793,9 @@ def main():
         choices=[
             "all", "analysis", "preprocessing", "features", "ml_training", 
             "dl_training", "bert_training", "fusion_training", "deepseek_training", 
-            "evaluation", "visualize", "benchmarks","ml_explainability"
+            "evaluation", "visualize", "benchmarks", 
+            "ml_explainability", "dl_explainability", "bert_explainability", 
+            "fusion_explainability", "deepseek_explainability","overall_explainability"
         ],
         default="all",
         help="Which phase to run"
@@ -872,6 +835,11 @@ def main():
             pipeline.run_deepseek_training_phase()
             pipeline.run_evaluation_phase()
             pipeline.run_ml_explainability_phase()
+            pipeline.run_dl_explainability_phase()
+            pipeline.run_bert_explainability_phase()
+            pipeline.run_fusion_explainability_phase()
+            pipeline.run_deepseek_explainability_phase()
+            pipeline.run_overall_explainability_phase()
             pipeline.run_visualize_phase()
             pipeline.run_benchmark_generation_phase()
         elif args.phase == "analysis":
@@ -899,6 +867,16 @@ def main():
             pipeline.run_benchmark_generation_phase()
         elif args.phase == "ml_explainability":
             pipeline.run_ml_explainability_phase()
+        elif args.phase == "dl_explainability":
+            pipeline.run_dl_explainability_phase()
+        elif args.phase == "bert_explainability":
+            pipeline.run_bert_explainability_phase()
+        elif args.phase == "fusion_explainability":
+            pipeline.run_fusion_explainability_phase()
+        elif args.phase == "deepseek_explainability":
+            pipeline.run_deepseek_explainability_phase()
+        elif args.phase == "overall_explainability":  
+            pipeline.run_overall_explainability_phase()
         
         # Save execution summary and print final results
         pipeline.save_execution_summary()

@@ -1,0 +1,16 @@
+{
+  "ml_explainability": {
+    "status": "completed",
+    "summary": "ML explainability analysis completed successfully",
+    "n_categories": 50,
+    "feature_types": [
+      "tfidf",
+      "sbert"
+    ],
+    "models_analyzed": [
+      "LogisticRegression",
+      "RandomForest",
+      "XGBoost"
+    ]
+  }
+}

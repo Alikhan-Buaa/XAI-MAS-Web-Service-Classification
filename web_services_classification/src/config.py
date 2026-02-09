@@ -507,11 +507,52 @@ def create_all_directories():
             
 
         ])
-    
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
     
     print(f"Created {len(directories)} directories")
+
+# =============================================================================
+# Explainability Configuration - Overall
+# =============================================================================
+OVERALL_EXPLAINABILITY_CONFIG = {
+    # File names for metrics (must match what other scripts generate)
+    'metrics_files': {
+        'ml': 'ML_Final_Metrics.csv',
+        'dl': 'DL_Final_Metrics.csv',
+        'bert': 'BERT_Final_Metrics.csv',
+        'deepseek': 'DeepSeek_Final_Metrics.csv',
+        'fusion': 'Fusion_Final_Metrics.csv'
+    },
+    
+    # File names for consolidated tokens
+    'token_files': {
+        'bert': 'BERT_Consolidated_Dominant_Tokens.csv',
+        'deepseek': 'DeepSeek_Dominant_Tokens.csv',
+        'dl': 'DL_Consolidated_Dominant_Tokens.csv',
+        'fusion': 'Fusion_Consolidated_Dominant_Tokens.csv',
+        'ml': 'ML_Consolidated_Dominant_Tokens.csv'
+    },
+
+    # Visualization settings
+    'model_colors': {
+        'LogisticRegression': '#1f77b4', 
+        'RandomForest': '#ff7f0e', 
+        'XGBoost': '#a9a9a9',
+        'BiLSTM': '#ffd700', 
+        'RoBERTa_Base': '#87ceeb', 
+        'RoBERTa_Large': '#2ca02c',
+        'DeepSeek_7B': '#00008b', 
+        'DeepSeek_RoBERTa_Fusion': '#00ced1'
+    },
+    
+    'metric_mapping': {
+        'Jaccard': 'Jaccard Index', 
+        'Fidelity': 'Fidelity Score', 
+        'Stability': 'Stability Score'
+    }
+}
+    
 
 if __name__ == "__main__":
     create_all_directories()
