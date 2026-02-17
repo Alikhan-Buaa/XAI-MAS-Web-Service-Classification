@@ -91,7 +91,7 @@ PREPROCESSING_CONFIG = {
     "max_word_length": 50,
 
     # Custom stopwords
-    "custom_stopwords": ["a", "an", "the", "and", "or", "but", "in", "on", "at", "to"],
+    "custom_stopwords": ["a", "an", "the", "and", "or", "but", "in", "on", "at", "to","of", "is", "for", "their", "that", "with", "can"],
 
     # Advanced cleaning
     "remove_urls": True,
