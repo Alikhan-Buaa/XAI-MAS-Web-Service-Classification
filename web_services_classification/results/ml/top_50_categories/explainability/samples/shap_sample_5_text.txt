@@ -1,3 +1,0 @@
-SAMPLE ID: 5
---------------------------------------------------
-liveperson is provider of real time communication solution that facilitate identification engagement of customer by business liveperson engagement history api provides access historical record of chat transcript api provides capability for searching filtering storing copy of transcript for purpose of using third party tool such a crm system data integration analysis restful api return response json format

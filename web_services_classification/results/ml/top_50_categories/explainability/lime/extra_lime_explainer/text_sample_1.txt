@@ -1,4 +1,0 @@
-Sample ID: 0
-Prediction: Payments
-
-nanosdk json storage api offer json document storage a service it function allow you retrieve create replace delete document nanosdk microservices are user friendly can be used through explorer nanosdk com speed up your application development you need be authenticated authorized consume service you need least one api key set nanosdk key header with this key when request is received key is validated allows request form moment you have enough credit pricing one time refill credit price simple pricing per credit you refill your balance with credit spend them through our apis your credit do not expire supported currency usd eur all price are exclusive of any applicable tax

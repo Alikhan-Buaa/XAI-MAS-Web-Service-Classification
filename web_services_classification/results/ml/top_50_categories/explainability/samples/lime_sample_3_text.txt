@@ -1,3 +1,0 @@
-SAMPLE ID: 3
---------------------------------------------------
-advertising api give web mobile application ability programmatically retrieve insert advertisement collect revenue share based off of user engagement developer can use get ad api parameter fetch advertisement be placed within application when present screen user will be forwarded link whenever ad is clicked increase conversion rate developer can specify their app user demographic such a age area code city gender country etc api can also be used specify ad banner sizing placement ad type image text ad are sourced from inventory supported by millenial medium jumptap mojiva advertising distributor order deliver balanced ad portfolio
