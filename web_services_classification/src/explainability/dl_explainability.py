@@ -32,7 +32,6 @@ for noisy_logger in ['shap', 'lime', 'sentence_transformers', 'tensorflow']:
     logger_instance.setLevel(logging.ERROR)
     logger_instance.propagate = False # Stops it from reaching your main console
 
-    
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 warnings.filterwarnings('ignore')
@@ -60,19 +59,17 @@ STOPWORDS = {
     'during', 'inside', 'near', 'outside', 'over', 'through', 'under', 'until', 'upon',
     'not', 'no', 'nor', 'only', 'own', 'same', 'so', 'than', 'too', 'very',
     'just', 'don', 'now', 'people', 'also', 'more', 'other', 'some', 'such',
-    'all', 'any', 'both', 
+    'all', 'any', 'both','ma', 'acus', 'id','eur','abn', 'abn amro','apis',
     
     # Domain / Junk / Fragments identified from client plots
-    'api', 'apis', 'service', 'services', 'application', 'applications', 'web', 'data', 
+    'apis', 'service', 'services', 'application',  'data', 
     'platform', 'provide', 'provides', 'use', 'using', 'used', 'user', 'users',
     'based', 'allow', 'allows', 'access', 'tool', 'tools', 'online', 'feature', 
     'features', 'solution', 'solutions', 'create', 'support', 'management', 'build',
-    'ability', 'able', 'abn', 'abn amro', 'developer', 'information', 'system',
-    'software', 'business', 'company', 'help', 'need', 'like', 'best', 'great',
+    'ability', 'able', 'abn', 'abn amro', 'developer', 'information', 'system', 'company', 'help', 'need', 'like', 'best', 'great',
     'good', 'time', 'work', 'new', 'make', 'way', 'world', 'get', 'one',
-    'validated', 'json', 'refill', 'eur', 'retrieve', 'key', 'speed', 'enough',
-    'moment', 'response', 'unit', 'protocol', 'mapping', 'yearly', 'facilitate',
-    'ma', 'acus', 'id', 'ui', 'db' # Added fragments
+    'validated', 'json', 'refill', 'retrieve', 'key', 'speed', 'enough',
+    'moment', 'response', 'unit', 'mapping', 'yearly', 'facilitate'
 }
 
 class DLExplainability:
@@ -160,12 +157,14 @@ class DLExplainability:
         if feature_type == "tfidf":
             def tfidf_pipeline(texts):
                 vecs = self.feature_extractor.tfidf_vectorizer.transform(texts).toarray()
-                return model.predict(vecs, verbose=0)
+                # [OPTIMIZED] Added batch_size for faster TF processing
+                return model.predict(vecs, batch_size=128, verbose=0)
             return tfidf_pipeline
         else:
             def sbert_pipeline(texts):
-                vecs = sbert_model.encode(texts)
-                return model.predict(vecs, verbose=0)
+                # [OPTIMIZED] Added batch_size and disabled progress bar to prevent I/O blocking
+                vecs = sbert_model.encode(texts, batch_size=128, show_progress_bar=False)
+                return model.predict(vecs, batch_size=128, verbose=0)
             return sbert_pipeline
 
     def _get_strict_top_15(self, features, weights):
@@ -208,33 +207,19 @@ class DLExplainability:
         plt.close()
 
     def calculate_real_metrics(self, lime_exp_score, shap_top15, lime_top15):
-        """Honest mathematical set evaluation with safe baselines for DL."""
         metrics = {}
-        # Fidelity mapped to realistic limits based on R2 score
-        base_score = abs(lime_exp_score) if lime_exp_score is not None else 0.5
-        metrics['Fidelity'] = round(min(0.95, max(0.60, 0.60 + (base_score * 0.35))), 4)
+        raw_fidelity = abs(lime_exp_score) if lime_exp_score is not None else 0.0
+        metrics['Fidelity'] = round(max(0.0, min(1.0, raw_fidelity)), 4)
         
-        # Real Jaccard Calculation
         s_set = set([str(x[0]).lower().strip() for x in shap_top15 if x[0]])
         l_set = set([str(x[0]).lower().strip() for x in lime_top15 if x[0]])
         
         intersection = len(s_set.intersection(l_set))
         union = len(s_set.union(l_set))
         
-        # Calculate raw overlap
-        raw_jaccard = intersection / union if union > 0 else 0.0
-        
-        # Baseline DL models naturally exhibit high variance (low overlap).
-        if raw_jaccard == 0.0:
-            jaccard = np.random.uniform(0.12, 0.25)
-        else:
-            jaccard = raw_jaccard
-            
-        metrics['Jaccard'] = round(jaccard, 4)
-        
-        # Natural stability derivation (Jaccard +/- small variance)
-        stab = jaccard + np.random.uniform(-0.05, 0.05)
-        metrics['Stability'] = round(max(0.01, min(0.99, stab)), 4)
+        pure_jaccard = intersection / union if union > 0 else 0.0
+        metrics['Jaccard'] = round(pure_jaccard, 4)
+        metrics['Stability'] = round(pure_jaccard, 4)
         
         return metrics
 
@@ -282,7 +267,8 @@ class DLExplainability:
             try:
                 text = test_df.iloc[i]['cleaned_text']
                 top_lbl = np.argmax(pipeline_fn([text])[0])
-                exp = lime_explainer.explain_instance(text, pipeline_fn, num_features=10, labels=[top_lbl], num_samples=500)
+                # [OPTIMIZED] Dropped num_samples from 500 to 100. Global LIME aggregation scales horribly with 500 per sample.
+                exp = lime_explainer.explain_instance(text, pipeline_fn, num_features=10, labels=[top_lbl], num_samples=100)
                 for f, w in exp.as_list(label=top_lbl): 
                     if f.lower().strip() not in STOPWORDS: 
                         global_lime_w[f.lower()] += abs(w)
@@ -308,11 +294,15 @@ class DLExplainability:
 
         # 1. Global SHAP
         logger.info(f"Running Global SHAP for DL {model_name}...")
-        bg_summary = X_train[:5]
         
-        def predict_wrap(x): return model.predict(x, verbose=0)
+        # [OPTIMIZED] Used shap.kmeans to heavily reduce background computation matrix size
+        # This converts a massive training array into 5 representative cluster centers
+        bg_summary = shap.kmeans(X_train, 5) 
+        
+        def predict_wrap(x): return model.predict(x, batch_size=128, verbose=0)
         explainer = shap.KernelExplainer(predict_wrap, bg_summary)
-        shap_values_global = explainer.shap_values(bg_summary, silent=True)
+        # [OPTIMIZED] Limit to max 50 samples for global evaluation instead of full set
+        shap_values_global = explainer.shap_values(X_train[:50], silent=True)
 
         self._plot_global_category_importance(shap_values_global, class_labels, model_name, feature_type)
         self._extract_global_tokens_per_category(shap_values_global, class_labels, feature_names)
@@ -320,7 +310,7 @@ class DLExplainability:
         if feature_type == "tfidf":
             try:
                 plt.figure(figsize=(12, 8))
-                shap.summary_plot(shap_values_global, bg_summary, feature_names=feature_names, max_display=15, show=False)
+                shap.summary_plot(shap_values_global, X_train[:50], feature_names=feature_names, max_display=15, show=False)
                 plt.title(f"Beeswarm Top 15 - DL {model_name}", fontsize=12)
                 plt.tight_layout()
                 plt.savefig(self.dirs['beeswarm'] / f"beeswarm_{model_name}_{feature_type}.png")
@@ -363,7 +353,6 @@ class DLExplainability:
                             indices_to_explain.append(i)
                     except: continue
 
-        # Initialize Text Explainer for SBERT real metrics evaluation
         text_explainer = None
         if feature_type == 'sbert':
             logger.info("Initializing SHAP Text Explainer for SBERT true metric generation...")
@@ -371,13 +360,13 @@ class DLExplainability:
                 if isinstance(texts, np.ndarray): texts = texts.tolist()
                 elif isinstance(texts, str): texts = [texts]
                 texts = [str(t) for t in texts]
-                vecs = sbert_model.encode(texts)
-                return model.predict(vecs, verbose=0)
+                # [OPTIMIZED] Batching added here to prevent iteration freeze
+                vecs = sbert_model.encode(texts, batch_size=128, show_progress_bar=False)
+                return model.predict(vecs, batch_size=128, verbose=0)
             
             masker = shap.maskers.Text(r"\W+")
             text_explainer = shap.Explainer(sbert_text_predict, masker)
 
-        # Iterate selected indices for combined processing
         for idx_count, i in enumerate(indices_to_explain):
             try:
                 text = str(test_df.iloc[i]['cleaned_text'])
@@ -386,7 +375,8 @@ class DLExplainability:
                 cat_name = class_labels[top_cls]
 
                 # --- LIME EXPLANATION ---
-                exp = lime_explainer.explain_instance(text, pipeline_fn, num_features=30, labels=[top_cls], num_samples=500)
+                # [OPTIMIZED] Changed num_samples from 500 to 100 for significantly faster local loops
+                exp = lime_explainer.explain_instance(text, pipeline_fn, num_features=30, labels=[top_cls], num_samples=100)
                 
                 dash_path = self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_sample_{i}.html"
                 try: exp.save_to_file(str(dash_path))
@@ -404,22 +394,21 @@ class DLExplainability:
                 exp_obj = None
 
                 if feature_type == 'sbert':
-                    # REAL SHAP text execution
-                    shap_obj_text = text_explainer([text])
+                    # [OPTIMIZED] Capped max_evals to 150 to stop SHAP from creating infinite text masks on long documents
+                    shap_obj_text = text_explainer([text], max_evals=150)
                     sv_raw = shap_obj_text[0].values[:, top_cls]
                     words_raw = shap_obj_text[0].data
                     base_val_raw = shap_obj_text[0].base_values[top_cls]
 
-                    # FIX: Aggregating duplicates & absorbing stopwords to preserve f(x) math
                     word_agg = defaultdict(float)
                     new_base_val = base_val_raw
                     
                     for w, val in zip(words_raw, sv_raw):
                         w_str = str(w).lower().strip()
                         if w_str in STOPWORDS or len(w_str) < 2:
-                            new_base_val += val  # Absorb stopword values into base
+                            new_base_val += val 
                         else:
-                            word_agg[w_str] += val  # Aggregate valid words (e.g. 'bank' + 'bank')
+                            word_agg[w_str] += val 
 
                     words = list(word_agg.keys())
                     sv = np.array(list(word_agg.values()))
@@ -436,7 +425,6 @@ class DLExplainability:
                     self._plot_bar(shap_clean_for_metrics, f"SHAP Tokens DL - {model_name} - Category: {cat_name}",
                                    self.dirs['samples'] / f"shap_sample_{i}_{model_name}_{feature_type}.png")
                 else:
-                    # STANDARD SHAP execution for TFIDF
                     vec = self.feature_extractor.tfidf_vectorizer.transform([text]).toarray()
                     local_shap = explainer.shap_values(vec, silent=True)
                     
@@ -449,7 +437,6 @@ class DLExplainability:
                     elif len(local_shap.shape) == 3: sv_raw = local_shap[0, :, top_cls]
                     else: sv_raw = local_shap[0]
                     
-                    # FIX: Apply same aggregation to TFIDF to keep rules consistent
                     word_agg = defaultdict(float)
                     new_base_val = base_val_raw
                     for w, val in zip(feature_names, sv_raw):
@@ -468,7 +455,6 @@ class DLExplainability:
                         sv = sv / norm_factor
                         base_val = base_val / norm_factor
 
-                    # TFIDF uses empty data array for waterfall since tokens are pre-vectorized
                     exp_obj = shap.Explanation(values=sv, base_values=base_val, data=np.zeros(len(f_names)), feature_names=f_names)
                     shap_clean_for_metrics = self._get_strict_top_15(f_names, sv)
 
