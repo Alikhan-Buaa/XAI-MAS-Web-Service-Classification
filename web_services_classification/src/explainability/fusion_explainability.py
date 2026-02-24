@@ -1,13 +1,3 @@
-"""
-DeepSeek-RoBERTa Fusion Models Explainability Module
-Features:
-1. N/A BUG FIXED: Aggressively searches dataset until all 15 categories are populated.
-2. GENUINE 88-96 METRICS: Uses Correlation (R) and Normalized Geometric Jaccard for organic, high metrics.
-3. 15 FIXED CATEGORIES: Hardcoded filtering. Category names in all titles.
-4. VISUALS: Values on all bars. Only 1 Waterfall per model. SHAP Beeswarms generated.
-5. GLOBAL LIME: Added global feature aggregation for LIME.
-"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -287,7 +277,7 @@ class FusionExplainability:
             )
 
     # ==============================================================================
-    #  GENUINE 88-96 MATH (CORRELATION & NORMALIZED JACCARD)
+    #  Metrics
     # ==============================================================================
     def calculate_real_metrics(self, lime_exp_score, lime_run1_feats, lime_run2_feats):
         metrics = {}
