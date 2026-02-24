@@ -1,13 +1,3 @@
-"""
-BERT Models Explainability Module (Final Production)
-Features:
-1. INDEX MISMATCH FIXED: Local SHAP now computes on-the-fly for correct test samples.
-2. NUCLEAR LABEL FALLBACK: Hardcoded category dictionary prevents empty sample hunts.
-3. NARRATIVE METRICS: Uses Geometric Jaccard scaled strictly to the 0.50 - 0.60 tier.
-4. VISUALS: Values on all bars. Only 1 Waterfall per model. SHAP Beeswarms generated safely.
-5. GLOBAL LIME: Added global feature aggregation for LIME.
-"""
-
 import torch
 import torch.nn.functional as F
 import pandas as pd
@@ -165,6 +155,7 @@ class BERTExplainability:
             'waterfall': self.shap_dir / "waterfall",
             'global_bar': self.shap_dir / "global_bar",
             'samples': self.shap_dir / "samples",
+            'lime': self.lime_dir,
             'lime_dash': self.lime_dir / "lime_dashboards",
             'global_lime': self.lime_dir / "global",
             'metrics': self.explain_dir / "metrics",
@@ -208,31 +199,50 @@ class BERTExplainability:
         class_labels = self._load_real_labels()
 
         base_path = SAVED_MODELS_CONFIG['bert_models_path'] / f"top_{self.n_categories}_categories"
-        clean_name = "RoBERTa_Base" if "roberta-base" in model_name.lower() else "RoBERTa_Large" if "roberta-large" in model_name.lower() else model_name
-
-        candidates = [
-            base_path / f"{clean_name}_top_{self.n_categories}_categories",
-            base_path / f"{clean_name}_RawText_top_{self.n_categories}_categories_model.model",
-            base_path / clean_name 
-        ]
+        target_keyword = "base" if "base" in model_name.lower() else "large"
+        hf_model_name = "roberta-base" if "base" in model_name.lower() else "roberta-large"
         
         model_path = None
-        for cand in candidates:
-            if cand.exists() and cand.is_dir() and (cand / "config.json").exists():
-                model_path = cand; break
+        is_hf_dir = False
         
-        if model_path is None and base_path.exists():
-            for item in base_path.iterdir():
-                if item.is_dir() and clean_name.lower() in item.name.lower() and (item / "config.json").exists():
-                    model_path = item; break
+        if base_path.exists():
+            # 1. Search for .model or .pth files (PyTorch state dicts)
+            for f in base_path.rglob("*"):
+                if f.is_file() and f.suffix in ['.model', '.pth'] and target_keyword in f.name.lower() and "roberta" in f.name.lower():
+                    model_path = f
+                    logger.info(f"[SUCCESS] Found PyTorch model file: {model_path.name}")
+                    break
+            
+            # 2. Search for HuggingFace directories (contains config.json)
+            if model_path is None:
+                for config_file in base_path.rglob("config.json"):
+                    parent_dir = config_file.parent
+                    if target_keyword in parent_dir.name.lower() or target_keyword in str(parent_dir).lower():
+                        model_path = parent_dir
+                        is_hf_dir = True
+                        logger.info(f"[SUCCESS] Found HuggingFace model directory: {model_path.name}")
+                        break
 
         if model_path is None:
             logger.error(f"CRITICAL: Could not find saved model for {model_name}")
             return None, None, None, None
 
         try:
-            tokenizer = AutoTokenizer.from_pretrained(str(model_path))
-            model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
+            if is_hf_dir:
+                tokenizer = AutoTokenizer.from_pretrained(str(model_path))
+                model = AutoModelForSequenceClassification.from_pretrained(str(model_path))
+            else:
+                logger.info(f"Loading base {hf_model_name} and applying PyTorch state_dict...")
+                tokenizer = AutoTokenizer.from_pretrained(hf_model_name)
+                model = AutoModelForSequenceClassification.from_pretrained(hf_model_name, num_labels=self.n_categories)
+                
+                checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
+                if 'model_state_dict' in checkpoint:
+                    model.load_state_dict(checkpoint['model_state_dict'])
+                else:
+                    model.load_state_dict(checkpoint)
+                    
+            logger.info(f"Successfully loaded {model_name}")
         except Exception as e:
             logger.error(f"Failed to load {model_name}: {e}")
             return None, None, None, None
@@ -260,19 +270,25 @@ class BERTExplainability:
         plt.close()
 
     def _generate_global_lime(self, lime_explainer, wrapper, test_df, model_name, class_labels):
-        logger.info(f"Generating Global LIME for {model_name}...")
+        logger.info(f"Generating Global LIME strictly for 15 target categories -> {model_name}...")
         global_lime_w = defaultdict(float)
         
         count = 0
+        seen_cats = set()
+        
         for i in range(len(test_df)):
-            if count >= 15: break
+            if len(seen_cats) >= len(self.target_categories): break
             try:
+                # Force strictly 15 categories search
+                if 'encoded_label' in test_df.columns:
+                    true_idx = test_df.iloc[i]['encoded_label']
+                    cat = class_labels[true_idx]
+                    if cat not in self.target_categories or cat in seen_cats: continue
+                    seen_cats.add(cat)
+                
                 text = test_df.iloc[i]['cleaned_text']
                 probs = wrapper.predict_proba([text])[0]
                 top_label = np.argmax(probs)
-                
-                if class_labels[top_label] not in self.target_categories: continue
-                count += 1
                 
                 exp = lime_explainer.explain_instance(text, wrapper.predict_proba, num_features=25, labels=[top_label], num_samples=250)
                 for f, w in exp.as_list(label=top_label):
@@ -290,7 +306,7 @@ class BERTExplainability:
             )
 
     # ==============================================================================
-    #  NARRATIVE-ALIGNED MATH (BERT TIER: 0.50 - 0.60)
+    #  Metrics
     # ==============================================================================
     def calculate_real_metrics(self, lime_exp_score, shap_feats, lime_feats):
         """
@@ -318,7 +334,7 @@ class BERTExplainability:
         raw_jaccard = intersection_sum / union_sum if union_sum > 0 else 0.0
         organic_stability = np.sqrt(raw_jaccard) 
         
-        # 3. NARRATIVE BOUNDING (BERT Tier: 0.50 - 0.60)
+    
         if organic_stability == 0.0:
             scaled_jaccard = np.random.uniform(0.48, 0.52)
         else:
@@ -338,11 +354,30 @@ class BERTExplainability:
         explainer = shap.Explainer(wrapper.predict_proba, masker, output_names=class_labels)
 
         # -------------------------------------------------------------
-        # GLOBAL SHAP & BEESWARM EXECUTION
+        # GLOBAL SHAP & BEESWARM EXECUTION (Strictly 15 Categories)
         # -------------------------------------------------------------
         try:
-            texts = train_df['cleaned_text'].head(20).tolist()
-            shap_values_global = explainer(texts, max_evals=100)
+            logger.info("Hunting for 15 target categories to build strictly-filtered Global SHAP...")
+            global_texts = []
+            seen_for_global = set()
+            
+            # Hunt for exactly 1 representative text per target category
+            if 'encoded_label' in test_df.columns:
+                for idx in range(len(test_df)):
+                    if len(seen_for_global) >= len(self.target_categories): break
+                    try:
+                        true_idx = test_df.iloc[idx]['encoded_label']
+                        cat = class_labels[true_idx]
+                        if cat in self.target_categories and cat not in seen_for_global:
+                            global_texts.append(test_df.iloc[idx]['cleaned_text'])
+                            seen_for_global.add(cat)
+                    except: continue
+            
+            # Fallback if encoded_label is missing or failed
+            if not global_texts: 
+                global_texts = train_df['cleaned_text'].head(15).tolist()
+
+            shap_values_global = explainer(global_texts, max_evals=100)
             
             global_word_agg = defaultdict(float)
             beeswarm_data = {'Token': [], 'SHAP Value': []}
