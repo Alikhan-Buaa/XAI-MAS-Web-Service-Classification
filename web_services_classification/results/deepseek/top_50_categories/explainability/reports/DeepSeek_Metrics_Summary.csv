@@ -1,4 +1,0 @@
-,Fidelity,Fidelity,Jaccard,Jaccard,Stability,Stability
-,mean,std,mean,std,mean,std
-model,,,,,,
-DeepSeek_7B,0.9087,0.0306,0.7577,0.0051,0.883,0.0157
