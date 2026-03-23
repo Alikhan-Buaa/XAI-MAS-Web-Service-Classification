@@ -1,3 +1,33 @@
+"""
+DL (BiLSTM) Explainability Module — SBERT Unified Pipeline
+===========================================================
+Fixes applied:
+
+FIXED #1  Domain stopwords removed: 'api', 'service', 'data', 'platform',
+          'cloud', 'tool', 'application', 'web', 'software', 'system',
+          'developer', 'access' removed from STOPWORDS.
+
+FIXED #2  Honest metrics: No np.random noise. No clamping.
+          Fidelity  = sqrt(|R²|) from LIME score.
+          Jaccard   = set overlap of top-15 SHAP words vs top-15 LIME words.
+          Stability = mean pairwise Spearman-r across same-category SHAP
+                      vectors (genuine cross-instance consistency).
+
+FIXED #3  SHAP additivity preserved: stopwords are no longer absorbed into
+          base_val post-hoc (which violates base + sum = prediction).
+          Pre-filtering is done on the word list AFTER SHAP runs; base_val
+          is left untouched.
+
+FIXED #4  CSV evidence populated: local loop always appends lime_clean and
+          shap words to self.all_dominant_tokens[cat_name].
+
+FIXED #5  KernelExplainer background: increased from 5 → 100 kmeans clusters;
+          global SHAP sample increased from 50 → 200.
+
+FIXED #6  Uniform predict_fn: same sbert_pipeline used by both KernelExplainer
+          and LimeTextExplainer (same probability scale).
+"""
+
 import pandas as pd
 import numpy as np
 import joblib
@@ -5,529 +35,420 @@ import logging
 import warnings
 import traceback
 import yaml
+import os
+import gc
 import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import defaultdict, Counter
 from pathlib import Path
-import os
+from scipy.stats import spearmanr
+
 import tensorflow as tf
-
-# SHAP & LIME
 import shap
-import lime
 from lime.lime_text import LimeTextExplainer
+from sentence_transformers import SentenceTransformer
 
-# Import configuration
 from src.config import (
     DATA_PATH, RESULTS_PATH, SAVED_MODELS_CONFIG, PREPROCESSING_CONFIG,
-    RESULTS_CONFIG
+    RESULTS_CONFIG, OVERALL_EXPLAINABILITY_CONFIG
+)
+from src.utils.utils import (
+    STOPWORDS, TARGET_CATEGORIES, FALLBACK_LABELS,
+    load_class_labels,
+    top15_tokens, plot_bar, compute_metrics,
+    build_shap_background, run_global_shap, run_global_lime,
 )
 
-# Setup logging
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Silences TensorFlow C++ noise
+from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
 
-# --- STRICTLY SILENCE SHAP & LIME ---
-for noisy_logger in ['shap', 'lime', 'sentence_transformers', 'tensorflow']:
-    logger_instance = logging.getLogger(noisy_logger)
-    logger_instance.setLevel(logging.ERROR)
-    logger_instance.propagate = False # Stops it from reaching your main console
+# ── logging ───────────────────────────────────────────────────────────────────
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+for _n in ['shap', 'lime', 'sentence_transformers', 'tensorflow']:
+    _l = logging.getLogger(_n)
+    _l.setLevel(logging.ERROR)
+    _l.propagate = False
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 warnings.filterwarnings('ignore')
-tf.compat.v1.enable_v2_behavior() # Ensure TF2 behavior
+tf.compat.v1.enable_v2_behavior()
 
-# Set plotting style
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
-
-# --- EXPANDED STOPWORD LIST (Nuclear Filter) ---
-STOPWORDS = {
-    'a', 'an', 'the', 'and', 'or', 'but', 'if', 'because', 'as', 'what',
-    'when', 'where', 'how', 'who', 'which', 'this', 'that', 'these', 'those',
-    'i', 'me', 'my', 'myself', 'we', 'us', 'our', 'ours', 'ourselves',
-    'you', 'your', 'yours', 'yourself', 'yourselves',
-    'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself',
-    'it', 'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves',
-    'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
-    'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing',
-    'can', 'could', 'shall', 'should', 'will', 'would', 'may', 'might', 'must',
-    'at', 'by', 'for', 'from', 'in', 'into', 'of', 'off', 'on', 'onto',
-    'to', 'toward', 'towards', 'up', 'down', 'with', 'within', 'without',
-    'about', 'above', 'across', 'after', 'against', 'along', 'among', 'around',
-    'before', 'behind', 'below', 'beneath', 'beside', 'between', 'beyond',
-    'during', 'inside', 'near', 'outside', 'over', 'through', 'under', 'until', 'upon',
-    'not', 'no', 'nor', 'only', 'own', 'same', 'so', 'than', 'too', 'very',
-    'just', 'don', 'now', 'people', 'also', 'more', 'other', 'some', 'such',
-    'all', 'any', 'both','ma', 'acus', 'id','eur','abn', 'abn amro','apis',
-    
-    # Domain / Junk / Fragments identified from client plots
-    'apis', 'service', 'services', 'application',  'data', 
-    'platform', 'provide', 'provides', 'use', 'using', 'used', 'user', 'users',
-    'based', 'allow', 'allows', 'access', 'tool', 'tools', 'online', 'feature', 
-    'features', 'solution', 'solutions', 'create', 'support', 'management', 'build',
-    'ability', 'able', 'abn', 'abn amro', 'developer', 'information', 'system', 'company', 'help', 'need', 'like', 'best', 'great',
-    'good', 'time', 'work', 'new', 'make', 'way', 'world', 'get', 'one',
-    'validated', 'json', 'refill', 'retrieve', 'key', 'speed', 'enough',
-    'moment', 'response', 'unit', 'mapping', 'yearly', 'facilitate'
-}
-
 class DLExplainability:
-    def __init__(self, n_categories=50):
-        self.feature_extractor = None
-        self.plot_dpi = 300
-        self.model_names = ["BiLSTM"]
-        self.all_dominant_tokens = defaultdict(list)
-        self.global_metrics_storage = []
-        
-        # FIXED TOP-15 CATEGORIES (For Alignment)
-        self.target_categories = [
-            "Advertising", "Analytics", "Application Development", "Backend", 
-            "Banking", "Bitcoin", "Chat", "Cloud", "Data", "Database", 
-            "Domains", "Education", "Email", "Enterprise", "Entertainment"
-        ]
-        self.setup_directories(n_categories)
+    MODEL_NAMES = ["BiLSTM"]
 
-    def setup_directories(self, n_categories):
+    def __init__(self, n_categories: int = 50):
         self.n_categories = n_categories
-        base_path = RESULTS_CONFIG['dl_results_path'] / f"top_{n_categories}_categories" / "explainability"
+        self.plot_dpi = 300
+        self.all_dominant_tokens: dict = defaultdict(list)
+        self.global_metrics_storage: list = []
+
+        logger.info("Loading SBERT encoder (all-MiniLM-L6-v2)…")
+        self.sbert = SentenceTransformer('all-MiniLM-L6-v2')
+        logger.info("SBERT ready.")
+
+        self._setup_dirs(n_categories)
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Helpers — thin wrappers that delegate to explainability_utils.
+    # All shared logic (STOPWORDS, metrics, plotting) lives there.
+    # ─────────────────────────────────────────────────────────────────────────
+    def _top15(self, features, weights, clean_glyph=False):
+        return top15_tokens(features, weights, clean_glyph=clean_glyph)
+
+    def _plot_bar(self, items, title, output_path):
+        plot_bar(items, title, output_path, plot_dpi=self.plot_dpi)
+
+    def _run_global_shap(self, explainer, X_sample, class_labels, model_name):
+        run_global_shap(
+            explainer, X_sample, class_labels, model_name,
+            self.dirs['global_bar'] / f"global_{model_name}_sbert.png",
+            plot_dpi=self.plot_dpi,
+        )
+
+    def _run_global_lime(self, lime_exp, predict_fn, test_df, model_name,
+                         sample_limit=15, clean_glyph=False):
+        run_global_lime(
+            lime_exp, predict_fn, test_df, model_name,
+            self.dirs['global_lime'] / f"global_lime_{model_name}_sbert.png",
+            sample_limit=sample_limit, clean_glyph=clean_glyph,
+            plot_dpi=self.plot_dpi,
+        )
+
+
+    # ── dirs ──────────────────────────────────────────────────────────────────
+    def _setup_dirs(self, n_categories: int):
+        self.n_categories = n_categories
+        base = (
+            RESULTS_CONFIG['dl_results_path']
+            / f"top_{n_categories}_categories"
+            / "explainability"
+        )
         self.dirs = {
-            'shap': base_path / "shap",
-            'lime': base_path / "lime",
-            'extra_lime': base_path / "lime" / "extra_lime_explainer",
-            'global_bar': base_path / "shap" / "global_bar",
-            'beeswarm': base_path / "shap" / "beeswarm",
-            'waterfall': base_path / "shap" / "waterfall",
-            'samples': base_path / "shap" / "samples",
-            'global_lime': base_path / "lime" / "global",
-            'reports': base_path / "reports",
-            'metrics': base_path / "metrics"
+            'shap':        base / "shap",
+            'lime':        base / "lime",
+            'lime_dash':   base / "lime" / "dashboards",
+            'global_bar':  base / "shap" / "global_bar",
+            'beeswarm':    base / "shap" / "beeswarm",
+            'waterfall':   base / "shap" / "waterfall",
+            'samples':     base / "shap" / "samples",
+            'global_lime': base / "lime" / "global",
+            'reports':     base / "reports",
+            'metrics':     base / "metrics",
         }
-        for dir_path in self.dirs.values():
-            dir_path.mkdir(parents=True, exist_ok=True)
+        for d in self.dirs.values():
+            d.mkdir(parents=True, exist_ok=True)
 
-    def load_model_and_data(self, model_name, feature_type="tfidf"):
-        logger.info(f"Loading DL Model {model_name} ({feature_type})...")
-        model_dir = SAVED_MODELS_CONFIG["dl_models_path"] / f"top_{self.n_categories}_categories"
-        
-        # Robust Keras Model Path Search
-        model_path = None
-        if model_dir.exists():
-            for file in os.listdir(model_dir):
-                if model_name in file and feature_type.lower() in file.lower() and (file.endswith(".h5") or file.endswith(".keras")):
-                    model_path = model_dir / file
-                    break
-        
-        if not model_path:
-            logger.error(f"Model missing in {model_dir} for {feature_type}.")
-            return None, None, None, None, None
+    # ── labels ────────────────────────────────────────────────────────────────
+    def _load_class_labels(self) -> list:
+        return load_class_labels(self.n_categories)
 
-        model = tf.keras.models.load_model(model_path)
-        
-        # Load Data using FeatureExtractor
-        from src.preprocessing.feature_extraction import FeatureExtractor
-        self.feature_extractor = FeatureExtractor()
-        
+    def _load_model(self, model_name: str):
+        model_dir = (
+            SAVED_MODELS_CONFIG["dl_models_path"]
+            / f"top_{self.n_categories}_categories"
+        )
+        if not model_dir.exists():
+            logger.error(f"Model dir not found: {model_dir}")
+            return None
+        for f in os.listdir(model_dir):
+            if model_name in f and 'sbert' in f.lower() and (f.endswith('.h5') or f.endswith('.keras')):
+                path = model_dir / f
+                logger.info(f"  Loading: {path.name}")
+                return tf.keras.models.load_model(path)
+        logger.error(f"SBERT BiLSTM model not found in {model_dir}")
+        return None
+
+    # ── SBERT encode ──────────────────────────────────────────────────────────
+    def _encode(self, texts: list) -> np.ndarray:
+        return self.sbert.encode(
+            [str(t) for t in texts],
+            batch_size=128, show_progress_bar=False, convert_to_numpy=True
+        )
+
+    def _make_predict_fn(self, model):
+        def predict_fn(texts):
+            if isinstance(texts, np.ndarray):
+                texts = texts.tolist()
+            embs = self._encode([str(t) for t in texts])
+            return model.predict(embs, batch_size=128, verbose=0)
+        return predict_fn
+
+    # ── token helpers ─────────────────────────────────────────────────────────
+    def _compute_metrics(self, lime_score, shap_top15, lime_top15,
+                         category_shap_vectors=None) -> dict:
+        return compute_metrics(lime_score, shap_top15, lime_top15,
+                               category_shap_vectors)
+
+    # ── main explain loop ─────────────────────────────────────────────────────
+    def explain_model(self, model_name: str):
+        logger.info(f"\n{'='*60}\n  DL Explaining {model_name} (SBERT)\n{'='*60}")
+
+        model = self._load_model(model_name)
+        if model is None:
+            return
+
         splits_dir = Path(PREPROCESSING_CONFIG["splits"].format(n=self.n_categories))
-        test_df = pd.read_csv(splits_dir / "test.csv")
-        train_df = pd.read_csv(splits_dir / "train.csv")
-        
-        if feature_type == "tfidf":
-            self.feature_extractor.load_tfidf_vectorizer(self.n_categories)
-            if not hasattr(self.feature_extractor, 'tfidf_vectorizer'):
-                 vec_path = DATA_PATH / "features" / "tfidf" / f"top_{self.n_categories}_categories" / "tfidf_vectorizer.pkl"
-                 self.feature_extractor.tfidf_vectorizer = joblib.load(vec_path)
-            
-            X_train = self.feature_extractor.tfidf_vectorizer.transform(train_df["cleaned_text"]).toarray()
-            feature_names = self.feature_extractor.tfidf_vectorizer.get_feature_names_out()
-        else:
-            X_train = self.feature_extractor.load_sbert_features(self.n_categories, "train")
-            feature_names = [f"dim_{i}" for i in range(X_train.shape[1])]
-            
-        class_labels = [f"Class_{i}" for i in range(self.n_categories)]
         try:
-            with open(f"data/processed/labels_top_{self.n_categories}_categories.yaml", 'r') as f:
-                d = yaml.safe_load(f)
-                class_labels = [d['id_to_label'][i] for i in sorted(d['id_to_label'].keys())]
-        except: pass
+            test_df  = pd.read_csv(splits_dir / "test.csv")
+            train_df = pd.read_csv(splits_dir / "train.csv")
+        except FileNotFoundError as e:
+            logger.error(f"Split not found: {e}")
+            return
 
-        return model, X_train, test_df, feature_names, class_labels
+        class_labels = self._load_class_labels()
 
-    def get_prediction_pipeline(self, model, feature_type, sbert_model=None):
-        if feature_type == "tfidf":
-            def tfidf_pipeline(texts):
-                vecs = self.feature_extractor.tfidf_vectorizer.transform(texts).toarray()
-                # [OPTIMIZED] Added batch_size for faster TF processing
-                return model.predict(vecs, batch_size=128, verbose=0)
-            return tfidf_pipeline
+        # Load or compute SBERT features for train
+        sbert_path = (
+            DATA_PATH / "features" / "sbert"
+            / f"top_{self.n_categories}_categories" / "X_train.npy"
+        )
+        if sbert_path.exists():
+            X_train_sbert = np.load(sbert_path)
+            logger.info(f"  Loaded SBERT train features: {X_train_sbert.shape}")
         else:
-            def sbert_pipeline(texts):
-                # [OPTIMIZED] Added batch_size and disabled progress bar to prevent I/O blocking
-                vecs = sbert_model.encode(texts, batch_size=128, show_progress_bar=False)
-                return model.predict(vecs, batch_size=128, verbose=0)
-            return sbert_pipeline
+            logger.info("  Encoding train set with SBERT…")
+            X_train_sbert = self._encode(train_df['cleaned_text'].tolist())
+            sbert_path.parent.mkdir(parents=True, exist_ok=True)
+            np.save(sbert_path, X_train_sbert)
 
-    def _get_strict_top_15(self, features, weights):
-        candidates = []
-        seen = set()
-        paired = sorted(zip(features, weights), key=lambda x: abs(x[1]), reverse=True)
-        
-        for f, w in paired:
-            f_str = str(f).lower().strip()
-            if f_str in STOPWORDS or len(f_str) < 2: 
-                continue
-            
-            if f_str not in seen:
-                candidates.append((f_str, float(w)))
-                seen.add(f_str)
-            if len(candidates) >= 15: break
-        
-        if len(candidates) < 15:
-            for f, w in paired:
-                f_str = str(f).lower().strip()
-                if f_str not in seen:
-                    candidates.append((f_str, float(w)))
-                    seen.add(f_str)
-                if len(candidates) >= 15: break
-        return candidates[:15]
+        # Shared predict_fn
+        predict_fn = self._make_predict_fn(model)
 
-    def _plot_bar(self, items, title, output_path, color_val=None):
-        if not items: return
-        names, weights = zip(*items)
-        plt.figure(figsize=(10, 8))
-        colors = ['#1f77b4' if w > 0 else '#ff7f0e' for w in weights] if color_val is None else color_val
-        ax = plt.barh(range(len(names)), weights, color=colors)
-        plt.yticks(range(len(names)), names, fontsize=11)
-        plt.gca().invert_yaxis()
-        plt.title(title, fontsize=12, fontweight='bold')
-        plt.xlabel("Impact")
-        plt.bar_label(ax, fmt='%.4f', padding=3, fontsize=9)
-        plt.tight_layout()
-        plt.savefig(output_path, dpi=300)
-        plt.close()
+        # KernelExplainer with 100 kmeans clusters
+        logger.info("  Building KernelExplainer background (100 clusters)…")
+        bg = shap.kmeans(X_train_sbert, min(100, len(X_train_sbert))).data
+        kernel_exp = shap.KernelExplainer(
+            lambda x: model.predict(x, batch_size=128, verbose=0), bg
+        )
 
-    def calculate_real_metrics(self, lime_exp_score, shap_top15, lime_top15):
-        metrics = {}
-        raw_fidelity = abs(lime_exp_score) if lime_exp_score is not None else 0.0
-        metrics['Fidelity'] = round(max(0.0, min(1.0, raw_fidelity)), 4)
-        
-        s_set = set([str(x[0]).lower().strip() for x in shap_top15 if x[0]])
-        l_set = set([str(x[0]).lower().strip() for x in lime_top15 if x[0]])
-        
-        intersection = len(s_set.intersection(l_set))
-        union = len(s_set.union(l_set))
-        
-        pure_jaccard = intersection / union if union > 0 else 0.0
-        metrics['Jaccard'] = round(pure_jaccard, 4)
-        metrics['Stability'] = round(pure_jaccard, 4)
-        
-        return metrics
+        lime_exp = LimeTextExplainer(
+            class_names=class_labels, split_expression=r'\W+', bow=True
+        )
 
-    def _plot_global_category_importance(self, shap_values, class_labels, model_name, feature_type):
-        category_impact = []
-        if isinstance(shap_values, list): 
-            for i, class_shap in enumerate(shap_values):
-                if i < len(class_labels) and class_labels[i] in self.target_categories:
-                    category_impact.append((class_labels[i], np.mean(np.abs(class_shap))))
-        elif isinstance(shap_values, np.ndarray) and len(shap_values.shape) == 3:
-            for i in range(shap_values.shape[2]):
-                if i < len(class_labels) and class_labels[i] in self.target_categories:
-                    category_impact.append((class_labels[i], np.mean(np.abs(shap_values[:, :, i]))))
-        
-        vals = [x[1] for x in category_impact]
-        if vals and np.max(vals) > 100: 
-            total = np.sum(vals) + 1e-9
-            category_impact = [(x[0], x[1]/total) for x in category_impact]
-        
-        existing = {x[0] for x in category_impact}
-        for cat in self.target_categories:
-            if cat not in existing: category_impact.append((cat, 0.0))
-            
-        category_impact.sort(key=lambda x: x[1], reverse=True)
-        self._plot_bar(category_impact, f"Global Category Importance - DL {model_name}", 
-                       self.dirs['global_bar'] / f"global_{model_name}_{feature_type}.png")
+        # Global SHAP
+        n_global = min(200, len(X_train_sbert))
+        idx_g = np.random.RandomState(42).choice(len(X_train_sbert), n_global, replace=False)
+        self._run_global_shap(kernel_exp, X_train_sbert[idx_g], class_labels, model_name)
 
-    def _extract_global_tokens_per_category(self, shap_values, class_labels, feature_names):
-        for idx, cat in enumerate(class_labels):
-            if cat not in self.target_categories: continue
-            vals = None
-            if isinstance(shap_values, list) and idx < len(shap_values):
-                vals = np.mean(np.abs(shap_values[idx]), axis=0)
-            elif isinstance(shap_values, np.ndarray) and len(shap_values.shape) == 3:
-                vals = np.mean(np.abs(shap_values[:, :, idx]), axis=0)
-            
-            if vals is not None:
-                top_tokens = self._get_strict_top_15(feature_names, vals)
-                clean = [t[0] for t in top_tokens if not str(t[0]).startswith("dim_")]
-                self.all_dominant_tokens[cat].extend(clean)
+        # Global LIME
+        self._run_global_lime(lime_exp, predict_fn, test_df, model_name)
 
-    def _generate_global_lime(self, lime_explainer, pipeline_fn, test_df, model_name, sample_limit=5):
-        global_lime_w = defaultdict(float)
-        for i in range(min(len(test_df), sample_limit)): 
+        # Select shared samples — same rows as ML, BERT, DeepSeek, Fusion
+        logger.info("  Loading shared sample index (5 fixed categories)…")
+        indices = get_shared_samples(
+            test_df=test_df,
+            class_labels=class_labels,
+            n_categories=self.n_categories,
+            results_root=RESULTS_PATH,
+        )
+        logger.info(f"  Shared samples: {[(r, c) for r, c in indices]}")
+
+        logger.info(f"  {len(indices)} categories to explain.")
+
+        cat_shap_cache: dict = defaultdict(list)
+        waterfall_done = False
+
+        for idx_count, (row_i, cat_name) in enumerate(indices):
             try:
-                text = test_df.iloc[i]['cleaned_text']
-                top_lbl = np.argmax(pipeline_fn([text])[0])
-                # [OPTIMIZED] Dropped num_samples from 500 to 100. Global LIME aggregation scales horribly with 500 per sample.
-                exp = lime_explainer.explain_instance(text, pipeline_fn, num_features=10, labels=[top_lbl], num_samples=100)
-                for f, w in exp.as_list(label=top_lbl): 
-                    if f.lower().strip() not in STOPWORDS: 
-                        global_lime_w[f.lower()] += abs(w)
-            except: continue
-        
-        if global_lime_w:
-            s_feats = sorted(global_lime_w.items(), key=lambda x: x[1], reverse=True)
-            f_feats = self._get_strict_top_15([k for k,v in s_feats], [v for k,v in s_feats])
-            self._plot_bar(f_feats, f"Global LIME (Aggregated) - DL {model_name}", 
-                           self.dirs['global_lime'] / f"Global_LIME_{model_name}.png")
+                text = str(test_df.iloc[row_i]['cleaned_text'])
+                probs = predict_fn([text])[0]
+                top_cls = int(np.argmax(probs))
+                logger.info(f"  [{idx_count+1}/{len(indices)}] {cat_name} — sample {row_i}")
 
-    def explain_model(self, model_name, feature_type):
-        model, X_train, test_df, feature_names, class_labels = self.load_model_and_data(model_name, feature_type)
-        if model is None: return 
+                # LIME
+                lime_result = lime_exp.explain_instance(
+                    text, predict_fn, labels=[top_cls],
+                    num_features=30, num_samples=500,
+                )
+                try:
+                    lime_result.save_to_file(str(
+                        self.dirs['lime_dash'] / f"{model_name}_sample_{row_i}_{cat_name}.html"
+                    ))
+                except Exception:
+                    pass
 
-        sbert_model = None
-        if feature_type == 'sbert':
-            from sentence_transformers import SentenceTransformer
-            sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
+                lime_raw = lime_result.as_list(label=top_cls)
+                lime_clean = self._top15([f for f, _ in lime_raw], [w for _, w in lime_raw])
+                self._plot_bar(
+                    lime_clean,
+                    f"LIME Top 15 (SBERT) — DL {model_name} — {cat_name}",
+                    self.dirs['lime'] / f"lime_{model_name}_sample_{row_i}.png",
+                )
 
-        pipeline_fn = self.get_prediction_pipeline(model, feature_type, sbert_model)
-        lime_explainer = LimeTextExplainer(class_names=class_labels)
+                # SHAP via KernelExplainer
+                emb = self._encode([text])              # (1, 384)
+                shap_vals_raw = kernel_exp.shap_values(emb, silent=True)
 
-        # 1. Global SHAP
-        logger.info(f"Running Global SHAP for DL {model_name}...")
-        
-        # [OPTIMIZED] Used shap.kmeans to heavily reduce background computation matrix size
-        # This converts a massive training array into 5 representative cluster centers
-        bg_summary = shap.kmeans(X_train, 5) 
-        
-        def predict_wrap(x): return model.predict(x, batch_size=128, verbose=0)
-        explainer = shap.KernelExplainer(predict_wrap, bg_summary)
-        # [OPTIMIZED] Limit to max 50 samples for global evaluation instead of full set
-        shap_values_global = explainer.shap_values(X_train[:50], silent=True)
-
-        self._plot_global_category_importance(shap_values_global, class_labels, model_name, feature_type)
-        self._extract_global_tokens_per_category(shap_values_global, class_labels, feature_names)
-        
-        if feature_type == "tfidf":
-            try:
-                plt.figure(figsize=(12, 8))
-                shap.summary_plot(shap_values_global, X_train[:50], feature_names=feature_names, max_display=15, show=False)
-                plt.title(f"Beeswarm Top 15 - DL {model_name}", fontsize=12)
-                plt.tight_layout()
-                plt.savefig(self.dirs['beeswarm'] / f"beeswarm_{model_name}_{feature_type}.png")
-                plt.close()
-            except Exception as e: 
-                logger.warning(f"Beeswarm plot failed: {e}")
-
-        # 2. Global LIME
-        self._generate_global_lime(lime_explainer, pipeline_fn, test_df, f"{model_name}_{feature_type}")
-
-        # 3. Local Samples - ROBUST TARGET CATEGORY SELECTION
-        indices_to_explain = []
-        seen_cats = set()
-        
-        for i in range(len(test_df)):
-            if len(seen_cats) >= 5: break
-            try:
-                text = str(test_df.iloc[i]['cleaned_text'])
-                if not text or text.lower() == 'nan': continue
-                
-                probs = pipeline_fn([text])[0]
-                pred_cat_idx = np.argmax(probs)
-                cat_name = class_labels[pred_cat_idx]
-                
-                if cat_name in self.target_categories and cat_name not in seen_cats:
-                    indices_to_explain.append(i)
-                    seen_cats.add(cat_name)
-            except: continue
-
-        if len(indices_to_explain) < 5:
-            for i in range(len(test_df)):
-                if len(indices_to_explain) >= 5: break
-                if i not in indices_to_explain:
-                    try:
-                        text = str(test_df.iloc[i]['cleaned_text'])
-                        probs = pipeline_fn([text])[0]
-                        pred_cat_idx = np.argmax(probs)
-                        cat_name = class_labels[pred_cat_idx]
-                        if cat_name in self.target_categories:
-                            indices_to_explain.append(i)
-                    except: continue
-
-        text_explainer = None
-        if feature_type == 'sbert':
-            logger.info("Initializing SHAP Text Explainer for SBERT true metric generation...")
-            def sbert_text_predict(texts):
-                if isinstance(texts, np.ndarray): texts = texts.tolist()
-                elif isinstance(texts, str): texts = [texts]
-                texts = [str(t) for t in texts]
-                # [OPTIMIZED] Batching added here to prevent iteration freeze
-                vecs = sbert_model.encode(texts, batch_size=128, show_progress_bar=False)
-                return model.predict(vecs, batch_size=128, verbose=0)
-            
-            masker = shap.maskers.Text(r"\W+")
-            text_explainer = shap.Explainer(sbert_text_predict, masker)
-
-        for idx_count, i in enumerate(indices_to_explain):
-            try:
-                text = str(test_df.iloc[i]['cleaned_text'])
-                probs = pipeline_fn([text])[0]
-                top_cls = np.argmax(probs)
-                cat_name = class_labels[top_cls]
-
-                # --- LIME EXPLANATION ---
-                # [OPTIMIZED] Changed num_samples from 500 to 100 for significantly faster local loops
-                exp = lime_explainer.explain_instance(text, pipeline_fn, num_features=30, labels=[top_cls], num_samples=100)
-                
-                dash_path = self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_sample_{i}.html"
-                try: exp.save_to_file(str(dash_path))
-                except: pass
-
-                lime_raw = exp.as_list(label=top_cls)
-                lime_clean = [(f, w) for f, w in lime_raw if f.lower().strip() not in STOPWORDS]
-                lime_clean = self._get_strict_top_15([x[0] for x in lime_clean], [x[1] for x in lime_clean])
-                
-                self._plot_bar(lime_clean, f"Top 15 Tokens for LIME DL - {model_name} - Category: {cat_name}", 
-                               self.dirs['lime'] / f"lime_{model_name}_{i}_{feature_type}.png")
-
-                # --- SHAP EXPLANATION (CONSOLIDATION & MATH INTEGRITY) ---
-                shap_clean_for_metrics = []
-                exp_obj = None
-
-                if feature_type == 'sbert':
-                    # [OPTIMIZED] Capped max_evals to 150 to stop SHAP from creating infinite text masks on long documents
-                    shap_obj_text = text_explainer([text], max_evals=150)
-                    sv_raw = shap_obj_text[0].values[:, top_cls]
-                    words_raw = shap_obj_text[0].data
-                    base_val_raw = shap_obj_text[0].base_values[top_cls]
-
-                    word_agg = defaultdict(float)
-                    new_base_val = base_val_raw
-                    
-                    for w, val in zip(words_raw, sv_raw):
-                        w_str = str(w).lower().strip()
-                        if w_str in STOPWORDS or len(w_str) < 2:
-                            new_base_val += val 
-                        else:
-                            word_agg[w_str] += val 
-
-                    words = list(word_agg.keys())
-                    sv = np.array(list(word_agg.values()))
-                    base_val = new_base_val
-
-                    if np.max(np.abs(sv)) > 100:
-                        norm_factor = np.sum(np.abs(sv)) + 1e-9
-                        sv = sv / norm_factor
-                        base_val = base_val / norm_factor
-
-                    exp_obj = shap.Explanation(values=sv, base_values=base_val, data=np.array(words), feature_names=words)
-                    shap_clean_for_metrics = self._get_strict_top_15(words, sv)
-
-                    self._plot_bar(shap_clean_for_metrics, f"SHAP Tokens DL - {model_name} - Category: {cat_name}",
-                                   self.dirs['samples'] / f"shap_sample_{i}_{model_name}_{feature_type}.png")
+                if isinstance(shap_vals_raw, list):
+                    sv = np.array(shap_vals_raw[top_cls][0])
+                elif shap_vals_raw.ndim == 3:
+                    sv = shap_vals_raw[0, :, top_cls]
                 else:
-                    vec = self.feature_extractor.tfidf_vectorizer.transform([text]).toarray()
-                    local_shap = explainer.shap_values(vec, silent=True)
-                    
-                    base_val_raw = 0.0
-                    if hasattr(explainer, 'expected_value'):
-                        ev = explainer.expected_value
-                        base_val_raw = float(ev[top_cls]) if isinstance(ev, (list, np.ndarray)) and len(np.shape(ev)) > 0 else float(ev)
+                    sv = shap_vals_raw[0]
 
-                    if isinstance(local_shap, list): sv_raw = local_shap[top_cls][0]
-                    elif len(local_shap.shape) == 3: sv_raw = local_shap[0, :, top_cls]
-                    else: sv_raw = local_shap[0]
-                    
-                    word_agg = defaultdict(float)
-                    new_base_val = base_val_raw
-                    for w, val in zip(feature_names, sv_raw):
-                        w_str = str(w).lower().strip()
-                        if w_str in STOPWORDS or len(w_str) < 2:
-                            new_base_val += val
-                        else:
-                            word_agg[w_str] += val
+                if np.max(np.abs(sv)) > 100:
+                    sv = sv / (np.sum(np.abs(sv)) + 1e-9)
 
-                    f_names = list(word_agg.keys())
-                    sv = np.array(list(word_agg.values()))
-                    base_val = new_base_val
+                cat_shap_cache[cat_name].append(sv.copy())
 
-                    if np.max(np.abs(sv)) > 100:
-                        norm_factor = np.sum(np.abs(sv)) + 1e-9
-                        sv = sv / norm_factor
-                        base_val = base_val / norm_factor
+                # Project SHAP dims → LIME word space (same as ml_explainability)
+                shap_word_scores: dict = {}
+                for word, _ in lime_raw:
+                    wl = word.lower().strip()
+                    if wl in STOPWORDS or len(wl) < 2:
+                        continue
+                    word_emb = self._encode([wl])[0]
+                    proj = float(np.dot(sv, word_emb) / (np.linalg.norm(word_emb) + 1e-9))
+                    shap_word_scores[wl] = proj
 
-                    exp_obj = shap.Explanation(values=sv, base_values=base_val, data=np.zeros(len(f_names)), feature_names=f_names)
-                    shap_clean_for_metrics = self._get_strict_top_15(f_names, sv)
+                shap_top15 = self._top15(
+                    list(shap_word_scores.keys()),
+                    list(shap_word_scores.values()),
+                )
 
-                    self._plot_bar(shap_clean_for_metrics, f"SHAP Tokens DL - {model_name} - Category: {cat_name}",
-                                   self.dirs['samples'] / f"shap_sample_{i}_{model_name}_{feature_type}.png")
+                # Waterfall
+                if not waterfall_done and shap_top15:
+                    try:
+                        bv = float(kernel_exp.expected_value[top_cls]) \
+                            if isinstance(kernel_exp.expected_value, (list, np.ndarray)) \
+                            else float(kernel_exp.expected_value)
+                        w_names = np.array([x[0] for x in shap_top15])
+                        w_vals  = np.array([x[1] for x in shap_top15])
+                        exp_obj = shap.Explanation(
+                            values=w_vals, base_values=bv,
+                            data=w_names, feature_names=list(w_names),
+                        )
+                        plt.figure(figsize=(10, 8))
+                        shap.plots.waterfall(exp_obj, max_display=15, show=False)
+                        plt.title(f"SHAP Waterfall (SBERT) — DL {model_name} — {cat_name}", fontsize=12)
+                        plt.tight_layout()
+                        plt.savefig(
+                            self.dirs['waterfall'] / f"waterfall_{model_name}_sbert.png",
+                            dpi=self.plot_dpi, bbox_inches='tight',
+                        )
+                        plt.close()
+                        waterfall_done = True
+                    except Exception as e:
+                        logger.warning(f"  Waterfall failed: {e}")
 
-                # --- WATERFALL (Limit 1 per model) ---
-                if idx_count == 0 and exp_obj is not None:
-                    plt.figure(figsize=(10, 8))
-                    shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                    plt.title(f"Waterfall DL - {model_name} - Category: {cat_name}", fontsize=12)
-                    plt.tight_layout()
-                    plt.savefig(self.dirs['waterfall'] / f"waterfall_{model_name}_{feature_type}_sample_{i}.png")
-                    plt.close()
+                self._plot_bar(
+                    shap_top15,
+                    f"SHAP Top 15 (SBERT) — DL {model_name} — {cat_name}",
+                    self.dirs['samples'] / f"shap_{model_name}_sample_{row_i}.png",
+                )
 
-                # --- HONEST METRICS EVALUATION ---
-                mets = self.calculate_real_metrics(exp.score, shap_clean_for_metrics, lime_clean)
-                mets['model'] = f"{model_name}_{feature_type}"
+                # Honest metrics
+                mets = self._compute_metrics(
+                    lime_score=lime_result.score,
+                    shap_top15=shap_top15,
+                    lime_top15=lime_clean,
+                    category_shap_vectors=cat_shap_cache.get(cat_name),
+                )
+                mets['model']     = model_name
+                mets['category']  = cat_name
+                mets['sample_id'] = row_i
                 self.global_metrics_storage.append(mets)
 
+                # Token evidence (FIX #4)
+                all_toks = list({x[0] for x in lime_clean} | {x[0] for x in shap_top15})
+                self.all_dominant_tokens[cat_name].extend(all_toks)
+
             except Exception as e:
-                logger.warning(f"Local Sample Bar failed: {e}")
+                logger.warning(f"  Sample {row_i} failed: {e}")
                 traceback.print_exc()
 
-    def explain_all_models(self, n_categories=50, feature_types=None):
+        # Back-fill stability scores
+        for rec in self.global_metrics_storage:
+            if rec.get('model') != model_name:
+                continue
+            vecs = cat_shap_cache.get(rec.get('category', ''), [])
+            if len(vecs) >= 2:
+                corrs = []
+                ref = vecs[0]
+                for v in vecs[1:]:
+                    if np.std(v) > 1e-9 and np.std(ref) > 1e-9:
+                        r, _ = spearmanr(ref, v)
+                        corrs.append(float(r))
+                if corrs:
+                    rec['Stability'] = round(float(np.mean(corrs)), 4)
+
+        gc.collect()
+        logger.info(f"  {model_name} done.")
+
+    # ── runner ────────────────────────────────────────────────────────────────
+    def explain_all_models(self, n_categories: int = 50):
         self.n_categories = n_categories
-        self.setup_directories(n_categories)
-        if feature_types is None: feature_types = ["tfidf", "sbert"]
-        
-        for f_type in feature_types:
-            for m_name in self.model_names:
-                try: self.explain_model(m_name, f_type)
-                except Exception as e: logger.error(f"Pipeline failed {m_name}: {e}")
+        self._setup_dirs(n_categories)
+        for name in self.MODEL_NAMES:
+            try:
+                self.explain_model(name)
+            except Exception as e:
+                logger.error(f"Pipeline failed {name}: {e}")
+                traceback.print_exc()
         self.save_reports()
         return self.global_metrics_storage
 
+    # ── reports ───────────────────────────────────────────────────────────────
     def save_reports(self):
         if not self.global_metrics_storage:
-            logger.warning("No metrics found to save.")
+            logger.warning("No metrics to save.")
             return
+
         df = pd.DataFrame(self.global_metrics_storage)
-        df.to_csv(self.dirs['metrics'] / "DL_Final_Metrics.csv", index=False)
-        
-        plt.figure(figsize=(12, 6))
-        if 'model' in df.columns:
-            ax = sns.barplot(data=df.melt(id_vars='model'), x='variable', y='value', hue='model')
-            for c in ax.containers: ax.bar_label(c, fmt='%.2f', padding=3, fontsize=9)
+        csv_path = self.dirs['metrics'] / OVERALL_EXPLAINABILITY_CONFIG['metrics_files']['dl']
+        df.to_csv(csv_path, index=False)
+        logger.info(f"Metrics saved → {csv_path}")
+
+        try:
+            summary = df.groupby('model')[['Fidelity', 'Jaccard', 'Stability']].mean().reset_index()
+            melted  = summary.melt(id_vars='model', var_name='Metric', value_name='Score')
+            plt.figure(figsize=(12, 6))
+            ax = sns.barplot(data=melted, x='Metric', y='Score', hue='model')
+            for c in ax.containers:
+                ax.bar_label(c, fmt='%.3f', padding=3, fontsize=9)
             plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-            plt.title("DL Explainability Metrics (Real)")
+            plt.title("DL Explainability Metrics — SBERT (Honest)")
+            plt.ylim(0, 1.05)
             plt.tight_layout()
-            plt.savefig(self.dirs['metrics'] / "DL_Metrics_Comparison.png")
+            plt.savefig(self.dirs['metrics'] / "DL_Metrics_Comparison_SBERT.png",
+                        dpi=self.plot_dpi, bbox_inches='tight')
             plt.close()
-        
+        except Exception as e:
+            logger.warning(f"Metrics plot failed: {e}")
+
         data = []
-        for cat in self.target_categories:
-            tokens = self.all_dominant_tokens.get(cat, [])
-            tokens = [t for t in tokens if not str(t).startswith("dim_")]
-            top = [w for w, c in Counter(tokens).most_common(15)]
-            data.append({'Category': cat, 'Tokens': ", ".join(top) if top else "N/A"})
-        pd.DataFrame(data).to_csv(self.dirs['reports'] / "DL_Consolidated_Dominant_Tokens.csv", index=False)
+        for cat in TARGET_CATEGORIES:
+            toks = [t for t in self.all_dominant_tokens.get(cat, [])
+                    if t and not str(t).startswith('dim_')]
+            top = [w for w, _ in Counter(toks).most_common(15)]
+            data.append({
+                'Category': cat,
+                'Top_15_Tokens': ', '.join(top) if top else 'N/A',
+                'Token_Count': len(toks),
+            })
+        df_tok = pd.DataFrame(data)
+        tok_path = self.dirs['reports'] / OVERALL_EXPLAINABILITY_CONFIG['token_files']['dl']
+        df_tok.to_csv(tok_path, index=False)
+        logger.info(f"Consolidated tokens → {tok_path}")
+
+        logger.info("\n" + "="*50)
+        logger.info("DL EXPLAINABILITY SUMMARY (SBERT)")
+        for mn, grp in df.groupby('model'):
+            logger.info(
+                f"  {mn:20s} | Fidelity={grp['Fidelity'].mean():.4f} "
+                f"| Jaccard={grp['Jaccard'].mean():.4f} "
+                f"| Stability={grp['Stability'].mean():.4f}"
+            )
+        logger.info("="*50)
+
 
 if __name__ == "__main__":
-    import argparse
-    import time
-    
-    start_time = time.time()
-    
+    import argparse, time
     parser = argparse.ArgumentParser()
     parser.add_argument("--categories", type=int, default=50)
     args = parser.parse_args()
-    
-    explainer = DLExplainability(n_categories=args.categories)
-    explainer.explain_all_models(args.categories)
-    
-    elapsed_time = time.time() - start_time
-    logger.info(f"PHASE COMPLETED: DL_EXPLAINABILITY ({elapsed_time:.2f}s)")
+    t0 = time.time()
+    DLExplainability(n_categories=args.categories).explain_all_models(args.categories)
+    logger.info(f"PHASE COMPLETE: DL_EXPLAINABILITY in {time.time()-t0:.1f}s")

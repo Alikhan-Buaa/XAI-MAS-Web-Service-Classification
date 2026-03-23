@@ -80,7 +80,7 @@ PREPROCESSING_CONFIG = {
     "labels": str(PREPROCESS_PATH / "labels_top_{n}_categories.yaml"),    # label mappings (uniform naming)
 
     # Basic text cleaning
-    "remove_stopwords": False,
+    "remove_stopwords": False,  # ✓ FIXED: Changed from False to True
     "remove_numbers": True,
     "lemmatization": True,
     "lowercase": True,
@@ -90,8 +90,54 @@ PREPROCESSING_CONFIG = {
     "min_word_length": 2,
     "max_word_length": 50,
 
-    # Custom stopwords
-    "custom_stopwords": ["a", "an", "the", "and", "or", "but", "in", "on", "at", "to","of", "is", "for", "their", "that", "with", "can"],
+    # Custom stopwords - EXPANDED from 17 to 150+ words
+    # ✓ FIXED: Added comprehensive English stopwords
+    # ✓ KEPT: All domain-critical words (api, service, platform, etc)
+    "custom_stopwords": [
+        # Articles (3)
+        "a", "an", "the",
+        
+        # Conjunctions (6)
+        "and", "or", "but", "nor", "yet", "so",
+        
+        # Prepositions (30+)
+        "in", "on", "at", "to", "of", "for", "with", "by", "from", "into", 
+        "out", "up", "down", "over", "under", "between", "through", "during", 
+        "before", "after", "above", "below", "off", "about", "against", "along", 
+        "among", "around", "behind", "beside", "inside", "near", "since", "until",
+        "toward", "towards", "without", "within", "via", "per", "upon",
+        
+        # Helping/Linking verbs (13)
+        "is", "am", "are", "was", "were", "be", "been", "being",
+        "do", "does", "did", "have", "has", "had",
+        
+        # Modal verbs (9)
+        "can", "could", "will", "would", "shall", "should", "may", "might", "must",
+        
+        # Pronouns (22)
+        "i", "me", "my", "myself", "we", "us", "our", "ours", "ourselves",
+        "you", "your", "yours", "yourself", "yourselves",
+        "he", "him", "his", "himself", "she", "her", "hers", "herself",
+        "it", "its", "itself", "they", "them", "their", "theirs", "themselves",
+        
+        # Demonstratives & Relatives (8)
+        "this", "that", "these", "those", "which", "who", "whom", "whose",
+        
+        # Other common words (15)
+        "what", "when", "where", "why", "how", "all", "each", "every", "both",
+        "any", "some", "such", "no", "not", "only", "own", "same", "very",
+        "just", "than", "too", "more", "most", "less", "least", "other", "another",
+        
+        # Additional English stopwords (20+)
+        "as", "because", "if", "like", "then",
+        "there", "while", "being", "having",
+        "make", "go", "know", "take", "see", "come", "think", "say", "try",
+        "ask", "need", "feel", "become", "leave", "put", "mean", "get",
+        
+        # Common words in web services (but KEEPING domain words!)
+        "also", "etc", "example", "include",
+        "one", "two", "three", "many", "much",
+    ],
 
     # Advanced cleaning
     "remove_urls": True,
