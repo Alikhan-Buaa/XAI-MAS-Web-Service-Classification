@@ -1,6 +1,0 @@
-{
-  "overall_explainability": {
-    "status": "failed",
-    "error": "name 'defaultdict' is not defined"
-  }
-}
