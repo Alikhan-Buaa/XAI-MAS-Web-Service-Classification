@@ -37,7 +37,12 @@
 ## 🚀 Steps to Run the Project
 
 ```bash
-# 1 Clone the repository
+# 1. Clone the repository (choose one method)
+
+# Option A: HTTPS (recommended for most users)
+git clone https://github.com/Alikhan-Buaa/XAI-MAS-Web-Service-Classification.git
+
+# Option B: SSH (requires SSH setup)
 git clone git@github.com:Alikhan-Buaa/XAI-MAS-Web-Service-Classification.git
 
 # 2 Navigate to project directory
