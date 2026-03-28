@@ -468,40 +468,69 @@ def plot_bar(
     Design rules — identical across all 5 models so charts are side-by-side
     comparable without rescaling:
       • Fixed x-axis [-1.0, 1.0] — same scale for every model.
-      • Always 15 rows (padded with empty strings) — same height always.
+      • Only real tokens shown — empty / stopword / dim_ rows are excluded.
       • No value labels on bars — bar length is the visual comparison signal.
       • Positive → blue (#1f77b4),  negative → orange (#ff7f0e).
       • Subtle x-grid, no top/right spines.
-    """
-    N = 15
-    pairs = list(items)[:N]
-    while len(pairs) < N:
-        pairs.append(('', 0.0))
+      • Companion CSV written alongside the PNG for cross-model comparison.
 
+    CSV columns: Token, Score, Direction
+    """
+    # ── Strip invalid tokens before plotting ─────────────────────────────────
+    valid_pairs = [
+        (str(tok), float(w))
+        for tok, w in items
+        if tok                              # not empty
+        and not str(tok).startswith("dim_") # not an SBERT dimension label
+        and not str(tok).isnumeric()        # not a bare number
+        and len(str(tok)) >= 2              # not a single character
+    ]
+
+    N = min(15, len(valid_pairs))
+    if N == 0:
+        _log.warning(f"  plot_bar: no valid tokens to plot for '{title}' — skipping.")
+        return
+
+    pairs   = valid_pairs[:N]
     names   = [p[0] for p in pairs]
     weights = [p[1] for p in pairs]
 
-    fig, ax = plt.subplots(figsize=(10, 7))
+    fig, ax = plt.subplots(figsize=(12, 8))
     colors = ['#1f77b4' if w >= 0 else '#ff7f0e' for w in weights]
-    ax.barh(range(N), weights, color=colors, height=0.7)
+    bars = ax.barh(range(N), weights, color=colors, height=0.65, edgecolor='none')
 
     ax.set_yticks(range(N))
-    ax.set_yticklabels(names, fontsize=11)
+    ax.set_yticklabels(names, fontsize=12, fontweight='normal')
     ax.invert_yaxis()
 
-    ax.set_xlim(-1.0, 1.0)
-    ax.axvline(x=0, color='#333333', linewidth=0.8, linestyle='-')
-    ax.set_xlabel("LIME / SHAP Impact Score", fontsize=11)
-    ax.set_title(title, fontsize=12, fontweight='bold', pad=10)
+    # Dynamic x-axis: fixed [-1, 1] when all values fit, else pad by 10 %
+    max_abs = max(abs(w) for w in weights) if weights else 1.0
+    xlim = 1.0 if max_abs <= 1.0 else max_abs * 1.10
+    ax.set_xlim(-xlim, xlim)
+    ax.axvline(x=0, color='#333333', linewidth=0.9, linestyle='-')
+    ax.set_xlabel("LIME / SHAP Impact Score", fontsize=12)
+    ax.set_title(title, fontsize=13, fontweight='bold', pad=14, wrap=True)
 
-    ax.xaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.6)
+    ax.xaxis.grid(True, linestyle='--', linewidth=0.5, alpha=0.55)
     ax.set_axisbelow(True)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
     plt.tight_layout()
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_path, dpi=plot_dpi, bbox_inches='tight')
     plt.close()
+    _log.info(f"  plot_bar: PNG -> {output_path}")
+
+    # ── Companion CSV ─────────────────────────────────────────────────────────
+    csv_path = output_path.parent / f"{output_path.stem}_data.csv"
+    pd.DataFrame({
+        "Token":     names,
+        "Score":     weights,
+        "Direction": ["positive" if w >= 0 else "negative" for w in weights],
+    }).to_csv(csv_path, index=False)
+    _log.info(f"  plot_bar: CSV -> {csv_path}")
 
 
 # ── compute_metrics ───────────────────────────────────────────────────────────
@@ -866,8 +895,194 @@ def run_waterfall(
     _log.info(f"  run_waterfall: CSV -> {csv_path}")
 
 # ==============================================================================
-#  EXPORTS
+#  L. run_global_category_bar  — category importance bar (ML + DL SHAP output)
 # ==============================================================================
+
+def run_global_category_bar(
+    shap_values,
+    class_labels: List[str],
+    model_name: str,
+    target_categories: List[str],
+    output_path: Path,
+    plot_dpi: int = 300,
+) -> None:
+    """
+    Compute mean |SHAP| per target category from a KernelExplainer / TreeExplainer
+    shap_values array and save a ranked bar chart (PNG + CSV).
+
+    Handles three common SHAP output shapes:
+      • list of arrays (RandomForest / multi-output KernelExplainer)
+      • 3-D ndarray shape (n_samples, n_features, n_classes)   (XGBoost)
+      • 2-D ndarray shape (n_samples, n_features)              (binary)
+
+    Normalises raw margins when max > 100 (avoids unreadable x-axis for XGB).
+
+    PNG  -> output_path
+    CSV  -> output_path.parent / f"{stem}_data.csv"
+            Columns: Category, Mean_Abs_SHAP
+    """
+    category_impact: List[Tuple[str, float]] = []
+
+    if isinstance(shap_values, list):
+        for idx, sv in enumerate(shap_values):
+            if idx < len(class_labels) and class_labels[idx] in target_categories:
+                category_impact.append(
+                    (class_labels[idx], float(np.mean(np.abs(sv))))
+                )
+    elif isinstance(shap_values, np.ndarray):
+        if shap_values.ndim == 3:
+            for idx in range(shap_values.shape[2]):
+                if idx < len(class_labels) and class_labels[idx] in target_categories:
+                    category_impact.append(
+                        (class_labels[idx], float(np.mean(np.abs(shap_values[:, :, idx]))))
+                    )
+        elif shap_values.ndim == 2:
+            # Binary or single-output: attribute entire mean |SHAP| to first target cat
+            pass   # callers can handle this edge case themselves
+
+    if not category_impact:
+        _log.warning(f"  run_global_category_bar: no category impact for {model_name}.")
+        return
+
+    # Normalise when raw margins are very large (e.g. XGBoost)
+    vals = [v for _, v in category_impact]
+    if max(vals, default=0) > 100:
+        total = sum(vals) + 1e-9
+        category_impact = [(c, v / total) for c, v in category_impact]
+
+    # Pad missing target categories with 0
+    existing = {c for c, _ in category_impact}
+    for cat in target_categories:
+        if cat not in existing:
+            category_impact.append((cat, 0.0))
+    category_impact.sort(key=lambda x: x[1], reverse=True)
+
+    output_path = Path(output_path)
+    plot_bar(
+        category_impact,
+        f"Global Category Importance (SHAP) — {model_name}",
+        output_path,
+        plot_dpi=plot_dpi,
+    )
+    # plot_bar already writes the companion CSV alongside the PNG
+
+
+# ==============================================================================
+#  M. extract_global_tokens  — pull top-15 tokens per category from SHAP values
+# ==============================================================================
+
+def extract_global_tokens(
+    shap_values,
+    class_labels: List[str],
+    feature_names,
+    target_categories: List[str],
+    clean_glyph: bool = False,
+) -> Dict[str, List[str]]:
+    """
+    Extract the top-15 clean token strings for every target category from a
+    SHAP values array (same shapes as run_global_category_bar).
+
+    Returns a dict  {category_name: [token, token, …]}  (up to 15 tokens each).
+    dim_* features are always excluded.
+
+    Parameters
+    ----------
+    shap_values      : SHAP output (list or ndarray, see run_global_category_bar)
+    class_labels     : ordered list of category name strings
+    feature_names    : ordered list of feature name strings (TF-IDF vocabulary, etc.)
+    target_categories: only these categories are populated in the result
+    clean_glyph      : strip RoBERTa Ġ prefix before filtering (BERT/DS/Fusion)
+    """
+    result: Dict[str, List[str]] = {}
+
+    def _get_class_vals(idx: int):
+        if isinstance(shap_values, list) and idx < len(shap_values):
+            return np.mean(np.abs(shap_values[idx]), axis=0)
+        if isinstance(shap_values, np.ndarray) and shap_values.ndim == 3:
+            return np.mean(np.abs(shap_values[:, :, idx]), axis=0)
+        return None
+
+    for idx, cat in enumerate(class_labels):
+        if cat not in target_categories:
+            continue
+        vals = _get_class_vals(idx)
+        if vals is None:
+            continue
+        top = top15_tokens(feature_names, vals, clean_glyph=clean_glyph)
+        result[cat] = [t for t, _ in top if not str(t).startswith("dim_")]
+
+    return result
+
+
+# ==============================================================================
+#  N. save_metrics_report  — write CSV + grouped bar chart from metrics list
+# ==============================================================================
+
+def save_metrics_report(
+    metrics_storage: List[Dict],
+    model_col: str,
+    output_csv: Path,
+    output_png: Path,
+    title: str = "XAI Metrics Comparison",
+    plot_dpi: int = 300,
+) -> None:
+    """
+    Persist the per-sample metrics list collected during an explainability run.
+
+    CSV  -> output_csv      (one row per sample, columns = model_col + metric names)
+    PNG  -> output_png      (grouped bar chart of mean metrics per model, with
+                             bar labels — this is the METRICS chart, not a token
+                             bar, so bar labels on numeric scores are appropriate)
+
+    Parameters
+    ----------
+    metrics_storage : list of dicts, each with at least {model_col, Fidelity,
+                      Jaccard, Stability} — as built by compute_metrics() callers
+    model_col       : column name that identifies the model (e.g. 'model')
+    output_csv      : full path for the CSV file
+    output_png      : full path for the PNG file
+    title           : chart title
+    plot_dpi        : output resolution
+    """
+    if not metrics_storage:
+        _log.warning("  save_metrics_report: empty metrics_storage — skipping.")
+        return
+
+    df = pd.DataFrame(metrics_storage)
+    output_csv = Path(output_csv)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_csv, index=False)
+    _log.info(f"  save_metrics_report: CSV -> {output_csv}")
+
+    metric_cols = [c for c in ["Fidelity", "Jaccard", "Stability"] if c in df.columns]
+    if not metric_cols or model_col not in df.columns:
+        return
+
+    summary = df.groupby(model_col)[metric_cols].mean().reset_index()
+    melted  = summary.melt(id_vars=model_col, var_name="Metric", value_name="Score")
+
+    fig, ax = plt.subplots(figsize=(14, 8))
+    sns.barplot(data=melted, x="Metric", y="Score", hue=model_col,
+                palette="viridis", ax=ax)
+    for c in ax.containers:
+        ax.bar_label(c, fmt="%.3f", padding=4, fontsize=10, fontweight="bold")
+
+    ax.set_ylim(0, 1.15)
+    ax.set_title(title, fontsize=14, fontweight="bold", pad=14)
+    ax.set_xlabel("Metric", fontsize=12)
+    ax.set_ylabel("Score", fontsize=12)
+    ax.legend(bbox_to_anchor=(1.02, 1), loc="upper left", title=model_col.capitalize())
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.yaxis.grid(True, linestyle="--", linewidth=0.5, alpha=0.6)
+    ax.set_axisbelow(True)
+
+    plt.tight_layout()
+    output_png = Path(output_png)
+    output_png.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_png, dpi=plot_dpi, bbox_inches="tight")
+    plt.close()
+    _log.info(f"  save_metrics_report: PNG -> {output_png}")
 
 
 # ==============================================================================
@@ -895,8 +1110,14 @@ __all__ = [
     "run_global_shap",
     # I. Global LIME
     "run_global_lime",
-    # J. Beeswarm  (NEW)
+    # J. Beeswarm
     "run_beeswarm",
-    # K. Waterfall (NEW)
+    # K. Waterfall
     "run_waterfall",
+    # L. Global category bar (ML + DL)
+    "run_global_category_bar",
+    # M. Token extractor from SHAP values
+    "extract_global_tokens",
+    # N. Metrics CSV + chart saver
+    "save_metrics_report",
 ]

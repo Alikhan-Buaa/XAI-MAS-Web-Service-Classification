@@ -1,36 +1,6 @@
 """
-ML Model Explainability Module — SBERT Unified Pipeline
-========================================================
-All fixes applied per audit:
-
-FIXED #1 — SBERT-only input: TF-IDF removed entirely. All 3 ML models
-           (LogisticRegression, RandomForest, XGBoost) load their SBERT-trained
-           versions and use 384-dim SBERT embeddings exclusively.
-
-FIXED #2 — Real KernelExplainer: TreeExplainer / LinearExplainer replaced with
-           shap.KernelExplainer on a proper background matrix from SBERT space.
-           Consistent with DL / BERT / DeepSeek / Fusion.
-
-FIXED #3 — Honest metrics: No clamping, no np.random noise, no scaling.
-           Fidelity = sqrt(R²) from LIME score.
-           Jaccard  = |SHAP_top15 ∩ LIME_top15| / |SHAP_top15 ∪ LIME_top15|
-           Stability = mean pairwise cosine similarity of SHAP vectors across
-                       same-category samples (genuine consistency measure).
-
-FIXED #4 — Domain stopwords removed: 'api', 'service', 'services',
-           'application', 'data', 'platform', 'cloud', 'tool', 'tools',
-           'feature', 'web', 'software', 'system', 'developer', 'access'
-           are no longer filtered — they are the classification signal.
-
-FIXED #5 — CSV evidence properly populated: local loop always writes to
-           self.all_dominant_tokens[cat_name] for every sample processed.
-
-FIXED #6 — Uniform predict_fn: single sbert_pipeline function used for both
-           SHAP (KernelExplainer) and LIME (LimeTextExplainer) — same
-           probability scale, comparable outputs.
-
-FIXED #7 — all_dominant_tokens filtered for 'dim_' prefix removed: SBERT
-           features are named semantically via LIME words, not dim_N strings.
+ML Model Explainability Module
+Thin caller — all shared logic lives in src/utils/explainability_utils.py
 """
 
 import pandas as pd
@@ -44,540 +14,326 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import defaultdict, Counter
 from pathlib import Path
-from scipy.stats import spearmanr
 import os
 
-# SHAP & LIME
 import shap
 from lime.lime_text import LimeTextExplainer
 
-# SBERT
-from sentence_transformers import SentenceTransformer
-
-# Project config
 from src.config import (
     DATA_PATH, RESULTS_PATH, SAVED_MODELS_CONFIG, PREPROCESSING_CONFIG,
-    RESULTS_CONFIG, OVERALL_EXPLAINABILITY_CONFIG
+    RESULTS_CONFIG
 )
-from src.utils.utils import (
-    STOPWORDS, TARGET_CATEGORIES, FALLBACK_LABELS,
-    load_class_labels,
+from src.utils.explainability_utils import (
+    STOPWORDS, FALLBACK_LABELS, TARGET_CATEGORIES,
+    load_class_labels, get_shared_samples,
     top15_tokens, plot_bar, compute_metrics,
-    build_shap_background, run_global_shap, run_global_lime,
-    run_beeswarm,
+    run_global_category_bar, extract_global_tokens,
+    run_global_lime, run_beeswarm, run_waterfall,
+    save_metrics_report,
 )
-# Shared sample index — ensures all 5 models explain the same rows
-from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
 
-# ─── logging ──────────────────────────────────────────────────────────────────
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 warnings.filterwarnings('ignore')
-
-for _noisy in ['shap', 'lime', 'sentence_transformers']:
-    _l = logging.getLogger(_noisy)
-    _l.setLevel(logging.ERROR)
-    _l.propagate = False
-
 plt.style.use('seaborn-v0_8-darkgrid')
 sns.set_palette("husl")
+
+
 class MLExplainability:
-    """
-    SBERT-unified explainability for LogisticRegression, RandomForest, XGBoost.
-
-    Architecture
-    ────────────
-    Text → SBERT encoder (384-dim) → ML classifier
-                                   ↓
-                       KernelExplainer (SHAP, 384 dims)
-                       LimeTextExplainer  (word-level)
-                                   ↓
-                       Honest Fidelity / Jaccard / Stability
-    """
-
-    MODEL_NAMES = ["LogisticRegression", "RandomForest", "XGBoost"]
-
-    def __init__(self, n_categories: int = 50):
-        self.n_categories = n_categories
+    def __init__(self, n_categories=50):
+        self.feature_extractor = None
         self.plot_dpi = 300
+        self.model_names = ["LogisticRegression", "RandomForest", "XGBoost"]
+        self.all_dominant_tokens = defaultdict(list)
+        self.global_metrics_storage = []
+        self.target_categories = TARGET_CATEGORIES   # from utils — single source
+        self.setup_directories(n_categories)
 
-        # Populated during explain loop; saved to CSV at end
-        self.all_dominant_tokens: dict[str, list] = defaultdict(list)
-        self.global_metrics_storage: list[dict] = []
-
-        # Shared SBERT encoder — loaded once, reused for all models
-        logger.info("Loading SBERT encoder (all-MiniLM-L6-v2)…")
-        self.sbert = SentenceTransformer('all-MiniLM-L6-v2')
-        logger.info("SBERT encoder ready.")
-
-        self._setup_dirs(n_categories)
-
-    # ── directory setup ───────────────────────────────────────────────────────
-    def _setup_dirs(self, n_categories: int):
+    def setup_directories(self, n_categories):
         self.n_categories = n_categories
-        base = (
-            RESULTS_CONFIG['ml_results_path']
-            / f"top_{n_categories}_categories"
-            / "explainability"
-        )
+        base_path = RESULTS_CONFIG['ml_results_path'] / f"top_{n_categories}_categories" / "explainability"
         self.dirs = {
-            'shap':        base / "shap",
-            'lime':        base / "lime",
-            'lime_dash':   base / "lime" / "dashboards",
-            'global_bar':  base / "shap" / "global_bar",
-            'beeswarm':    base / "shap" / "beeswarm",
-            'waterfall':   base / "shap" / "waterfall",
-            'samples':     base / "shap" / "samples",
-            'global_lime': base / "lime" / "global",
-            'reports':     base / "reports",
-            'metrics':     base / "metrics",
+            'shap':       base_path / "shap",
+            'lime':       base_path / "lime",
+            'extra_lime': base_path / "lime" / "extra_lime_explainer",
+            'global_bar': base_path / "shap" / "global_bar",
+            'beeswarm':   base_path / "shap" / "beeswarm",
+            'waterfall':  base_path / "shap" / "waterfall",
+            'samples':    base_path / "shap" / "samples",
+            'global_lime':base_path / "lime" / "global",
+            'reports':    base_path / "reports",
+            'metrics':    base_path / "metrics",
         }
         for d in self.dirs.values():
             d.mkdir(parents=True, exist_ok=True)
 
-    # ── label loading ─────────────────────────────────────────────────────────
-    def _load_class_labels(self) -> list:
-        return load_class_labels(self.n_categories)
-
-    def _load_model(self, model_name: str):
-        """Load a SBERT-trained sklearn model from disk."""
-        model_dir = (
-            SAVED_MODELS_CONFIG["ml_models_path"]
-            / f"top_{self.n_categories}_categories"
-        )
-        # Attempt common naming patterns
-        candidates = [
-            f"{model_name}_SBERT_top_{self.n_categories}_categories_model.pkl",
-            f"{model_name}_sbert_top_{self.n_categories}_categories_model.pkl",
-            f"{model_name}_SBERT_model.pkl",
-            f"{model_name}_sbert_model.pkl",
+    def load_model_and_data(self, model_name, feature_type="tfidf"):
+        logger.info(f"Loading {model_name} ({feature_type})...")
+        model_dir = SAVED_MODELS_CONFIG["ml_models_path"] / f"top_{self.n_categories}_categories"
+        patterns = [
+            f"{model_name}_{feature_type.upper()}_top_{self.n_categories}_categories_model.pkl",
+            f"{model_name}_{feature_type.lower()}_top_{self.n_categories}_categories_model.pkl",
+            f"{model_name}_{feature_type.upper()}_model.pkl",
         ]
-        for name in candidates:
-            path = model_dir / name
-            if path.exists():
-                logger.info(f"  Found model: {path.name}")
-                return joblib.load(path)
+        model_path = next((model_dir / p for p in patterns if (model_dir / p).exists()), None)
+        if not model_path:
+            logger.error(f"Model missing in {model_dir}. Checked: {patterns}")
+            return None, None, None, None, None
 
-        logger.error(
-            f"SBERT model for {model_name} not found in {model_dir}.\n"
-            f"  Checked: {candidates}\n"
-            f"  Make sure ML models were trained on SBERT features."
-        )
-        return None
+        model = joblib.load(model_path)
+        from src.preprocessing.feature_extraction import FeatureExtractor
+        self.feature_extractor = FeatureExtractor()
 
-    # ── SBERT embedding helpers ───────────────────────────────────────────────
-    def _encode(self, texts: list[str]) -> np.ndarray:
-        """Encode a list of texts to SBERT embeddings, shape (N, 384)."""
-        return self.sbert.encode(
-            texts, batch_size=64,
-            show_progress_bar=False,
-            convert_to_numpy=True
-        )
+        splits_dir = Path(PREPROCESSING_CONFIG["splits"].format(n=self.n_categories))
+        test_df  = pd.read_csv(splits_dir / "test.csv")
+        train_df = pd.read_csv(splits_dir / "train.csv")
 
-    def _make_predict_fn(self, model):
-        """Return a predict_proba function that encodes text on-the-fly via SBERT.
+        if feature_type == "tfidf":
+            self.feature_extractor.load_tfidf_vectorizer(self.n_categories)
+            if not hasattr(self.feature_extractor, 'tfidf_vectorizer'):
+                vec_path = DATA_PATH / "features" / "tfidf" / f"top_{self.n_categories}_categories" / "tfidf_vectorizer.pkl"
+                self.feature_extractor.tfidf_vectorizer = joblib.load(vec_path)
+            X_train      = self.feature_extractor.tfidf_vectorizer.transform(train_df["cleaned_text"])
+            feature_names = self.feature_extractor.tfidf_vectorizer.get_feature_names_out()
+        else:
+            X_train      = self.feature_extractor.load_sbert_features(self.n_categories, "train")
+            feature_names = [f"dim_{i}" for i in range(X_train.shape[1])]
 
-        Used by BOTH KernelExplainer and LimeTextExplainer so they operate on
-        the same probability scale — required for valid cross-method comparison.
-        """
-        def predict_fn(texts):
-            if isinstance(texts, np.ndarray):
-                texts = texts.tolist()
-            texts = [str(t) for t in texts]
-            embs = self._encode(texts)
-            return model.predict_proba(embs)
-        return predict_fn
+        # load_class_labels() from utils — no local duplication
+        class_labels = load_class_labels(self.n_categories)
+        return model, X_train, test_df, feature_names, class_labels
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Helpers — delegate to explainability_utils (single source of truth)
-    # ─────────────────────────────────────────────────────────────────────────
-    def _top15(self, features, weights, clean_glyph=False):
-        return top15_tokens(features, weights, clean_glyph=clean_glyph)
+    def get_prediction_pipeline(self, model, feature_type):
+        if feature_type == "tfidf":
+            def tfidf_pipeline(texts):
+                return model.predict_proba(
+                    self.feature_extractor.tfidf_vectorizer.transform(texts))
+            return tfidf_pipeline
+        else:
+            from sentence_transformers import SentenceTransformer
+            sbert = SentenceTransformer('all-MiniLM-L6-v2')
+            def sbert_pipeline(texts):
+                return model.predict_proba(sbert.encode(texts))
+            return sbert_pipeline
 
+    # ── shared helper: delegate to utils ──────────────────────────────────────
     def _plot_bar(self, items, title, output_path):
-        plot_bar(items, title, output_path, plot_dpi=self.plot_dpi)
+        """Thin wrapper: filter dim_ / numeric / empty, then call shared plot_bar."""
+        clean = [(tok, w) for tok, w in items
+                 if tok and not str(tok).startswith("dim_")
+                 and not str(tok).isnumeric() and len(str(tok)) >= 2]
+        plot_bar(clean, title, Path(output_path), plot_dpi=self.plot_dpi)
 
-    def _compute_metrics(self, lime_score, shap_top15, lime_top15,
-                         category_shap_vectors=None):
-        return compute_metrics(lime_score, shap_top15, lime_top15,
-                               category_shap_vectors)
-
-    def _build_shap_background(self, X_train_sbert, n=50):
-        return build_shap_background(X_train_sbert, n)
-
-    def _run_global_shap(self, explainer, X_sample, class_labels, model_name):
-        run_global_shap(
-            explainer, X_sample, class_labels, model_name,
-            self.dirs['global_bar'] / f"global_{model_name}_sbert.png",
-            plot_dpi=self.plot_dpi,
-        )
-
-    def _run_global_lime(self, lime_exp, predict_fn, test_df, model_name,
-                         sample_limit=15, clean_glyph=False):
-        run_global_lime(
-            lime_exp, predict_fn, test_df, model_name,
-            self.dirs['global_lime'] / f"global_lime_{model_name}_sbert.png",
-            sample_limit=sample_limit, clean_glyph=clean_glyph,
-            plot_dpi=self.plot_dpi,
-        )
-
-
-    # ── token utilities ───────────────────────────────────────────────────────
-    # ── main explain loop for one ML model ───────────────────────────────────
-    def explain_model(self, model_name: str):
-        logger.info(f"\n{'='*60}")
-        logger.info(f"  Explaining {model_name} (SBERT)")
-        logger.info(f"{'='*60}")
-
-        # 1. Load model
-        model = self._load_model(model_name)
+    def explain_model(self, model_name, feature_type):
+        model, X_train, test_df, feature_names, class_labels = self.load_model_and_data(
+            model_name, feature_type)
         if model is None:
             return
 
-        # 2. Load data splits
-        splits_dir = Path(PREPROCESSING_CONFIG["splits"].format(n=self.n_categories))
-        try:
-            test_df  = pd.read_csv(splits_dir / "test.csv")
-            train_df = pd.read_csv(splits_dir / "train.csv")
-        except FileNotFoundError as e:
-            logger.error(f"  Data split not found: {e}")
-            return
+        pipeline_fn    = self.get_prediction_pipeline(model, feature_type)
+        lime_explainer = LimeTextExplainer(class_names=class_labels)
 
-        class_labels = self._load_class_labels()
+        # ── 1. Global SHAP ────────────────────────────────────────────────────
+        logger.info(f"Running Global SHAP for {model_name}...")
+        bg = X_train[:5].toarray() if hasattr(X_train, "toarray") else X_train[:5]
 
-        # 3. Load pre-computed SBERT features (avoids re-encoding large train set)
-        sbert_path = (
-            DATA_PATH / "features" / "sbert"
-            / f"top_{self.n_categories}_categories"
-            / "X_train.npy"
-        )
-        if sbert_path.exists():
-            X_train_sbert = np.load(sbert_path)
-            logger.info(f"  Loaded pre-computed SBERT train features: {X_train_sbert.shape}")
+        if model_name == "LogisticRegression":
+            explainer        = shap.LinearExplainer(model, bg, feature_names=feature_names)
+            shap_vals_global = explainer.shap_values(bg)
         else:
-            logger.info("  Pre-computed SBERT features not found — encoding train set…")
-            X_train_sbert = self._encode(train_df['cleaned_text'].tolist())
-            sbert_path.parent.mkdir(parents=True, exist_ok=True)
-            np.save(sbert_path, X_train_sbert)
-            logger.info(f"  Encoded and saved: {X_train_sbert.shape}")
+            explainer        = shap.TreeExplainer(model)
+            shap_vals_global = explainer.shap_values(bg, check_additivity=False)
 
-        # 4. Build single predict_fn — SHARED by SHAP and LIME
-        predict_fn = self._make_predict_fn(model)
-
-        # 5. KernelExplainer — unified method (same as DL/BERT/DeepSeek/Fusion)
-        bg = self._build_shap_background(X_train_sbert, n=50)
-        kernel_exp = shap.KernelExplainer(
-            lambda x: model.predict_proba(x),
-            bg,
-        )
-
-        # 6. LIME explainer
-        lime_exp = LimeTextExplainer(
-            class_names=class_labels,
-            split_expression=r'\W+',
-            bow=True,
-        )
-
-        # 7. Global SHAP (category importance bar)
-        n_global = min(50, len(X_train_sbert))
-        idx_global = np.random.RandomState(42).choice(len(X_train_sbert), n_global, replace=False)
-        self._run_global_shap(kernel_exp, X_train_sbert[idx_global], class_labels, model_name)
-
-        # 8. Global LIME
-        self._run_global_lime(lime_exp, predict_fn, test_df, model_name)
-
-        # 9. Select shared samples — IDENTICAL rows across all 5 models
-        # get_shared_samples() writes/reads a JSON index so ML, DL, BERT,
-        # DeepSeek and Fusion all explain the same test-set rows for the
-        # same 5 categories → plots are directly comparable side-by-side.
-        logger.info("  Loading shared sample index (5 fixed categories)…")
-        indices_to_explain = get_shared_samples(
-            test_df=test_df,
-            class_labels=class_labels,
-            n_categories=self.n_categories,
-            results_root=RESULTS_PATH,
-        )
-        logger.info(f"  Shared samples: {[(r, c) for r, c in indices_to_explain]}")
-
-        # 10. Per-category SHAP vector cache for stability calculation
-        category_shap_cache: dict[str, list[np.ndarray]] = defaultdict(list)
-
-        # 11. Waterfall — one per category (50 categories = 50 images per model)
-        waterfall_done: set = set()
-
-        # Beeswarm accumulator — (Token, SHAP Value) rows across all 15 shared samples
-        beeswarm_rows: list = []
-
-        # 12. Local explanation loop
-        for idx_count, (row_i, cat_name) in enumerate(indices_to_explain):
-            try:
-                text = str(test_df.iloc[row_i]['cleaned_text'])
-                probs = predict_fn([text])[0]
-                top_cls = int(np.argmax(probs))
-
-                logger.info(f"  [{idx_count+1}/{len(indices_to_explain)}] {cat_name} — sample {row_i}")
-
-                # ── LIME ─────────────────────────────────────────────────────
-                lime_result = lime_exp.explain_instance(
-                    text, predict_fn,
-                    labels=[top_cls],
-                    num_features=15,
-                    num_samples=200,
-                )
-
-                # Save HTML dashboard
-                dash_path = self.dirs['lime_dash'] / f"{model_name}_sample_{row_i}_{cat_name}.html"
-                try:
-                    lime_result.save_to_file(str(dash_path))
-                except Exception:
-                    pass
-
-                lime_raw  = lime_result.as_list(label=top_cls)
-                lime_clean = self._top15(
-                    [f for f, _ in lime_raw],
-                    [w for _, w in lime_raw],
-                )
-
-                self._plot_bar(
-                    lime_clean,
-                    f"LIME Top 15 (SBERT) — {model_name} — {cat_name}",
-                    self.dirs['lime'] / f"lime_{model_name}_sample_{row_i}.png",
-                )
-
-                # ── SHAP via KernelExplainer (SBERT embedding) ────────────────
-                emb = self._encode([text])                     # (1, 384)
-                shap_vals_raw = kernel_exp.shap_values(emb, silent=True)
-
-                # Extract per-class SHAP vector
-                if isinstance(shap_vals_raw, list):
-                    sv = np.array(shap_vals_raw[top_cls][0])    # (384,)
-                elif shap_vals_raw.ndim == 3:
-                    sv = shap_vals_raw[0, :, top_cls]
-                else:
-                    sv = shap_vals_raw[0]
-
-                # Normalise if extreme (XGBoost raw margins)
-                if np.max(np.abs(sv)) > 100:
-                    sv = sv / (np.sum(np.abs(sv)) + 1e-9)
-
-                # Cache SHAP vector for stability
-                category_shap_cache[cat_name].append(sv.copy())
-
-                # Map 384 SHAP dim values → top-15 LIME words semantically
-                # Because "dim_47" has no human meaning, we use the top LIME
-                # words as the shared token vocabulary and rank them by their
-                # |SHAP| magnitude proxy (mean of SBERT dims they activate).
-                # This keeps SHAP and LIME in the same word space for Jaccard.
-                shap_word_scores: dict[str, float] = {}
-                for word, lime_w in lime_raw:
-                    wl = word.lower().strip()
-                    if wl in STOPWORDS or len(wl) < 2:
-                        continue
-                    # Re-encode the word in isolation to get its SBERT direction,
-                    # then project the instance SHAP vector onto it as a scalar.
-                    word_emb = self._encode([wl])[0]              # (384,)
-                    proj = float(np.dot(sv, word_emb) / (np.linalg.norm(word_emb) + 1e-9))
-                    shap_word_scores[wl] = proj
-
-                shap_top15 = self._top15(
-                    list(shap_word_scores.keys()),
-                    list(shap_word_scores.values()),
-                )
-
-                # Accumulate word-level SHAP projections for beeswarm
-                for wl, proj in shap_word_scores.items():
-                    beeswarm_rows.append({'Token': wl, 'SHAP Value': proj})
-
-                # Waterfall — build from LIME words with SHAP projections
-                if cat_name not in waterfall_done and shap_top15:
-                    try:
-                        base_val = float(kernel_exp.expected_value[top_cls]) \
-                            if isinstance(kernel_exp.expected_value, (list, np.ndarray)) \
-                            else float(kernel_exp.expected_value)
-                        w_names = np.array([x[0] for x in shap_top15])
-                        w_vals  = np.array([x[1] for x in shap_top15])
-                        exp_obj = shap.Explanation(
-                            values=w_vals, base_values=base_val,
-                            data=w_names, feature_names=list(w_names),
-                        )
-                        plt.figure(figsize=(10, 8))
-                        shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                        plt.title(f"SHAP Waterfall | {model_name} | {cat_name}", fontsize=12)
-                        plt.tight_layout()
-                        plt.savefig(
-                            self.dirs['waterfall'] / f"waterfall_{model_name}_{cat_name}_sbert.png",
-                            dpi=self.plot_dpi, bbox_inches='tight',
-                        )
-                        plt.close()
-                        waterfall_done.add(cat_name)
-                    except Exception as e:
-                        logger.warning(f"  Waterfall plot failed: {e}")
-
-                # Plot SHAP bar
-                self._plot_bar(
-                    shap_top15,
-                    f"SHAP Top 15 (SBERT) — {model_name} — {cat_name}",
-                    self.dirs['samples'] / f"shap_{model_name}_sample_{row_i}.png",
-                )
-
-                # ── Honest metrics ────────────────────────────────────────────
-                # Stability is computed after all samples collected;
-                # pass cached vectors here for interim cross-sample use.
-                mets = self._compute_metrics(
-                    lime_score=lime_result.score,
-                    shap_top15=shap_top15,
-                    lime_top15=lime_clean,
-                    category_shap_vectors=category_shap_cache.get(cat_name),
-                )
-                mets['model']    = model_name
-                mets['category'] = cat_name
-                mets['sample_id'] = row_i
-                self.global_metrics_storage.append(mets)
-
-                # ── Populate token evidence (FIX #5) ─────────────────────────
-                # Write LIME words AND SHAP projected words to the token store.
-                # These are the tokens that will appear in the consolidated CSV.
-                all_tokens = list({x[0] for x in lime_clean} | {x[0] for x in shap_top15})
-                self.all_dominant_tokens[cat_name].extend(all_tokens)
-
-            except Exception as e:
-                logger.warning(f"  Sample {row_i} failed: {e}")
-                traceback.print_exc()
-
-        # Render beeswarm for this model — word-level SHAP distribution
-        # across all 15 shared samples (5 categories × 3 rows)
-        run_beeswarm(
-            beeswarm_rows=beeswarm_rows,
-            model_name=model_name,
-            output_path=self.dirs['beeswarm'] / f"beeswarm_{model_name}_sbert.png",
+        # Global category bar (utils)
+        run_global_category_bar(
+            shap_vals_global, class_labels, model_name, self.target_categories,
+            self.dirs['global_bar'] / f"global_{model_name}_{feature_type}.png",
             plot_dpi=self.plot_dpi,
         )
 
-        # 13. Update stability scores now that all samples per category are collected
-        for record in self.global_metrics_storage:
-            if record.get('model') != model_name:
-                continue
-            cat = record.get('category', '')
-            vecs = category_shap_cache.get(cat, [])
-            if len(vecs) >= 2:
-                corrs = []
-                ref = vecs[0]
-                for v in vecs[1:]:
-                    if np.std(v) > 1e-9 and np.std(ref) > 1e-9:
-                        r, _ = spearmanr(ref, v)
-                        corrs.append(float(r))
-                if corrs:
-                    record['Stability'] = round(float(np.mean(corrs)), 4)
+        # Extract per-category tokens (utils)
+        cat_tokens = extract_global_tokens(shap_vals_global, class_labels, feature_names,
+                                           self.target_categories)
+        for cat, toks in cat_tokens.items():
+            self.all_dominant_tokens[cat].extend(toks)
 
-        logger.info(f"  {model_name} done. Metrics collected: {len([m for m in self.global_metrics_storage if m.get('model') == model_name])}")
-
-    # ── top-level runner ──────────────────────────────────────────────────────
-    def explain_all_models(self, n_categories: int = 50):
-        self.n_categories = n_categories
-        self._setup_dirs(n_categories)
-
-        for model_name in self.MODEL_NAMES:
+        # Beeswarm (TF-IDF only — summary_plot needs the raw array)
+        if feature_type == "tfidf":
             try:
-                self.explain_model(model_name)
+                plt.figure(figsize=(12, 8))
+                shap.summary_plot(shap_vals_global, bg, feature_names=feature_names,
+                                  max_display=15, show=False)
+                plt.title(f"Beeswarm Top 15 — {model_name}", fontsize=13, fontweight='bold')
+                plt.tight_layout()
+                plt.savefig(self.dirs['beeswarm'] / f"beeswarm_{model_name}_{feature_type}.png",
+                            dpi=self.plot_dpi, bbox_inches='tight')
+                plt.close()
             except Exception as e:
-                logger.error(f"Pipeline failed for {model_name}: {e}")
+                logger.warning(f"Beeswarm failed: {e}")
+
+        # ── 2. Global LIME (utils) ────────────────────────────────────────────
+        run_global_lime(
+            lime_explainer, pipeline_fn, test_df, f"{model_name}_{feature_type}",
+            self.dirs['global_lime'] / f"Global_LIME_{model_name}_{feature_type}.png",
+            plot_dpi=self.plot_dpi,
+        )
+
+        # ── 3. Local samples — canonical shared index (utils) ─────────────────
+        shared = get_shared_samples(
+            test_df=test_df,
+            n_categories=self.n_categories,
+            results_root=self.dirs['reports'],
+        )
+        # One representative per category for waterfall + local bars
+        indices_to_explain = []
+        seen_cats = set()
+        for row_i, cat_name in shared:
+            if cat_name not in seen_cats:
+                indices_to_explain.append(row_i)
+                seen_cats.add(cat_name)
+            if len(seen_cats) >= 5:
+                break
+
+        sbert_model = None
+        if feature_type == "sbert":
+            from sentence_transformers import SentenceTransformer
+            sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+        beeswarm_rows = []
+        waterfall_done = False
+
+        for idx_count, i in enumerate(indices_to_explain):
+            try:
+                text    = test_df.iloc[i]['cleaned_text']
+                probs   = pipeline_fn([text])[0]
+                top_cls = int(np.argmax(probs))
+                cat_name = class_labels[top_cls]
+
+                # LIME local
+                exp = lime_explainer.explain_instance(
+                    text, pipeline_fn, num_features=30,
+                    labels=[top_cls], num_samples=1000)
+                try:
+                    exp.save_to_file(str(
+                        self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_{i}.html"))
+                except Exception:
+                    pass
+
+                lime_raw   = exp.as_list(label=top_cls)
+                lime_clean = top15_tokens([f for f, _ in lime_raw], [w for _, w in lime_raw])
+                self._plot_bar(
+                    lime_clean,
+                    f"Top 15 Tokens — LIME · {model_name} · {cat_name}",
+                    self.dirs['lime'] / f"lime_{model_name}_{i}_{feature_type}.png",
+                )
+
+                # SHAP local
+                shap_clean_for_metrics = []
+                if feature_type == "sbert":
+                    vec = sbert_model.encode([text]).reshape(1, -1)
+                    if model_name == "LogisticRegression":
+                        local_shap = explainer.shap_values(vec)
+                    else:
+                        local_shap = explainer.shap_values(vec, check_additivity=False)
+                    if isinstance(local_shap, list):   sv = local_shap[top_cls][0]
+                    elif local_shap.ndim == 3:         sv = local_shap[0, :, top_cls]
+                    else:                              sv = local_shap[0]
+                    shap_clean_for_metrics = top15_tokens(feature_names, sv)
+                    self._plot_bar(
+                        lime_clean,  # proxy words for SBERT visual
+                        f"SHAP Tokens (Text Proxy) · {model_name} · {cat_name}",
+                        self.dirs['samples'] / f"shap_sample_{i}_{model_name}_{feature_type}.png",
+                    )
+                else:
+                    vec = self.feature_extractor.tfidf_vectorizer.transform([text]).toarray()
+                    if model_name == "LogisticRegression":
+                        local_shap = explainer.shap_values(vec)
+                    else:
+                        local_shap = explainer.shap_values(vec, check_additivity=False)
+                    if isinstance(local_shap, list):   sv = local_shap[top_cls][0]
+                    elif local_shap.ndim == 3:         sv = local_shap[0, :, top_cls]
+                    else:                              sv = local_shap[0]
+
+                    if np.max(np.abs(sv)) > 1000:
+                        sv = sv / (np.sum(np.abs(sv)) + 1e-9)
+
+                    shap_clean_for_metrics = top15_tokens(feature_names, sv)
+                    self._plot_bar(
+                        shap_clean_for_metrics,
+                        f"SHAP Tokens · {model_name} · {cat_name}",
+                        self.dirs['samples'] / f"shap_sample_{i}_{model_name}_{feature_type}.png",
+                    )
+
+                    # Beeswarm accumulation
+                    for tok, val in shap_clean_for_metrics:
+                        beeswarm_rows.append({'Token': tok, 'SHAP Value': float(val)})
+
+                # Waterfall — first sample only (utils)
+                if not waterfall_done and shap_clean_for_metrics:
+                    base_val = 0.0
+                    if hasattr(explainer, 'expected_value'):
+                        ev = explainer.expected_value
+                        base_val = float(
+                            ev[top_cls] if isinstance(ev, (list, np.ndarray)) else ev)
+                    run_waterfall(
+                        shap_clean_for_metrics, base_val, model_name, cat_name,
+                        self.dirs['waterfall'] / f"waterfall_{model_name}_{feature_type}_{i}.png",
+                        plot_dpi=self.plot_dpi,
+                    )
+                    waterfall_done = True
+
+                # Honest metrics (utils)
+                mets = compute_metrics(exp.score, shap_clean_for_metrics, lime_clean)
+                mets['model'] = f"{model_name}_{feature_type}"
+                self.global_metrics_storage.append(mets)
+
+            except Exception as e:
+                logger.warning(f"Local sample failed idx={i}: {e}")
                 traceback.print_exc()
 
+        # Beeswarm (utils)
+        if beeswarm_rows:
+            run_beeswarm(
+                beeswarm_rows, f"{model_name}_{feature_type}",
+                self.dirs['beeswarm'] / f"beeswarm_{model_name}_{feature_type}_local.png",
+                plot_dpi=self.plot_dpi,
+            )
+
+    def explain_all_models(self, n_categories=50, feature_types=None):
+        self.n_categories = n_categories
+        self.setup_directories(n_categories)
+        if feature_types is None:
+            feature_types = ["tfidf", "sbert"]
+        for f_type in feature_types:
+            for m_name in self.model_names:
+                try:
+                    self.explain_model(m_name, f_type)
+                except Exception as e:
+                    logger.error(f"Pipeline failed {m_name}/{f_type}: {e}")
         self.save_reports()
         return self.global_metrics_storage
 
-    # ── save CSV reports and comparison plot ──────────────────────────────────
     def save_reports(self):
-        # ── metrics CSV
-        if not self.global_metrics_storage:
-            logger.warning("No metrics to save.")
-            return
-
-        df_metrics = pd.DataFrame(self.global_metrics_storage)
-        metrics_csv = self.dirs['metrics'] / OVERALL_EXPLAINABILITY_CONFIG['metrics_files']['ml']
-        df_metrics.to_csv(metrics_csv, index=False)
-        logger.info(f"Metrics saved → {metrics_csv}")
-
-        # ── metrics comparison plot
-        try:
-            summary = (
-                df_metrics.groupby('model')[['Fidelity', 'Jaccard', 'Stability']]
-                .mean()
-                .reset_index()
-            )
-            melted = summary.melt(id_vars='model', var_name='Metric', value_name='Score')
-
-            plt.figure(figsize=(12, 6))
-            ax = sns.barplot(data=melted, x='Metric', y='Score', hue='model')
-            for c in ax.containers:
-                ax.bar_label(c, fmt='%.3f', padding=3, fontsize=9)
-            plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-            plt.title("ML Explainability Metrics — SBERT (Honest, No Scaling)")
-            plt.ylim(0, 1.05)
-            plt.tight_layout()
-            plot_path = self.dirs['metrics'] / "ML_Metrics_Comparison_SBERT.png"
-            plt.savefig(plot_path, dpi=self.plot_dpi, bbox_inches='tight')
-            plt.close()
-            logger.info(f"Metrics plot saved → {plot_path}")
-        except Exception as e:
-            logger.warning(f"Metrics plot failed: {e}")
-
-        # ── per-category metrics CSV (per model breakdown)
-        try:
-            cat_csv = self.dirs['reports'] / "ML_Per_Category_Metrics.csv"
-            df_metrics.to_csv(cat_csv, index=False)
-            logger.info(f"Per-category metrics saved → {cat_csv}")
-        except Exception as e:
-            logger.warning(f"Per-category CSV failed: {e}")
-
-        # ── consolidated dominant tokens CSV
-        data = []
-        for cat in TARGET_CATEGORIES:
-            tokens = self.all_dominant_tokens.get(cat, [])
-            # Only real words (no dim_ prefixes — we never produce those now)
-            tokens = [t for t in tokens if t and not str(t).startswith('dim_')]
-            top_words = [w for w, _ in Counter(tokens).most_common(15)]
-            data.append({
-                'Category': cat,
-                'Top_15_Tokens': ', '.join(top_words) if top_words else 'N/A',
-                'Token_Count': len(tokens),
-            })
-        df_tokens = pd.DataFrame(data)
-        tokens_csv = self.dirs['reports'] / OVERALL_EXPLAINABILITY_CONFIG['token_files']['ml']
-        df_tokens.to_csv(tokens_csv, index=False)
-        logger.info(f"Consolidated tokens saved → {tokens_csv}")
-
-        # ── summary to console
-        logger.info("\n" + "="*50)
-        logger.info("ML EXPLAINABILITY SUMMARY (SBERT)")
-        logger.info("="*50)
-        if 'model' in df_metrics.columns:
-            for model_name, grp in df_metrics.groupby('model'):
-                logger.info(
-                    f"  {model_name:25s} | "
-                    f"Fidelity={grp['Fidelity'].mean():.4f} | "
-                    f"Jaccard={grp['Jaccard'].mean():.4f} | "
-                    f"Stability={grp['Stability'].mean():.4f}"
-                )
-        logger.info("="*50)
+        # Metrics CSV + chart (utils)
+        save_metrics_report(
+            self.global_metrics_storage, model_col='model',
+            output_csv=self.dirs['metrics'] / "ML_Final_Metrics.csv",
+            output_png=self.dirs['metrics'] / "ML_Metrics_Comparison.png",
+            title="ML Explainability Metrics",
+            plot_dpi=self.plot_dpi,
+        )
+        # Consolidated dominant tokens CSV
+        rows = []
+        for cat in self.target_categories:
+            toks = [t for t in self.all_dominant_tokens.get(cat, [])
+                    if not str(t).startswith("dim_")]
+            top  = [w for w, _ in Counter(toks).most_common(15)]
+            rows.append({'Category': cat,
+                         'Consolidated_Top_15_Tokens': ", ".join(top) if top else "N/A"})
+        pd.DataFrame(rows).to_csv(
+            self.dirs['reports'] / "ML_Consolidated_Dominant_Tokens.csv", index=False)
 
 
-# ==============================================================================
-#  Entry point
-# ==============================================================================
 if __name__ == "__main__":
-    import argparse
-    import time
-
-    parser = argparse.ArgumentParser(description="ML Explainability — SBERT unified pipeline")
-    parser.add_argument("--categories", type=int, default=50,
-                        help="Number of top categories (default: 50)")
-    args = parser.parse_args()
-
-    t0 = time.time()
-    explainer = MLExplainability(n_categories=args.categories)
-    results = explainer.explain_all_models(n_categories=args.categories)
-    logger.info(f"PHASE COMPLETE: ML_EXPLAINABILITY in {time.time()-t0:.1f}s")
+    exp = MLExplainability()
+    exp.explain_all_models(50)
