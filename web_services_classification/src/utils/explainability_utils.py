@@ -324,15 +324,16 @@ def get_shared_samples(
     Return the canonical list of (row_index, category_name) tuples that every
     explainability module must iterate over — 15 rows, same for all 5 models.
 
-    The index is hardcoded from the actual test.csv (top_50_categories,
-    random_state=42).  On first call it is also written to a JSON file under
-    results_root so other tools / notebooks can read it.
+    Self-healing: if the hardcoded indices no longer match the current test_df
+    (because the data split changed), the index is automatically re-discovered
+    by scanning test_df for correct rows per category, and _SHARED_SAMPLE_INDEX
+    is patched in-memory before returning. No ERROR is raised; a WARNING is
+    logged so the operator is informed.
 
     Parameters
     ----------
-    test_df       : test split DataFrame — used ONLY for ground-truth validation
-                    and to attach full_text at write time. The row_index values
-                    are already fixed; test_df is not scanned for selection.
+    test_df       : test split DataFrame — used for ground-truth validation
+                    and, when stale indices are found, for re-discovery.
     n_categories  : experiment size (50) — used for JSON filename only
     results_root  : directory for the companion JSON / CSV files
     n_per_cat     : respected for slicing (max = 3, hardcoded limit)
@@ -341,52 +342,107 @@ def get_shared_samples(
     Returns
     -------
     List of (row_index: int, category_name: str) — length 5 × n_per_cat.
-    Order: Payments, Social, Cloud, Medical, eCommerce.
+    Order: Payments, Messaging, Social, Storage, eCommerce.
     """
     n_per_cat = min(n_per_cat, N_SAMPLES_PER_CATEGORY)
     json_path = _shared_index_json_path(results_root, n_categories)
 
-    # ── Always validate ground truth against test_df ─────────────────────────
-    if "encoded_label" in test_df.columns:
-        for cat, entries in _SHARED_SAMPLE_INDEX.items():
-            expected_lbl = EXPL_LABEL_IDS[cat]
+    # Work on a 0-based positional index so iloc == CSV row number.
+    df = test_df.reset_index(drop=True)
+
+    # ── Validate + auto-heal stale indices ────────────────────────────────────
+    needs_rebuild = False
+
+    if "encoded_label" in df.columns:
+        for cat, entries in list(_SHARED_SAMPLE_INDEX.items()):
+            expected_lbl = EXPL_LABEL_IDS.get(cat)
+            if expected_lbl is None:
+                continue
+
+            bad_entries = []
             for e in entries[:n_per_cat]:
                 ri = e["row_index"]
-                if ri < len(test_df):
-                    actual_lbl = int(test_df.iloc[ri]["encoded_label"])
-                    if actual_lbl != expected_lbl:
-                        _log.error(
-                            f"  get_shared_samples: GROUND TRUTH MISMATCH — "
-                            f"{cat} row {ri}: expected label {expected_lbl}, "
-                            f"got {actual_lbl}. Data split may have changed."
-                        )
-                    else:
-                        _log.debug(f"  OK: {cat} row {ri} label={actual_lbl}")
+                if ri >= len(df):
+                    bad_entries.append(e)
+                    continue
+                actual_lbl = int(df.iloc[ri]["encoded_label"])
+                if actual_lbl != expected_lbl:
+                    bad_entries.append(e)
+
+            if not bad_entries:
+                _log.debug(f"  get_shared_samples: {cat} — all {n_per_cat} rows OK")
+                continue
+
+            # ── Re-discover rows for this category from current test_df ───────
+            _log.warning(
+                f"  get_shared_samples: {len(bad_entries)}/{n_per_cat} stale indices "
+                f"for '{cat}' (split changed). Re-discovering from test_df…"
+            )
+
+            # Determine the target_column — try Service Classification first
+            target_col = None
+            for col in ["Service Classification", "service_classification",
+                        "category", "label"]:
+                if col in df.columns:
+                    target_col = col
+                    break
+
+            new_entries: List[Dict] = []
+            if target_col:
+                cat_rows = df[df[target_col] == cat]
+                for pos_idx, row in cat_rows.head(N_SAMPLES_PER_CATEGORY).iterrows():
+                    new_entries.append({
+                        "row_index":     int(pos_idx),
+                        "encoded_label": int(row["encoded_label"]),
+                        "text_preview":  str(row.get("cleaned_text", ""))[:80],
+                        "description":   f"Auto-discovered: {cat} row {pos_idx}",
+                    })
+            else:
+                # Fall back: scan by encoded_label
+                cat_rows = df[df["encoded_label"] == expected_lbl]
+                for pos_idx, row in cat_rows.head(N_SAMPLES_PER_CATEGORY).iterrows():
+                    new_entries.append({
+                        "row_index":     int(pos_idx),
+                        "encoded_label": int(row["encoded_label"]),
+                        "text_preview":  str(row.get("cleaned_text", ""))[:80],
+                        "description":   f"Auto-discovered: {cat} row {pos_idx}",
+                    })
+
+            if new_entries:
+                _SHARED_SAMPLE_INDEX[cat] = new_entries
+                _log.warning(
+                    f"  get_shared_samples: '{cat}' patched → "
+                    f"{[e['row_index'] for e in new_entries]}"
+                )
+                needs_rebuild = True
+            else:
+                _log.error(
+                    f"  get_shared_samples: '{cat}' not found in test_df "
+                    f"— cannot auto-heal. Check category names."
+                )
 
     # ── Write companion files if needed ──────────────────────────────────────
     results_root = Path(results_root)
-    if not json_path.exists() or force_rebuild:
+    if not json_path.exists() or force_rebuild or needs_rebuild:
         results_root.mkdir(parents=True, exist_ok=True)
 
-        # Build enriched index with full_text from test_df
         enriched = {}
         for cat, entries in _SHARED_SAMPLE_INDEX.items():
             enriched[cat] = []
             for e in entries[:n_per_cat]:
                 entry = dict(e)
                 ri = e["row_index"]
-                if ri < len(test_df):
-                    entry["full_text"] = str(test_df.iloc[ri].get("cleaned_text", ""))
+                if ri < len(df):
+                    entry["full_text"] = str(df.iloc[ri].get("cleaned_text", ""))
                 enriched[cat].append(entry)
 
         with open(json_path, "w", encoding="utf-8") as fh:
             json.dump(enriched, fh, indent=2, ensure_ascii=False)
         _log.info(f"  get_shared_samples: JSON saved → {json_path}")
 
-        # CSV
+        csv_path = results_root / f"shared_expl_samples_{n_categories}.csv"
         rows_flat = [e for entries in enriched.values() for e in entries]
         if rows_flat:
-            csv_path = results_root / f"shared_expl_samples_{n_categories}.csv"
             pd.DataFrame(rows_flat).to_csv(csv_path, index=False)
             _log.info(f"  get_shared_samples: CSV saved  → {csv_path}")
     else:
