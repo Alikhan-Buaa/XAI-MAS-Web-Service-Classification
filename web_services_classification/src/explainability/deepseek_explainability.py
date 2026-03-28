@@ -348,7 +348,7 @@ class DeepSeekExplainability:
                 # LIME
                 exp1 = lime_exp.explain_instance(
                     text, wrapper.predict_proba,
-                    labels=[top], num_features=35, num_samples=500,
+                    labels=[top], num_features=15, num_samples=200,
                 )
                 try:
                     exp1.save_to_file(str(

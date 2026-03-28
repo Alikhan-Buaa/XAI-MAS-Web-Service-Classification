@@ -218,8 +218,8 @@ class DLExplainability:
         predict_fn = self._make_predict_fn(model)
 
         # KernelExplainer with 100 kmeans clusters
-        logger.info("  Building KernelExplainer background (100 clusters)…")
-        bg = shap.kmeans(X_train_sbert, min(100, len(X_train_sbert))).data
+        logger.info("  Building KernelExplainer background (50 clusters)…")
+        bg = shap.kmeans(X_train_sbert, min(50, len(X_train_sbert))).data
         kernel_exp = shap.KernelExplainer(
             lambda x: model.predict(x, batch_size=128, verbose=0), bg
         )
@@ -229,7 +229,7 @@ class DLExplainability:
         )
 
         # Global SHAP
-        n_global = min(200, len(X_train_sbert))
+        n_global = min(50, len(X_train_sbert))
         idx_g = np.random.RandomState(42).choice(len(X_train_sbert), n_global, replace=False)
         self._run_global_shap(kernel_exp, X_train_sbert[idx_g], class_labels, model_name)
 
@@ -262,7 +262,7 @@ class DLExplainability:
                 # LIME
                 lime_result = lime_exp.explain_instance(
                     text, predict_fn, labels=[top_cls],
-                    num_features=30, num_samples=500,
+                    num_features=15, num_samples=200,
                 )
                 try:
                     lime_result.save_to_file(str(

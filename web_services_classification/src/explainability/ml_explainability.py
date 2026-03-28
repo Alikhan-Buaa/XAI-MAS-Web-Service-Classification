@@ -205,7 +205,7 @@ class MLExplainability:
         return compute_metrics(lime_score, shap_top15, lime_top15,
                                category_shap_vectors)
 
-    def _build_shap_background(self, X_train_sbert, n=100):
+    def _build_shap_background(self, X_train_sbert, n=50):
         return build_shap_background(X_train_sbert, n)
 
     def _run_global_shap(self, explainer, X_sample, class_labels, model_name):
@@ -268,7 +268,7 @@ class MLExplainability:
         predict_fn = self._make_predict_fn(model)
 
         # 5. KernelExplainer — unified method (same as DL/BERT/DeepSeek/Fusion)
-        bg = self._build_shap_background(X_train_sbert, n=100)
+        bg = self._build_shap_background(X_train_sbert, n=50)
         kernel_exp = shap.KernelExplainer(
             lambda x: model.predict_proba(x),
             bg,
@@ -282,7 +282,7 @@ class MLExplainability:
         )
 
         # 7. Global SHAP (category importance bar)
-        n_global = min(200, len(X_train_sbert))
+        n_global = min(50, len(X_train_sbert))
         idx_global = np.random.RandomState(42).choice(len(X_train_sbert), n_global, replace=False)
         self._run_global_shap(kernel_exp, X_train_sbert[idx_global], class_labels, model_name)
 
@@ -324,8 +324,8 @@ class MLExplainability:
                 lime_result = lime_exp.explain_instance(
                     text, predict_fn,
                     labels=[top_cls],
-                    num_features=30,
-                    num_samples=500,
+                    num_features=15,
+                    num_samples=200,
                 )
 
                 # Save HTML dashboard
