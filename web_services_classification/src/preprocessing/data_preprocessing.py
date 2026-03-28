@@ -16,6 +16,9 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import logging
+import matplotlib.pyplot as plt
+from pathlib import Path
+
 
 # Import configuration
 from src.config import DATA_CONFIG, CATEGORY_SIZES, SPLIT_CONFIG, PREPROCESS_PATH, PREPROCESSING_CONFIG
@@ -174,6 +177,286 @@ class DataPreprocessor:
         filtered_df.to_csv(processed_dir / 'cleaned_dataset.csv', index=False)
         logger.info(f"Full cleaned dataset saved to {processed_dir}")
     
+    def plot_top_words_from_json(self,json_path, output_dir, max_categories=None):
+        """Generate plots for top words per category"""
+
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+
+        if max_categories:
+            data = data[:max_categories]
+
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+        for item in data:
+            category = item[list(item.keys())[0]]
+            top_words_str = item.get("Top_10_Words", "")
+
+            if not top_words_str:
+                continue
+
+            words, counts = [], []
+
+            for wc in top_words_str.split(", "):
+                try:
+                    word, count = wc.rsplit("(", 1)
+                    words.append(word)
+                    counts.append(int(count.strip(")")))
+                except:
+                    continue
+
+            # Sort ascending so highest bar is at the top
+            words_counts = sorted(zip(words, counts), key=lambda x: x[1])
+            words, counts = zip(*words_counts)
+
+            # ── Chart setup ───────────────────────────────────────────────────
+            fig, ax = plt.subplots(figsize=(11, 6))
+            fig.patch.set_facecolor("#F8F9FA")
+            ax.set_facecolor("#F8F9FA")
+
+            # Gradient colours — deepest blue for top word, lightest for last
+            import matplotlib.colors as mcolors
+            cmap = plt.cm.Blues
+            norm = mcolors.Normalize(vmin=0, vmax=len(counts) - 1)
+            bar_colors = [cmap(norm(i)) for i in range(len(counts))]
+
+            bars = ax.barh(
+                words, counts,
+                color=bar_colors,
+                height=0.65,
+                edgecolor="white",
+                linewidth=0.6,
+            )
+
+            # Value labels — white inside if bar wide enough, dark outside otherwise
+            max_count = max(counts)
+            for bar in bars:
+                width = bar.get_width()
+                label = f"{int(width):,}"
+                threshold = max_count * 0.18
+                if width > threshold:
+                    ax.text(
+                        width - max_count * 0.01,
+                        bar.get_y() + bar.get_height() / 2,
+                        label,
+                        va="center", ha="right",
+                        fontsize=9, fontweight="bold", color="white",
+                    )
+                else:
+                    ax.text(
+                        width + max_count * 0.01,
+                        bar.get_y() + bar.get_height() / 2,
+                        label,
+                        va="center", ha="left",
+                        fontsize=9, fontweight="bold", color="#333333",
+                    )
+
+            # Titles & labels
+            ax.set_title(
+                f"Top Words — {category}",
+                fontsize=14, fontweight="bold", color="#1A1A2E", pad=14,
+            )
+            ax.set_xlabel("Frequency", fontsize=11, color="#444444", labelpad=8)
+            ax.tick_params(axis="y", labelsize=10, colors="#333333")
+            ax.tick_params(axis="x", labelsize=9,  colors="#555555")
+
+            # Clean spines
+            for spine in ["top", "right", "left"]:
+                ax.spines[spine].set_visible(False)
+            ax.spines["bottom"].set_color("#CCCCCC")
+            ax.xaxis.grid(True, linestyle="--", linewidth=0.5, alpha=0.6, color="#CCCCCC")
+            ax.set_axisbelow(True)
+
+            # x-axis starts at 0
+            ax.set_xlim(left=0, right=max_count * 1.12)
+
+            plt.tight_layout()
+
+            # Safe filename
+            safe_category = str(category).replace(" ", "_").replace("/", "_")
+            plt.savefig(
+                Path(output_dir) / f"{safe_category}_top_words.png",
+                dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor(),
+            )
+            plt.close(fig)
+
+    def save_cleaned_category_statistics_from_file(self, text_column: str, target_column: str, n_categories: int):
+        """Load cleaned dataset from file and compute category statistics"""
+
+        # 🔹 Path
+        processed_dir = Path(str(PREPROCESSING_CONFIG['processed_data']).format(n=n_categories))
+        input_file = processed_dir / "cleaned_dataset.csv"
+
+        if not input_file.exists():
+            raise FileNotFoundError(f"Cleaned dataset not found at {input_file}")
+
+        # 🔹 Load dataset
+        df = pd.read_csv(input_file)
+
+        # 🔹 Top-N categories
+        top_categories = df[target_column].value_counts().nlargest(n_categories).index
+        df_top = df[df[target_column].isin(top_categories)].copy()
+
+        # 🔹 Stats
+        df_top["text_length"] = df_top[text_column].astype(str).str.len()
+        df_top["word_count"] = df_top[text_column].astype(str).str.split().apply(len)
+
+        # 🔹 Top words
+        top_words_dict = {}
+        for category in top_categories:
+            cat_data = df_top[df_top[target_column] == category]
+            texts = cat_data[text_column].fillna('').astype(str)
+
+            all_text = ' '.join(texts)
+            words = all_text.lower().split()
+
+            word_freq = {}
+            for word in words:
+                word = word.strip('.,!?";()[]{}')
+                if len(word) > 2:
+                    word_freq[word] = word_freq.get(word, 0) + 1
+
+            top_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:10]
+            top_words_dict[category] = ', '.join([f"{w}({c})" for w, c in top_words])
+
+        # 🔹 Aggregation
+        stats = df_top.groupby(target_column).agg(
+            samples=(text_column, "count"),
+            avg_text_length=("text_length", "mean"),
+            min_text_length=("text_length", "min"),
+            max_text_length=("text_length", "max"),
+            median_text_length=("text_length", "median"),
+            avg_word_count=("word_count", "mean"),
+            min_word_count=("word_count", "min"),
+            max_word_count=("word_count", "max"),
+            median_word_count=("word_count", "median")
+        ).reset_index()
+
+        stats["Top_10_Words"] = stats[target_column].map(top_words_dict)
+        stats[["avg_text_length", "avg_word_count"]] = stats[["avg_text_length", "avg_word_count"]].round(2)
+
+        # 🔹 Save output
+        stats.to_csv(processed_dir / f"cleaned_category_statistics_top{n_categories}.csv", index=False)
+        stats.to_json(processed_dir / f"cleaned_category_statistics_top{n_categories}.json", orient="records", indent=4)
+
+        logger.info(f"Category statistics generated from cleaned dataset at {processed_dir}")
+
+        plots_dir = processed_dir / "top_words_plots"
+        json_path = processed_dir / f"cleaned_category_statistics_top{n_categories}.json"
+
+        self.plot_top_words_from_json(
+            json_path=json_path,
+            output_dir=plots_dir,
+            max_categories=n_categories
+        )
+
+        logger.info(f"Top word plots saved at {plots_dir}")
+
+    def save_explainability_samples(self, test_df: pd.DataFrame, n_categories: int) -> None:
+        """
+        Extract the 15 fixed shared-sample rows from test_df and save to:
+
+            data/processed/top_{n}_categories/explainability_test_samples.csv
+            data/processed/top_{n}_categories/explainability_test_samples.json
+
+        Called automatically at the end of process_category_size(), immediately
+        after save_splits(), so the files are ready before any explainability
+        phase runs.
+
+        Row indices and expected labels come from shared_samples._HARDCODED —
+        single source of truth.  If a mismatch is detected the row is still
+        written but label_match is set to False so it is easy to spot.
+
+        CSV columns
+        -----------
+        category | encoded_label | expected_label | label_match |
+        row_index | Service Classification | cleaned_text | text_preview
+        """
+        try:
+            from src.explainability.shared_samples import (
+                _HARDCODED, FIXED_CATEGORIES, N_SAMPLES_PER_CATEGORY,
+            )
+        except ImportError as _ie:
+            logger.warning(
+                f"save_explainability_samples: cannot import shared_samples ({_ie}) — skipping."
+            )
+            return
+
+        df = test_df.reset_index(drop=True)
+
+        if "encoded_label" not in df.columns:
+            logger.warning(
+                "save_explainability_samples: 'encoded_label' not in test_df — skipping."
+            )
+            return
+
+        rows = []
+        for cat in FIXED_CATEGORIES:
+            for row_i, expected_lbl in _HARDCODED.get(cat, []):
+                if row_i >= len(df):
+                    logger.warning(
+                        f"  save_explainability_samples: row {row_i} ({cat}) "
+                        f"out of bounds (test has {len(df)} rows) — skipped."
+                    )
+                    continue
+                actual_lbl = int(df.iloc[row_i]["encoded_label"])
+                if actual_lbl != expected_lbl:
+                    logger.error(
+                        f"  save_explainability_samples: LABEL MISMATCH — "
+                        f"{cat} row {row_i}: expected {expected_lbl}, got {actual_lbl}."
+                    )
+                rows.append({
+                    "category":               cat,
+                    "encoded_label":          actual_lbl,
+                    "expected_label":         expected_lbl,
+                    "label_match":            actual_lbl == expected_lbl,
+                    "row_index":              row_i,
+                    "Service Classification": str(
+                        df.iloc[row_i].get(DATA_CONFIG["target_column"], "")
+                    ),
+                    "cleaned_text":           str(df.iloc[row_i].get("cleaned_text", "")),
+                    "text_preview":           str(df.iloc[row_i].get("cleaned_text", ""))[:80],
+                })
+
+        if not rows:
+            logger.warning("save_explainability_samples: no rows collected — skipping.")
+            return
+
+        out_dir = Path(
+            str(PREPROCESSING_CONFIG["processed_data"]).format(n=n_categories)
+        )
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        # ── CSV ───────────────────────────────────────────────────────────────
+        csv_path = out_dir / "explainability_test_samples.csv"
+        pd.DataFrame(rows).to_csv(csv_path, index=False)
+        logger.info(
+            f"  Explainability samples CSV  ({len(rows)} rows) → {csv_path}"
+        )
+
+        # ── JSON (structured: category → list of sample dicts) ────────────────
+        json_path = out_dir / "explainability_test_samples.json"
+        payload: dict = {cat: [] for cat in FIXED_CATEGORIES}
+        for r in rows:
+            payload[r["category"]].append(r)
+
+        import json as _json
+        with open(json_path, "w", encoding="utf-8") as fh:
+            _json.dump(
+                {
+                    "n_categories":         n_categories,
+                    "n_samples":            len(rows),
+                    "n_categories_sampled": len(FIXED_CATEGORIES),
+                    "n_per_category":       N_SAMPLES_PER_CATEGORY,
+                    "categories":           FIXED_CATEGORIES,
+                    "samples":              payload,
+                },
+                fh, indent=2, ensure_ascii=False,
+            )
+        logger.info(
+            f"  Explainability samples JSON ({len(rows)} rows) → {json_path}"
+        )
+
     def process_category_size(self, df, n_categories):
         """Process data for a specific category size"""
         logger.info(f"Processing top {n_categories} categories...")
@@ -183,6 +466,8 @@ class DataPreprocessor:
         logger.info("Cleaning text data...")
         filtered_df['cleaned_text'] = filtered_df[DATA_CONFIG['text_column']].apply(self.clean_text)
         
+
+
         # Encode labels
         encoder = self.create_label_encoder(top_categories)
         filtered_df['encoded_label'] = encoder.transform(filtered_df[DATA_CONFIG['target_column']])
@@ -190,9 +475,17 @@ class DataPreprocessor:
         # Save full cleaned dataset
         self.save_full_cleaned_dataset(filtered_df, n_categories)
         
+        self.save_cleaned_category_statistics_from_file(
+            text_column='cleaned_text',
+            target_column=DATA_CONFIG['target_column'],
+            n_categories=n_categories
+        )
         # Create train/val/test splits
         train_df, val_df, test_df = self.create_train_val_test_split(filtered_df)
         self.save_splits(train_df, val_df, test_df, n_categories)
+        
+        # Save the 15 fixed explainability samples used by all 5 XAI modules
+        self.save_explainability_samples(test_df, n_categories)
         
         # Save label mapping
         self.save_label_mapping(top_categories, n_categories, encoder)

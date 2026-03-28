@@ -56,6 +56,7 @@ from src.utils.utils import (
     load_class_labels,
     top15_tokens, plot_bar, compute_metrics,
     build_shap_background, run_global_shap, run_global_lime,
+    run_beeswarm,
 )
 
 from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
@@ -124,7 +125,8 @@ class DeepSeekExplainability:
         }
 
         self.global_metrics_storage: list = []
-        self.waterfall_generated = False
+        self.plot_dpi = 300
+        self.waterfall_generated: set = set()  # one waterfall per category
         self.category_tokens = {cat: [] for cat in TARGET_CATEGORIES}
 
         # 4-track evidence store
@@ -308,18 +310,17 @@ class DeepSeekExplainability:
                     self.dirs['global_bar'] / "shap_global_DeepSeek_7B.png",
                 )
                 top_toks = [x[0] for x in top15g]
-                df_bee = pd.DataFrame(beeswarm_data)
-                df_bee = df_bee[df_bee['Token'].isin(top_toks)]
-                if not df_bee.empty:
-                    plt.figure(figsize=(12, 8))
-                    df_bee['Token'] = pd.Categorical(df_bee['Token'], categories=top_toks, ordered=True)
-                    sns.stripplot(data=df_bee, x='SHAP Value', y='Token',
-                                  jitter=0.2, alpha=0.7, palette='viridis')
-                    plt.axvline(x=0, color='gray', linewidth=1)
-                    plt.title("SHAP Beeswarm (Global) — DeepSeek_7B", fontsize=14, fontweight='bold')
-                    plt.tight_layout()
-                    plt.savefig(self.dirs['beeswarm'] / "beeswarm_DeepSeek_7B.png", dpi=300)
-                    plt.close()
+                # Use shared run_beeswarm() for consistency across all models
+                run_beeswarm(
+                    beeswarm_rows=[
+                        {'Token': row['Token'], 'SHAP Value': row['SHAP Value']}
+                        for _, row in pd.DataFrame(beeswarm_data).iterrows()
+                        if row['Token'] in top_toks
+                    ],
+                    model_name=self.model_name,
+                    output_path=self.dirs['beeswarm'] / "beeswarm_DeepSeek_7B.png",
+                    plot_dpi=self.plot_dpi,
+                )
         except Exception as e:
             logger.error(f"  Global SHAP failed: {e}")
 
@@ -411,7 +412,7 @@ class DeepSeekExplainability:
                         self.evidence_data['Local_SHAP'][cat_name].append({'token': tok, 'weight': w})
                         self.category_tokens[cat_name].append(tok)
 
-                    if shap_top15 and not self.waterfall_generated:
+                    if shap_top15 and cat_name not in self.waterfall_generated:
                         w_names = np.array([x[0] for x in shap_top15])
                         w_vals  = np.array([x[1] for x in shap_top15])
                         exp_obj = shap.Explanation(
@@ -420,11 +421,11 @@ class DeepSeekExplainability:
                         )
                         plt.figure(figsize=(16, 10))
                         shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                        plt.title(f"SHAP Waterfall ({cat_name}) — DeepSeek_7B", fontsize=16, fontweight='bold')
+                        plt.title(f"SHAP Waterfall | {self.model_name} | {cat_name}", fontsize=13, fontweight='bold')
                         plt.tight_layout()
-                        plt.savefig(self.dirs['waterfall'] / "waterfall_DeepSeek_7B.png", dpi=300)
+                        plt.savefig(self.dirs['waterfall'] / f"waterfall_{self.model_name}_{cat_name}.png", dpi=300)
                         plt.close()
-                        self.waterfall_generated = True
+                        self.waterfall_generated.add(cat_name)
 
                 except Exception as e:
                     logger.warning(f"  Local SHAP failed sample {row_i}: {e}")

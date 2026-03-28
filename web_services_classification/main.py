@@ -611,11 +611,10 @@ class PipelineManager:
         try:
             self.logger.info("Starting ML Model Explainability Analysis (SHAP & LIME)")
             
-            explainer = MLExplainability()
-            
-            # Run explainability for first category size (or all if needed)
             n_categories = CATEGORY_SIZES[0]
-            feature_types = ["tfidf", "sbert"]
+            feature_types = ["sbert"]  # ML pipeline uses SBERT exclusively
+            
+            explainer = MLExplainability(n_categories=n_categories)
             
             self.logger.info(f"Analyzing top_{n_categories}_categories")
             self.logger.info(f"Feature types: {feature_types}")
@@ -627,7 +626,7 @@ class PipelineManager:
                 'summary': 'ML explainability analysis completed successfully',
                 'n_categories': n_categories,
                 'feature_types': feature_types,
-                'models_analyzed': list(results.get('tfidf', {}).keys()) if 'tfidf' in results else []
+                'models_analyzed': MLExplainability.MODEL_NAMES
             }
             
             self.log_phase_end(phase_name, start_time, success=True)
@@ -744,7 +743,7 @@ class PipelineManager:
                 self.logger.info(f"Generating DeepSeek explanations for top_{n_categories}_categories...")
                 
                 explainer = DeepSeekExplainability(n_categories=n_categories)
-                explainer.explain()
+                explainer.explain_all_models()
             
             self.results[phase_name] = {
                 'status': 'completed',
@@ -760,6 +759,7 @@ class PipelineManager:
             }
             self.log_phase_end(phase_name, start_time, success=False, error=e)
             raise e
+
     def run_overall_explainability_phase(self):
         """Run the overall XAI comparison chart generation"""
         phase_name = "overall_explainability"

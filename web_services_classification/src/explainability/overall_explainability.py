@@ -43,6 +43,11 @@ sys.path.append(str(project_root))
 from src.config import OVERALL_EXPLAINABILITY_CONFIG, RESULTS_PATH
 # TARGET_CATEGORIES lives in utils alongside all other shared explainability constants
 from src.utils.utils import TARGET_CATEGORIES
+try:
+    from src.explainability.xai_comparison import XAIComparison
+    _XAI_CMP_AVAILABLE = True
+except ImportError:
+    _XAI_CMP_AVAILABLE = False
 
 # Setup logging
 logging.basicConfig(
@@ -385,6 +390,16 @@ def generate_overall_charts(n_categories: int = 50) -> None:
 
     # 2. Token consolidation
     consolidate_tokens(n_categories)
+
+    # 3. Cross-model XAI comparison charts
+    if _XAI_CMP_AVAILABLE:
+        logger.info("Running cross-model XAI comparison charts…")
+        try:
+            XAIComparison(n_categories=n_categories).run_all()
+        except Exception as _e:
+            logger.warning(f"XAI comparison charts failed: {_e}")
+    else:
+        logger.warning("xai_comparison module not available — skipping comparison charts.")
 
     logger.info("Overall Explainability Pipeline complete.")
 

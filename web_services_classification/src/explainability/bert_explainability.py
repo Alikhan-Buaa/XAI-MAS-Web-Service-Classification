@@ -55,6 +55,7 @@ from src.utils.utils import (
     load_class_labels,
     top15_tokens, plot_bar, compute_metrics,
     build_shap_background, run_global_shap, run_global_lime,
+    run_beeswarm,
 )
 
 from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
@@ -116,6 +117,7 @@ class BERTExplainability:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model_names = ["roberta-base", "roberta-large"]
         self.max_features = 15
+        self.plot_dpi = 300
 
         self.output_files = {
             'tokens':  OVERALL_EXPLAINABILITY_CONFIG['token_files']['bert'],
@@ -125,7 +127,7 @@ class BERTExplainability:
 
         self.all_dominant_tokens: dict = defaultdict(list)
         self.global_metrics_storage: list = []
-        self.waterfall_generated = {m: False for m in self.model_names}
+        self.waterfall_generated = {m: set() for m in self.model_names}  # set of cats done
 
         self.category_tokens = {cat: [] for cat in TARGET_CATEGORIES}
 
@@ -383,7 +385,7 @@ class BERTExplainability:
                         self.dirs['samples'] / f"shap_{model_name}_{row_i}.png",
                     )
 
-                    if shap_top15 and not self.waterfall_generated[model_name]:
+                    if shap_top15 and cat_name not in self.waterfall_generated[model_name]:
                         w_names = np.array([x[0] for x in shap_top15])
                         w_vals  = np.array([x[1] for x in shap_top15])
                         exp_obj = shap.Explanation(
@@ -392,11 +394,11 @@ class BERTExplainability:
                         )
                         plt.figure(figsize=(16, 10))
                         shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                        plt.title(f"SHAP Waterfall ({cat_name}) — {model_name}", fontsize=16, fontweight='bold')
+                        plt.title(f"SHAP Waterfall | {model_name} | {cat_name}", fontsize=13, fontweight='bold')
                         plt.tight_layout()
-                        plt.savefig(self.dirs['waterfall'] / f"waterfall_{model_name}.png", dpi=300)
+                        plt.savefig(self.dirs['waterfall'] / f"waterfall_{model_name}_{cat_name}.png", dpi=300)
                         plt.close()
-                        self.waterfall_generated[model_name] = True
+                        self.waterfall_generated[model_name].add(cat_name)
 
                 except Exception as e:
                     logger.warning(f"  Local SHAP failed sample {row_i}: {e}")

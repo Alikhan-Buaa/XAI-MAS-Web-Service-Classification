@@ -57,6 +57,7 @@ from src.utils.utils import (
     load_class_labels,
     top15_tokens, plot_bar, compute_metrics,
     build_shap_background, run_global_shap, run_global_lime,
+    run_beeswarm,
 )
 
 from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
@@ -248,7 +249,8 @@ class DLExplainability:
         logger.info(f"  {len(indices)} categories to explain.")
 
         cat_shap_cache: dict = defaultdict(list)
-        waterfall_done = False
+        waterfall_done: set = set()  # one waterfall per category
+        beeswarm_rows: list = []
 
         for idx_count, (row_i, cat_name) in enumerate(indices):
             try:
@@ -308,8 +310,12 @@ class DLExplainability:
                     list(shap_word_scores.values()),
                 )
 
+                # Accumulate for beeswarm
+                for wl, proj in shap_word_scores.items():
+                    beeswarm_rows.append({'Token': wl, 'SHAP Value': proj})
+
                 # Waterfall
-                if not waterfall_done and shap_top15:
+                if cat_name not in waterfall_done and shap_top15:
                     try:
                         bv = float(kernel_exp.expected_value[top_cls]) \
                             if isinstance(kernel_exp.expected_value, (list, np.ndarray)) \
@@ -322,14 +328,14 @@ class DLExplainability:
                         )
                         plt.figure(figsize=(10, 8))
                         shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                        plt.title(f"SHAP Waterfall (SBERT) — DL {model_name} — {cat_name}", fontsize=12)
+                        plt.title(f"SHAP Waterfall | {model_name} | {cat_name}", fontsize=12)
                         plt.tight_layout()
                         plt.savefig(
-                            self.dirs['waterfall'] / f"waterfall_{model_name}_sbert.png",
+                            self.dirs['waterfall'] / f"waterfall_{model_name}_{cat_name}_sbert.png",
                             dpi=self.plot_dpi, bbox_inches='tight',
                         )
                         plt.close()
-                        waterfall_done = True
+                        waterfall_done.add(cat_name)
                     except Exception as e:
                         logger.warning(f"  Waterfall failed: {e}")
 
@@ -358,6 +364,14 @@ class DLExplainability:
             except Exception as e:
                 logger.warning(f"  Sample {row_i} failed: {e}")
                 traceback.print_exc()
+
+        # Beeswarm — word-level SHAP distribution across all 15 shared samples
+        run_beeswarm(
+            beeswarm_rows=beeswarm_rows,
+            model_name=model_name,
+            output_path=self.dirs['beeswarm'] / f"beeswarm_{model_name}_sbert.png",
+            plot_dpi=self.plot_dpi,
+        )
 
         # Back-fill stability scores
         for rec in self.global_metrics_storage:

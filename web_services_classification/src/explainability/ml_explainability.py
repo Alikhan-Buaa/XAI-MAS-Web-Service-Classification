@@ -64,6 +64,7 @@ from src.utils.utils import (
     load_class_labels,
     top15_tokens, plot_bar, compute_metrics,
     build_shap_background, run_global_shap, run_global_lime,
+    run_beeswarm,
 )
 # Shared sample index — ensures all 5 models explain the same rows
 from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
@@ -304,8 +305,11 @@ class MLExplainability:
         # 10. Per-category SHAP vector cache for stability calculation
         category_shap_cache: dict[str, list[np.ndarray]] = defaultdict(list)
 
-        # 11. Waterfall flag — generate only for first sample
-        waterfall_done = False
+        # 11. Waterfall — one per category (50 categories = 50 images per model)
+        waterfall_done: set = set()
+
+        # Beeswarm accumulator — (Token, SHAP Value) rows across all 15 shared samples
+        beeswarm_rows: list = []
 
         # 12. Local explanation loop
         for idx_count, (row_i, cat_name) in enumerate(indices_to_explain):
@@ -383,8 +387,12 @@ class MLExplainability:
                     list(shap_word_scores.values()),
                 )
 
+                # Accumulate word-level SHAP projections for beeswarm
+                for wl, proj in shap_word_scores.items():
+                    beeswarm_rows.append({'Token': wl, 'SHAP Value': proj})
+
                 # Waterfall — build from LIME words with SHAP projections
-                if not waterfall_done and shap_top15:
+                if cat_name not in waterfall_done and shap_top15:
                     try:
                         base_val = float(kernel_exp.expected_value[top_cls]) \
                             if isinstance(kernel_exp.expected_value, (list, np.ndarray)) \
@@ -397,14 +405,14 @@ class MLExplainability:
                         )
                         plt.figure(figsize=(10, 8))
                         shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                        plt.title(f"SHAP Waterfall (SBERT) — {model_name} — {cat_name}", fontsize=12)
+                        plt.title(f"SHAP Waterfall | {model_name} | {cat_name}", fontsize=12)
                         plt.tight_layout()
                         plt.savefig(
-                            self.dirs['waterfall'] / f"waterfall_{model_name}_sbert.png",
+                            self.dirs['waterfall'] / f"waterfall_{model_name}_{cat_name}_sbert.png",
                             dpi=self.plot_dpi, bbox_inches='tight',
                         )
                         plt.close()
-                        waterfall_done = True
+                        waterfall_done.add(cat_name)
                     except Exception as e:
                         logger.warning(f"  Waterfall plot failed: {e}")
 
@@ -438,6 +446,15 @@ class MLExplainability:
             except Exception as e:
                 logger.warning(f"  Sample {row_i} failed: {e}")
                 traceback.print_exc()
+
+        # Render beeswarm for this model — word-level SHAP distribution
+        # across all 15 shared samples (5 categories × 3 rows)
+        run_beeswarm(
+            beeswarm_rows=beeswarm_rows,
+            model_name=model_name,
+            output_path=self.dirs['beeswarm'] / f"beeswarm_{model_name}_sbert.png",
+            plot_dpi=self.plot_dpi,
+        )
 
         # 13. Update stability scores now that all samples per category are collected
         for record in self.global_metrics_storage:

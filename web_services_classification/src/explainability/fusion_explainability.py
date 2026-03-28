@@ -57,6 +57,7 @@ from src.utils.utils import (
     load_class_labels,
     top15_tokens, plot_bar, compute_metrics,
     build_shap_background, run_global_shap, run_global_lime,
+    run_beeswarm,
 )
 
 from src.explainability.shared_samples import get_shared_samples, FIXED_CATEGORIES
@@ -194,7 +195,8 @@ class FusionExplainability:
             self.fusion_types = [self.fusion_types]
 
         self.global_metrics_storage: list = []
-        self.waterfall_generated = {ft: False for ft in self.fusion_types}
+        self.plot_dpi = 300
+        self.waterfall_generated = {ft: set() for ft in self.fusion_types}  # set of cats done
         self.category_tokens = {cat: [] for cat in TARGET_CATEGORIES}
 
         self.base_result_dir = RESULTS_CONFIG['fusion_category_paths'][n_categories]
@@ -448,7 +450,7 @@ class FusionExplainability:
                         self.dirs['samples'] / f"shap_{fusion_type}_{row_i}.png",
                     )
 
-                    if shap_top15 and not self.waterfall_generated[fusion_type]:
+                    if shap_top15 and cat_name not in self.waterfall_generated[fusion_type]:
                         w_names = np.array([x[0] for x in shap_top15])
                         w_vals  = np.array([x[1] for x in shap_top15])
                         exp_obj = shap.Explanation(
@@ -457,11 +459,11 @@ class FusionExplainability:
                         )
                         plt.figure(figsize=(16, 10))
                         shap.plots.waterfall(exp_obj, max_display=15, show=False)
-                        plt.title(f"SHAP Waterfall ({cat_name}) — {fusion_type.capitalize()}", fontsize=16, fontweight='bold')
+                        plt.title(f"SHAP Waterfall | {fusion_type} | {cat_name}", fontsize=13, fontweight='bold')
                         plt.tight_layout()
-                        plt.savefig(self.dirs['waterfall'] / f"waterfall_{fusion_type}.png", dpi=300)
+                        plt.savefig(self.dirs['waterfall'] / f"waterfall_{fusion_type}_{cat_name}.png", dpi=300)
                         plt.close()
-                        self.waterfall_generated[fusion_type] = True
+                        self.waterfall_generated[fusion_type].add(cat_name)
 
                 except Exception as e:
                     logger.warning(f"  Local SHAP failed sample {row_i}: {e}")
@@ -469,9 +471,9 @@ class FusionExplainability:
                 # Honest metrics (FIX #1 — SHAP vs LIME, not LIME vs LIME)
                 mets = self._compute_metrics(
                     lime_score=exp1.score,
-                    shap_feats=shap_top15,
-                    lime_feats=lime_top15,
-                    cat_shap_vecs=cat_shap_cache.get(cat_name),
+                    shap_top15=shap_top15,
+                    lime_top15=lime_top15,
+                    category_shap_vectors=cat_shap_cache.get(cat_name),
                 )
                 mets.update({
                     'model':      f"{fusion_type}_fusion",
