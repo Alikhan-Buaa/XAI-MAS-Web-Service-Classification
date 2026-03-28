@@ -612,7 +612,7 @@ class PipelineManager:
             self.logger.info("Starting ML Model Explainability Analysis (SHAP & LIME)")
             
             n_categories = CATEGORY_SIZES[0]
-            feature_types = ["sbert"]  # ML pipeline uses SBERT exclusively
+            feature_types = ["tfidf", "sbert"]
             
             explainer = MLExplainability(n_categories=n_categories)
             
@@ -641,28 +641,31 @@ class PipelineManager:
             raise
 
     def run_dl_explainability_phase(self):
-            """Execute Deep Learning Explainability Phase"""
-            
-            
-            self.logger.info("="*80)
-            self.logger.info("STARTING PHASE: DL_EXPLAINABILITY")
-            self.logger.info("="*80)
-            
-            try:
-                # Initialize the explainer
-                explainer = DLExplainability()
-                
-                # Iterate over all category sizes (e.g., 5, 10) defined in config
-                for n_categories in CATEGORY_SIZES:
-                    self.logger.info(f"Generating DL explanations for top_{n_categories}_categories...")
-                    # This will automatically run for all models (BiLSTM) and features (TFIDF, SBERT)
-                    explainer.explain_all_models(n_categories)
-                    
-                self.logger.info("DL Explainability phase completed successfully.")
-                
-            except Exception as e:
-                self.logger.error(f"DL Explainability phase failed: {e}")
-                raise e
+        """Execute Deep Learning Explainability Phase"""
+        phase_name = "dl_explainability"
+        start_time = self.log_phase_start(phase_name)
+
+        try:
+            explainer = DLExplainability()
+
+            for n_categories in CATEGORY_SIZES:
+                self.logger.info(f"Generating DL explanations for top_{n_categories}_categories...")
+                explainer.explain_all_models(n_categories)
+
+            self.results[phase_name] = {
+                'status': 'completed',
+                'summary': 'DL explainability analysis completed successfully',
+                'categories': CATEGORY_SIZES
+            }
+            self.log_phase_end(phase_name, start_time, success=True)
+
+        except Exception as e:
+            self.results[phase_name] = {
+                'status': 'failed',
+                'error': str(e)
+            }
+            self.log_phase_end(phase_name, start_time, success=False, error=e)
+            raise e
 
     # --- NEW: BERT EXPLAINABILITY PHASE ---
     def run_bert_explainability_phase(self):
@@ -733,8 +736,6 @@ class PipelineManager:
     # --- NEW: DEEPSEEK EXPLAINABILITY PHASE ---
     def run_deepseek_explainability_phase(self):
         """Execute DeepSeek Explainability Phase"""
-        
-        
         phase_name = "deepseek_explainability"
         start_time = self.log_phase_start(phase_name)
         
@@ -743,7 +744,7 @@ class PipelineManager:
                 self.logger.info(f"Generating DeepSeek explanations for top_{n_categories}_categories...")
                 
                 explainer = DeepSeekExplainability(n_categories=n_categories)
-                explainer.explain_all_models()
+                explainer.explain()   # DeepSeek uses explain(), not explain_all_models()
             
             self.results[phase_name] = {
                 'status': 'completed',

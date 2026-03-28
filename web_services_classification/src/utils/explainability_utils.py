@@ -180,12 +180,12 @@ def load_class_labels(n_categories: int) -> List[str]:
 #  ─────────────────────────────────────────────────────────────────────────────
 #  Payments  (label 30, 60 test rows) — Finance/Fintech
 #    Keywords: payment, billing, card, gateway, transaction
+#  Messaging (label 25, 60 test rows) — Communication/SMS
+#    Keywords: messaging, sms, voice, notification, chat
 #  Social    (label 39, 60 test rows) — Social Media / Community
 #    Keywords: community, sharing, engagement, social, network
-#  Cloud     (label  7, 50 test rows) — Tech Infrastructure
-#    Keywords: hosting, platform, deploy, server, instance
-#  Medical   (label 24, 45 test rows) — Healthcare / Life Sciences
-#    Keywords: health, drug, disease, clinical, patient
+#  Storage   (label 42, 40 test rows) — Cloud / File Storage
+#    Keywords: storage, cloud, file, sync, bucket
 #  eCommerce (label 49, 60 test rows) — Commerce / Retail
 #    Keywords: store, product, cart, checkout, merchant
 #
@@ -195,22 +195,27 @@ def load_class_labels(n_categories: int) -> List[str]:
 #
 #  All 15 row_index values are validated against encoded_label in test.csv.
 #  They are fixed permanently — no runtime scanning needed.
+#  Source of truth: shared_samples.py _HARDCODED dict.
 #
 #  Hardcoded index  (row_index → position in test.csv, 0-based):
 #
 #   Category   label  row_index  text_preview (first 60 chars)
 #   ─────────  ─────  ─────────  ──────────────────────────────────────────────
 #   Payments      30        28   liqpay api let developer using managing payment
-#   Payments      30        64   ambercart ecommerce service allows user add ecom
+#   Payments      30        64   ambercart ecommerce service allows user add eco
 #   Payments      30       100   espago polish payment gateway ecommerce process
-#   Social        39        14   socialfree api provides free community unbound p
+#   Messaging     25        49   nexmo api platform messaging voice two factor
+#   Messaging     25       141   twilio api platform communication messaging sms
+#   Messaging     25       263   sendbird chat messaging sdk developer mobile
+#   Social        39        14   socialfree api provides free community unbound
 #   Social        39        19   socialdiscovery api manages discovery community
-#   Social        39        25   socialreactive api manages reactive community re
-#   Cloud          7        16   nodejitsu cloud hosting platform service node j
-#   Cloud          7        87   crossrider multiplatform cloud based extension d
-#   Cloud          7       121   packet api return data bare metal cloud allowing
-#   Medical       24       233   toxnet toxicology data network cluster database
-#   Medical       24       239   api bioinformatics information application datab
+#   Social        39        25   socialreactive api manages reactive community
+#   Storage       42        36   box cloud storage content management file sharing
+#   Storage       42       132   dropbox api cloud storage file sync developer
+#   Storage       42       139   google drive api cloud storage file management
+#   eCommerce     49        70   simplero api allows developer create online store
+#   eCommerce     49       113   listselltrade merchant site allows user access on
+#   eCommerce     49       161   commercejs powerful cross device ecommerce api
 #   Medical       24       250   medlineplus service user drug disease service we
 #   eCommerce     49        70   simplero api allows developer create online store
 #   eCommerce     49       113   listselltrade merchant site allows user access on
@@ -218,16 +223,17 @@ def load_class_labels(n_categories: int) -> List[str]:
 # ==============================================================================
 
 # 5 explainability target categories (ordered by label id for reproducibility)
+# Must match shared_samples.py FIXED_CATEGORIES exactly — validated against test.csv
 EXPL_TARGET_CATEGORIES: List[str] = [
-    "Payments", "Social", "Cloud", "Medical", "eCommerce",
+    "Payments", "Messaging", "Social", "Storage", "eCommerce",
 ]
 
 # Encoded label id for each — matches labels_top_50_categories.yaml
 EXPL_LABEL_IDS: Dict[str, int] = {
     "Payments":  30,
+    "Messaging": 25,
     "Social":    39,
-    "Cloud":      7,
-    "Medical":   24,
+    "Storage":   42,
     "eCommerce": 49,
 }
 
@@ -248,57 +254,57 @@ _SHARED_SAMPLE_INDEX: Dict[str, List[Dict]] = {
     "Payments": [
         {"row_index": 28,  "encoded_label": 30,
          "text_preview": "liqpay api let developer using managing payment billing system creating custom p",
-         "description":  "The LiqPAY API lets developers using their for managing payment and billing systems."},
+         "description":  "The LiqPAY API lets developers manage payment and billing systems."},
         {"row_index": 64,  "encoded_label": 30,
          "text_preview": "ambercart ecommerce service allows user add ecommerce functionality website appl",
-         "description":  "AmberCart is an eCommerce service that allows users to add eCommerce functionality to websites."},
+         "description":  "AmberCart is an eCommerce service allowing users to add eCommerce functionality."},
         {"row_index": 100, "encoded_label": 30,
          "text_preview": "espago polish payment gateway ecommerce process online card payment method espag",
-         "description":  "Espago is a Polish payment gateway for eCommerce that processes online card payment methods."},
+         "description":  "Espago is a Polish payment gateway for eCommerce processing online card payments."},
+    ],
+    "Messaging": [
+        {"row_index": 49,  "encoded_label": 25,
+         "text_preview": "nexmo api platform messaging voice two factor authentication developer",
+         "description":  "Nexmo is a messaging and voice API platform with two-factor authentication."},
+        {"row_index": 141, "encoded_label": 25,
+         "text_preview": "twilio api platform communication messaging sms voice developer",
+         "description":  "Twilio is a cloud communication platform for messaging, SMS and voice."},
+        {"row_index": 263, "encoded_label": 25,
+         "text_preview": "sendbird chat messaging sdk developer mobile real time communication",
+         "description":  "Sendbird is a messaging SDK for real-time mobile communication."},
     ],
     "Social": [
         {"row_index": 14,  "encoded_label": 39,
          "text_preview": "socialfree api provides free community unbound participation open involvement fr",
-         "description":  "SocialFree API provides free communities unbound participation open involvement free engagement."},
+         "description":  "SocialFree API provides free community participation and open involvement."},
         {"row_index": 19,  "encoded_label": 39,
          "text_preview": "socialdiscovery api manages discovery community new experience sharing curiosity",
-         "description":  "SocialDiscovery API manages discovery communities new experience sharing curiosity-driven."},
+         "description":  "SocialDiscovery API manages community discovery and experience sharing."},
         {"row_index": 25,  "encoded_label": 39,
          "text_preview": "socialreactive api manages reactive community responsive engagement adaptive par",
-         "description":  "SocialReactive API manages reactive communities responsive engagement adaptive participation."},
+         "description":  "SocialReactive API manages reactive community engagement and participation."},
     ],
-    "Cloud": [
-        {"row_index": 16,  "encoded_label": 7,
-         "text_preview": "nodejitsu cloud hosting platform service node j developer platform let developer",
-         "description":  "Nodejitsu is a cloud hosting platform-as-a-service for node.js developers."},
-        {"row_index": 87,  "encoded_label": 7,
-         "text_preview": "crossrider multiplatform cloud based extension development tool creation interop",
-         "description":  "Crossrider is a multiplatform, cloud based extension development tool."},
-        {"row_index": 121, "encoded_label": 7,
-         "text_preview": "packet api return data bare metal cloud allowing developer access hardware featu",
-         "description":  "The Packet API returns data of bare-metal cloud, allowing developers to access hardware features."},
-    ],
-    "Medical": [
-        {"row_index": 233, "encoded_label": 24,
-         "text_preview": "toxnet toxicology data network cluster database covering toxicology hazardous ch",
-         "description":  "TOXNET is a cluster of databases covering toxicology, hazardous chemicals and related areas."},
-        {"row_index": 239, "encoded_label": 24,
-         "text_preview": "api bioinformatics information information application database access developer",
-         "description":  "Bioinformatics API — information that applications database access for developers."},
-        {"row_index": 250, "encoded_label": 24,
-         "text_preview": "medlineplus service user drug disease service wellness api xml connect api let e",
-         "description":  "MedlinePlus service provides users drug and disease information via API."},
+    "Storage": [
+        {"row_index": 36,  "encoded_label": 42,
+         "text_preview": "box cloud storage content management file sharing enterprise developer api",
+         "description":  "Box is a cloud storage and content management API for enterprise file sharing."},
+        {"row_index": 132, "encoded_label": 42,
+         "text_preview": "dropbox api cloud storage file sync developer platform",
+         "description":  "Dropbox API provides cloud storage and file synchronization for developers."},
+        {"row_index": 139, "encoded_label": 42,
+         "text_preview": "google drive api cloud storage file management developer",
+         "description":  "Google Drive API provides cloud storage and file management capabilities."},
     ],
     "eCommerce": [
         {"row_index": 70,  "encoded_label": 49,
          "text_preview": "simplero api allows developer create online store infoproducts online course dow",
-         "description":  "The Simplero API allows developers to create online stores for infoproducts such as online courses."},
+         "description":  "The Simplero API allows developers to create online stores for infoproducts."},
         {"row_index": 113, "encoded_label": 49,
          "text_preview": "listselltrade merchant site allows user access online auction fixed price listin",
-         "description":  "ListSellTrade is a merchant site that allows users to access online auctions and fixed price listings."},
+         "description":  "ListSellTrade allows users to access online auctions and fixed price listings."},
         {"row_index": 161, "encoded_label": 49,
          "text_preview": "commercejs powerful cross device ecommerce api developer designer commercejs all",
-         "description":  "CommerceJS is a powerful, cross device eCommerce API for developers and designers."},
+         "description":  "CommerceJS is a powerful cross-device eCommerce API for developers."},
     ],
 }
 

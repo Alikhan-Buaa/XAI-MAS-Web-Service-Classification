@@ -40,10 +40,12 @@ sns.set_palette("husl")
 
 
 class MLExplainability:
+    MODEL_NAMES = ["LogisticRegression", "RandomForest", "XGBoost"]  # class-level for main.py
+
     def __init__(self, n_categories=50):
         self.feature_extractor = None
         self.plot_dpi = 300
-        self.model_names = ["LogisticRegression", "RandomForest", "XGBoost"]
+        self.model_names = MLExplainability.MODEL_NAMES
         self.all_dominant_tokens = defaultdict(list)
         self.global_metrics_storage = []
         self.target_categories = TARGET_CATEGORIES   # from utils — single source
