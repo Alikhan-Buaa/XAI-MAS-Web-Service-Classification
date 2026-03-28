@@ -354,7 +354,9 @@ class DataPreprocessor:
 
     def save_explainability_samples(self, test_df: pd.DataFrame, n_categories: int) -> None:
         """
-        Extract the 15 fixed shared-sample rows from test_df and save to:
+        Discover the 15 shared-sample rows from the CURRENT test_df, write
+        them to disk, and update shared_samples._HARDCODED so every
+        explainability module uses the correct indices.
 
             data/processed/top_{n}_categories/explainability_test_samples.csv
             data/processed/top_{n}_categories/explainability_test_samples.json
@@ -363,25 +365,30 @@ class DataPreprocessor:
         after save_splits(), so the files are ready before any explainability
         phase runs.
 
-        Row indices and expected labels come from shared_samples._HARDCODED —
-        single source of truth.  If a mismatch is detected the row is still
-        written but label_match is set to False so it is easy to spot.
+        Design
+        ------
+        Instead of trusting stale hardcoded indices (which break whenever the
+        data split changes), this method SCANS the current test_df to find
+        exactly N_SAMPLES_PER_CATEGORY rows per FIXED_CATEGORIES category.
+        It then patches shared_samples._HARDCODED in-memory so the same
+        process run that just wrote test.csv will also use correct indices.
 
         CSV columns
         -----------
-        category | encoded_label | expected_label | label_match |
-        row_index | Service Classification | cleaned_text | text_preview
+        category | encoded_label | row_index | Service Classification |
+        cleaned_text | text_preview
         """
         try:
-            from src.explainability.shared_samples import (
-                _HARDCODED, FIXED_CATEGORIES, N_SAMPLES_PER_CATEGORY,
-            )
+            import src.explainability.shared_samples as _ss_mod
+            FIXED_CATEGORIES     = _ss_mod.FIXED_CATEGORIES
+            N_SAMPLES_PER_CATEGORY = _ss_mod.N_SAMPLES_PER_CATEGORY
         except ImportError as _ie:
             logger.warning(
                 f"save_explainability_samples: cannot import shared_samples ({_ie}) — skipping."
             )
             return
 
+        # Work on a clean 0-based positional index so iloc == CSV row number.
         df = test_df.reset_index(drop=True)
 
         if "encoded_label" not in df.columns:
@@ -390,37 +397,74 @@ class DataPreprocessor:
             )
             return
 
-        rows = []
+        # ── Build label_name → encoded_label lookup from current test_df ──────
+        # Use the Service Classification column so we match category names.
+        target_col = DATA_CONFIG["target_column"]   # "Service Classification"
+        if target_col not in df.columns:
+            logger.warning(
+                f"save_explainability_samples: '{target_col}' not in test_df — skipping."
+            )
+            return
+
+        # ── Scan test_df: find N_SAMPLES_PER_CATEGORY rows per category ───────
+        new_hardcoded: dict = {}
+        rows_out: list = []
+        missing_cats: list = []
+
         for cat in FIXED_CATEGORIES:
-            for row_i, expected_lbl in _HARDCODED.get(cat, []):
-                if row_i >= len(df):
-                    logger.warning(
-                        f"  save_explainability_samples: row {row_i} ({cat}) "
-                        f"out of bounds (test has {len(df)} rows) — skipped."
-                    )
-                    continue
-                actual_lbl = int(df.iloc[row_i]["encoded_label"])
-                if actual_lbl != expected_lbl:
-                    logger.error(
-                        f"  save_explainability_samples: LABEL MISMATCH — "
-                        f"{cat} row {row_i}: expected {expected_lbl}, got {actual_lbl}."
-                    )
-                rows.append({
+            cat_rows = df[df[target_col] == cat]
+            if len(cat_rows) == 0:
+                logger.warning(
+                    f"  save_explainability_samples: category '{cat}' not found "
+                    f"in current test split — skipped."
+                )
+                missing_cats.append(cat)
+                continue
+
+            # Take up to N_SAMPLES_PER_CATEGORY rows
+            sample_rows = cat_rows.head(N_SAMPLES_PER_CATEGORY)
+            new_hardcoded[cat] = []
+
+            for pos_idx, row in sample_rows.iterrows():
+                enc_lbl = int(row["encoded_label"])
+                new_hardcoded[cat].append((int(pos_idx), enc_lbl))
+                rows_out.append({
                     "category":               cat,
-                    "encoded_label":          actual_lbl,
-                    "expected_label":         expected_lbl,
-                    "label_match":            actual_lbl == expected_lbl,
-                    "row_index":              row_i,
-                    "Service Classification": str(
-                        df.iloc[row_i].get(DATA_CONFIG["target_column"], "")
-                    ),
-                    "cleaned_text":           str(df.iloc[row_i].get("cleaned_text", "")),
-                    "text_preview":           str(df.iloc[row_i].get("cleaned_text", ""))[:80],
+                    "encoded_label":          enc_lbl,
+                    "row_index":              int(pos_idx),
+                    "Service Classification": str(row.get(target_col, "")),
+                    "cleaned_text":           str(row.get("cleaned_text", "")),
+                    "text_preview":           str(row.get("cleaned_text", ""))[:80],
                 })
 
-        if not rows:
+            found = len(sample_rows)
+            if found < N_SAMPLES_PER_CATEGORY:
+                logger.warning(
+                    f"  save_explainability_samples: '{cat}' has only {found} "
+                    f"test rows (need {N_SAMPLES_PER_CATEGORY})."
+                )
+            else:
+                logger.info(
+                    f"  save_explainability_samples: '{cat}' → "
+                    f"{[r[0] for r in new_hardcoded[cat]]} (label {new_hardcoded[cat][0][1]})"
+                )
+
+        if not rows_out:
             logger.warning("save_explainability_samples: no rows collected — skipping.")
             return
+
+        # ── Patch shared_samples._HARDCODED in-memory ─────────────────────────
+        # This means get_shared_samples() called later in the same process
+        # will use the freshly-discovered indices, not the stale ones.
+        _ss_mod._HARDCODED.update(new_hardcoded)
+        logger.info(
+            f"  save_explainability_samples: patched shared_samples._HARDCODED "
+            f"with {len(rows_out)} rows across {len(new_hardcoded)} categories."
+        )
+
+        # ── Write updated indices back to shared_samples.py on disk ───────────
+        # So the NEXT run (and the explainability phase) also uses correct indices.
+        self._rewrite_shared_samples_hardcoded(new_hardcoded)
 
         out_dir = Path(
             str(PREPROCESSING_CONFIG["processed_data"]).format(n=n_categories)
@@ -429,33 +473,99 @@ class DataPreprocessor:
 
         # ── CSV ───────────────────────────────────────────────────────────────
         csv_path = out_dir / "explainability_test_samples.csv"
-        pd.DataFrame(rows).to_csv(csv_path, index=False)
+        pd.DataFrame(rows_out).to_csv(csv_path, index=False)
         logger.info(
-            f"  Explainability samples CSV  ({len(rows)} rows) → {csv_path}"
+            f"  Explainability samples CSV  ({len(rows_out)} rows) → {csv_path}"
         )
 
-        # ── JSON (structured: category → list of sample dicts) ────────────────
+        # ── JSON ──────────────────────────────────────────────────────────────
+        import json as _json
         json_path = out_dir / "explainability_test_samples.json"
         payload: dict = {cat: [] for cat in FIXED_CATEGORIES}
-        for r in rows:
+        for r in rows_out:
             payload[r["category"]].append(r)
 
-        import json as _json
         with open(json_path, "w", encoding="utf-8") as fh:
             _json.dump(
                 {
                     "n_categories":         n_categories,
-                    "n_samples":            len(rows),
-                    "n_categories_sampled": len(FIXED_CATEGORIES),
+                    "n_samples":            len(rows_out),
+                    "n_categories_sampled": len(new_hardcoded),
                     "n_per_category":       N_SAMPLES_PER_CATEGORY,
                     "categories":           FIXED_CATEGORIES,
+                    "hardcoded_index":      {
+                        cat: entries for cat, entries in new_hardcoded.items()
+                    },
                     "samples":              payload,
                 },
                 fh, indent=2, ensure_ascii=False,
             )
         logger.info(
-            f"  Explainability samples JSON ({len(rows)} rows) → {json_path}"
+            f"  Explainability samples JSON ({len(rows_out)} rows) → {json_path}"
         )
+
+    def _rewrite_shared_samples_hardcoded(self, new_hardcoded: dict) -> None:
+        """
+        Overwrite the _HARDCODED dict literal in shared_samples.py on disk
+        with the freshly-discovered row indices from the current test split.
+
+        This keeps shared_samples.py in sync so that:
+          • The next `python main.py` run reads the correct indices.
+          • The explainability modules that import shared_samples at module
+            load time also get the correct values.
+
+        Only the _HARDCODED block is touched; all other code is preserved.
+        """
+        import ast
+        import textwrap
+
+        try:
+            import src.explainability.shared_samples as _ss_mod
+            ss_path = Path(_ss_mod.__file__).resolve()
+        except Exception as e:
+            logger.warning(f"  _rewrite_shared_samples_hardcoded: cannot locate file ({e}) — skipped.")
+            return
+
+        try:
+            source = ss_path.read_text(encoding="utf-8")
+        except Exception as e:
+            logger.warning(f"  _rewrite_shared_samples_hardcoded: cannot read {ss_path} ({e}) — skipped.")
+            return
+
+        # Build the new _HARDCODED block as a formatted string
+        lines = ["_HARDCODED: Dict[str, List[Tuple[int, int]]] = {"]
+        for cat, entries in new_hardcoded.items():
+            entry_str = ", ".join(f"({ri}, {lbl})" for ri, lbl in entries)
+            lines.append(f'    "{cat}": [{entry_str}],')
+        lines.append("}")
+        new_block = "\n".join(lines)
+
+        # Replace the old _HARDCODED block using a regex so we don't
+        # disturb anything else in the file.
+        import re
+        pattern = re.compile(
+            r"_HARDCODED\s*:\s*Dict\[.*?\]\s*=\s*\{.*?\n\}",
+            re.DOTALL,
+        )
+        if not pattern.search(source):
+            logger.warning(
+                "  _rewrite_shared_samples_hardcoded: _HARDCODED pattern not found "
+                f"in {ss_path} — skipped."
+            )
+            return
+
+        new_source = pattern.sub(new_block, source, count=1)
+
+        try:
+            ss_path.write_text(new_source, encoding="utf-8")
+            logger.info(
+                f"  _rewrite_shared_samples_hardcoded: updated {ss_path} "
+                f"with {sum(len(v) for v in new_hardcoded.values())} entries."
+            )
+        except Exception as e:
+            logger.warning(
+                f"  _rewrite_shared_samples_hardcoded: cannot write {ss_path} ({e}) — skipped."
+            )
 
     def process_category_size(self, df, n_categories):
         """Process data for a specific category size"""
