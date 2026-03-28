@@ -344,9 +344,9 @@ class FusionExplainability:
             toks = self.category_tokens.get(cat, [])
             top  = [w for w, _ in Counter(toks).most_common(15)] if toks else []
             rows.append({'Category': cat,
-                         'Consolidated_Top_Words': ", ".join(top) if top else "Error: Insufficient Data"})
+                         'Consolidated_Top_15_Tokens': ", ".join(top) if top else "N/A"})
         pd.DataFrame(rows).to_csv(
-            self.dirs['reports'] / "Consolidated_Tokens_15_Categories.csv", index=False)
+            self.dirs['reports'] / OVERALL_EXPLAINABILITY_CONFIG['token_files']['fusion'], index=False)
 
     def generate_comparison_plot(self):
         save_metrics_report(

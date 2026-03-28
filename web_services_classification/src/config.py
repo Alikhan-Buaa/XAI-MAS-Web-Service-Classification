@@ -486,25 +486,41 @@ EXPLAINABILITY_CONFIG = {
     
     # Subdirectories for different explainability methods
     'explainability_subdirs': {
-        'shap': 'shap',
-        'lime': 'lime',
-        'combined': 'combined',
-        'feature_importance': 'feature_importance'
+        'shap':               'shap',
+        'shap_global_bar':    'shap/global_bar',
+        'shap_beeswarm':      'shap/beeswarm',
+        'shap_waterfall':     'shap/waterfall',
+        'shap_samples':       'shap/samples',
+        'lime':               'lime',
+        'lime_global':        'lime/global',
+        'lime_dashboards':    'lime/lime_dashboards',
+        'reports':            'reports',
+        'metrics':            'metrics',
     },
     
     # Output formats
     'plot_dpi': 300,
     'plot_format': 'png',
-    'max_features_display': 20,
-    
-    # SHAP specific settings
-    'shap_background_samples': 100,
-    'shap_explain_samples': 50,
-    
-    # LIME specific settings
-    'lime_num_samples': 5000,
-    'lime_num_features': 20,
-    'lime_num_instances': 5
+    'max_features_display': 15,   # top-15 tokens displayed on every bar chart
+
+    # ── Shared explainability sample set ─────────────────────────────────────
+    # 5 categories × 3 samples = 15 rows.  ALL five model modules explain the
+    # EXACT same 15 rows so SHAP/LIME outputs are directly comparable.
+    # Row indices are hardcoded in explainability_utils.py (validated against
+    # test.csv random_state=42 split). Change only if the split is regenerated.
+    'n_expl_categories':       5,   # Payments · Social · Cloud · Medical · eCommerce
+    'n_samples_per_category':  3,   # 3 rows per category
+    'n_expl_samples_total':   15,   # = n_expl_categories × n_samples_per_category
+
+    # ── SHAP settings ─────────────────────────────────────────────────────────
+    'shap_background_samples': 50,   # kmeans clusters for KernelExplainer background
+    'shap_max_evals':         100,   # max_evals for shap.Explainer (text masker)
+    'shap_local_nsamples':   1000,   # nsamples for KernelExplainer local calls
+
+    # ── LIME settings ─────────────────────────────────────────────────────────
+    'lime_num_features':      30,    # features requested from explain_instance
+    'lime_num_samples':      1000,   # perturbation samples per LIME call
+    'lime_global_samples':    300,   # perturbation samples for global aggregation
 }
 
 def create_all_directories():
@@ -540,19 +556,41 @@ def create_all_directories():
             DATA_PATH / "features" / "tfidf" / f"top_{n_categories}_categories",
             DATA_PATH / "features" / "sbert" / f"top_{n_categories}_categories",
             DATA_PATH / "analysis" / f"top_{n_categories}_categories",
-            RESULTS_PATH / "ml" / f"top_{n_categories}_categories",
-            RESULTS_PATH / "dl" / f"top_{n_categories}_categories", 
-            RESULTS_PATH / "bert" / f"top_{n_categories}_categories",
+            RESULTS_PATH / "ml"       / f"top_{n_categories}_categories",
+            RESULTS_PATH / "dl"       / f"top_{n_categories}_categories",
+            RESULTS_PATH / "bert"     / f"top_{n_categories}_categories",
             RESULTS_PATH / "deepseek" / f"top_{n_categories}_categories",
-            RESULTS_PATH / "fusion" / f"top_{n_categories}_categories",
-            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability",
-            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "shap",
-            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "lime",
-            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "combined",
-            RESULTS_PATH / "ml" / f"top_{n_categories}_categories" / "explainability" / "feature_importance"
-            
-
+            RESULTS_PATH / "fusion"   / f"top_{n_categories}_categories",
         ])
+        # Explainability sub-trees for ALL 5 model types
+        for model in ['ml', 'dl', 'bert', 'deepseek', 'fusion']:
+            base = RESULTS_PATH / model / f"top_{n_categories}_categories" / "explainability"
+            directories.extend([
+                base,
+                base / "shap",
+                base / "shap" / "global_bar",
+                base / "shap" / "beeswarm",
+                base / "shap" / "waterfall",
+                base / "shap" / "samples",
+                base / "lime",
+                base / "lime" / "global",
+                base / "lime" / "lime_dashboards",
+                base / "reports",
+                base / "metrics",
+            ])
+        # DeepSeek has extra shap/reports and lime/reports sub-folders
+        ds_base = RESULTS_PATH / "deepseek" / f"top_{n_categories}_categories" / "explainability"
+        directories.extend([
+            ds_base / "shap" / "reports",
+            ds_base / "lime" / "reports",
+        ])
+        # ML/DL have an extra lime/extra_lime_explainer folder
+        for model in ['ml', 'dl']:
+            directories.append(
+                RESULTS_PATH / model / f"top_{n_categories}_categories" / "explainability" / "lime" / "extra_lime_explainer"
+            )
+        # Overall explainability output
+        directories.append(RESULTS_PATH / "overall_explainability")
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
     
@@ -572,12 +610,13 @@ OVERALL_EXPLAINABILITY_CONFIG = {
     },
     
     # File names for consolidated tokens
+    # Column written in every CSV: Consolidated_Top_15_Tokens
     'token_files': {
-        'bert': 'BERT_Consolidated_Dominant_Tokens.csv',
+        'ml':       'ML_Consolidated_Dominant_Tokens.csv',
+        'dl':       'DL_Consolidated_Dominant_Tokens.csv',
+        'bert':     'BERT_Consolidated_Dominant_Tokens.csv',
         'deepseek': 'DeepSeek_Dominant_Tokens.csv',
-        'dl': 'DL_Consolidated_Dominant_Tokens.csv',
-        'fusion': 'Fusion_Consolidated_Dominant_Tokens.csv',
-        'ml': 'ML_Consolidated_Dominant_Tokens.csv'
+        'fusion':   'Fusion_Consolidated_Dominant_Tokens.csv',
     },
 
     # Visualization settings

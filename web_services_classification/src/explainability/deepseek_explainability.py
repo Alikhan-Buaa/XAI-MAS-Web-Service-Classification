@@ -315,7 +315,7 @@ class DeepSeekExplainability:
             toks = self.category_tokens.get(cat, [])
             top  = [w for w, _ in Counter(toks).most_common(15)] if toks else []
             rows.append({'Category': cat,
-                         'Consolidated_Top_Words': ", ".join(top) if top else "Error: Insufficient Data"})
+                         'Consolidated_Top_15_Tokens': ", ".join(top) if top else "N/A"})
         pd.DataFrame(rows).to_csv(
             self.dirs['reports'] / self.output_files['tokens'], index=False)
 

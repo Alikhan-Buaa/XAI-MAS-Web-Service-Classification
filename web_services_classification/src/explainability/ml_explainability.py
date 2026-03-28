@@ -21,7 +21,7 @@ from lime.lime_text import LimeTextExplainer
 
 from src.config import (
     DATA_PATH, RESULTS_PATH, SAVED_MODELS_CONFIG, PREPROCESSING_CONFIG,
-    RESULTS_CONFIG
+    RESULTS_CONFIG, OVERALL_EXPLAINABILITY_CONFIG
 )
 from src.utils.explainability_utils import (
     STOPWORDS, FALLBACK_LABELS, TARGET_CATEGORIES,
@@ -331,7 +331,7 @@ class MLExplainability:
             rows.append({'Category': cat,
                          'Consolidated_Top_15_Tokens': ", ".join(top) if top else "N/A"})
         pd.DataFrame(rows).to_csv(
-            self.dirs['reports'] / "ML_Consolidated_Dominant_Tokens.csv", index=False)
+            self.dirs['reports'] / OVERALL_EXPLAINABILITY_CONFIG['token_files']['ml'], index=False)
 
 
 if __name__ == "__main__":
