@@ -174,138 +174,48 @@ def load_class_labels(n_categories: int) -> List[str]:
 
 
 # ==============================================================================
-#  C. SHARED SAMPLES  —  hardcoded from real test.csv (top_50_categories)
+#  C. SHARED SAMPLES
 #
-#  Why these 5 categories?
-#  ─────────────────────────────────────────────────────────────────────────────
-#  Payments  (label 30, 60 test rows) — Finance/Fintech
-#    Keywords: payment, billing, card, gateway, transaction
-#  Messaging (label 25, 60 test rows) — Communication/SMS
-#    Keywords: messaging, sms, voice, notification, chat
-#  Social    (label 39, 60 test rows) — Social Media / Community
-#    Keywords: community, sharing, engagement, social, network
-#  Storage   (label 42, 40 test rows) — Cloud / File Storage
-#    Keywords: storage, cloud, file, sync, bucket
-#  eCommerce (label 49, 60 test rows) — Commerce / Retail
-#    Keywords: store, product, cart, checkout, merchant
+#  5 fixed categories × 1 sample = 5 rows total.
+#  Category list is the SINGLE SOURCE OF TRUTH from config.py:
+#    EXPLAINABILITY_CONFIG['expl_categories']
 #
-#  These 5 have maximally distinct vocabularies → SHAP/LIME explanations show
-#  clearly different top tokens per category → best for cross-model comparison.
-#  Larger test counts → more stable explainability estimates.
+#  No hardcoded row indices. get_shared_samples() scans test_df LIVE at call
+#  time by 'Service Classification' column, selecting the first matching row
+#  per category. Robust to any data-split change.
 #
-#  All 15 row_index values are validated against encoded_label in test.csv.
-#  They are fixed permanently — no runtime scanning needed.
-#  Source of truth: shared_samples.py _HARDCODED dict.
-#
-#  Hardcoded index  (row_index → position in test.csv, 0-based):
-#
-#   Category   label  row_index  text_preview (first 60 chars)
-#   ─────────  ─────  ─────────  ──────────────────────────────────────────────
-#   Payments      30        28   liqpay api let developer using managing payment
-#   Payments      30        64   ambercart ecommerce service allows user add eco
-#   Payments      30       100   espago polish payment gateway ecommerce process
-#   Messaging     25        49   nexmo api platform messaging voice two factor
-#   Messaging     25       141   twilio api platform communication messaging sms
-#   Messaging     25       263   sendbird chat messaging sdk developer mobile
-#   Social        39        14   socialfree api provides free community unbound
-#   Social        39        19   socialdiscovery api manages discovery community
-#   Social        39        25   socialreactive api manages reactive community
-#   Storage       42        36   box cloud storage content management file sharing
-#   Storage       42       132   dropbox api cloud storage file sync developer
-#   Storage       42       139   google drive api cloud storage file management
-#   eCommerce     49        70   simplero api allows developer create online store
-#   eCommerce     49       113   listselltrade merchant site allows user access on
-#   eCommerce     49       161   commercejs powerful cross device ecommerce api
-#   Medical       24       250   medlineplus service user drug disease service we
-#   eCommerce     49        70   simplero api allows developer create online store
-#   eCommerce     49       113   listselltrade merchant site allows user access on
-#   eCommerce     49       161   commercejs powerful cross device ecommerce api d
+#  Categories:
+#    Payments   — financial transactions
+#    Messaging  — communication / SMS
+#    Social     — social networks
+#    Storage    — data / cloud storage
+#    eCommerce  — commerce / retail
 # ==============================================================================
 
-# 5 explainability target categories (ordered by label id for reproducibility)
-# Must match shared_samples.py FIXED_CATEGORIES exactly — validated against test.csv
-EXPL_TARGET_CATEGORIES: List[str] = [
-    "Payments", "Messaging", "Social", "Storage", "eCommerce",
-]
+# ── Category list from config — single source of truth ───────────────────────
+try:
+    from src.config import EXPLAINABILITY_CONFIG as _EXPL_CFG, DATA_CONFIG as _DATA_CFG
+    _TARGET_COL = _DATA_CFG.get("target_column", "Service Classification")
+except ImportError:
+    _EXPL_CFG   = {}
+    _TARGET_COL = "Service Classification"
 
-# Encoded label id for each — matches labels_top_50_categories.yaml
+EXPL_TARGET_CATEGORIES: List[str] = _EXPL_CFG.get("expl_categories", [
+    "Payments", "Messaging", "Social", "Storage", "eCommerce",
+])
+
+# Backward-compat aliases used by model files and overall_explainability
+FIXED_CATEGORIES: List[str] = EXPL_TARGET_CATEGORIES
+
+N_SAMPLES_PER_CATEGORY: int = _EXPL_CFG.get("n_samples_per_category", 1)
+
+# EXPL_LABEL_IDS kept for backward compat (used by overall_explainability)
 EXPL_LABEL_IDS: Dict[str, int] = {
     "Payments":  30,
     "Messaging": 25,
     "Social":    39,
     "Storage":   42,
     "eCommerce": 49,
-}
-
-# Number of samples per category in the shared index
-N_SAMPLES_PER_CATEGORY: int = 3
-
-# Backward-compat alias — model files that do:
-#   from src.utils.explainability_utils import FIXED_CATEGORIES
-# continue to work alongside shared_samples.py
-FIXED_CATEGORIES: List[str] = EXPL_TARGET_CATEGORIES
-
-# ── HARDCODED INDEX ────────────────────────────────────────────────────────────
-# Directly from test.csv (top_50_categories split, random_state=42).
-# Keys are category names. Each entry contains the test.csv 0-based row_index,
-# the confirmed encoded_label (ground truth), and text for human inspection.
-# DO NOT CHANGE unless the data split is regenerated.
-_SHARED_SAMPLE_INDEX: Dict[str, List[Dict]] = {
-    "Payments": [
-        {"row_index": 28,  "encoded_label": 30,
-         "text_preview": "liqpay api let developer using managing payment billing system creating custom p",
-         "description":  "The LiqPAY API lets developers manage payment and billing systems."},
-        {"row_index": 64,  "encoded_label": 30,
-         "text_preview": "ambercart ecommerce service allows user add ecommerce functionality website appl",
-         "description":  "AmberCart is an eCommerce service allowing users to add eCommerce functionality."},
-        {"row_index": 100, "encoded_label": 30,
-         "text_preview": "espago polish payment gateway ecommerce process online card payment method espag",
-         "description":  "Espago is a Polish payment gateway for eCommerce processing online card payments."},
-    ],
-    "Messaging": [
-        {"row_index": 49,  "encoded_label": 25,
-         "text_preview": "nexmo api platform messaging voice two factor authentication developer",
-         "description":  "Nexmo is a messaging and voice API platform with two-factor authentication."},
-        {"row_index": 141, "encoded_label": 25,
-         "text_preview": "twilio api platform communication messaging sms voice developer",
-         "description":  "Twilio is a cloud communication platform for messaging, SMS and voice."},
-        {"row_index": 263, "encoded_label": 25,
-         "text_preview": "sendbird chat messaging sdk developer mobile real time communication",
-         "description":  "Sendbird is a messaging SDK for real-time mobile communication."},
-    ],
-    "Social": [
-        {"row_index": 14,  "encoded_label": 39,
-         "text_preview": "socialfree api provides free community unbound participation open involvement fr",
-         "description":  "SocialFree API provides free community participation and open involvement."},
-        {"row_index": 19,  "encoded_label": 39,
-         "text_preview": "socialdiscovery api manages discovery community new experience sharing curiosity",
-         "description":  "SocialDiscovery API manages community discovery and experience sharing."},
-        {"row_index": 25,  "encoded_label": 39,
-         "text_preview": "socialreactive api manages reactive community responsive engagement adaptive par",
-         "description":  "SocialReactive API manages reactive community engagement and participation."},
-    ],
-    "Storage": [
-        {"row_index": 36,  "encoded_label": 42,
-         "text_preview": "box cloud storage content management file sharing enterprise developer api",
-         "description":  "Box is a cloud storage and content management API for enterprise file sharing."},
-        {"row_index": 132, "encoded_label": 42,
-         "text_preview": "dropbox api cloud storage file sync developer platform",
-         "description":  "Dropbox API provides cloud storage and file synchronization for developers."},
-        {"row_index": 139, "encoded_label": 42,
-         "text_preview": "google drive api cloud storage file management developer",
-         "description":  "Google Drive API provides cloud storage and file management capabilities."},
-    ],
-    "eCommerce": [
-        {"row_index": 70,  "encoded_label": 49,
-         "text_preview": "simplero api allows developer create online store infoproducts online course dow",
-         "description":  "The Simplero API allows developers to create online stores for infoproducts."},
-        {"row_index": 113, "encoded_label": 49,
-         "text_preview": "listselltrade merchant site allows user access online auction fixed price listin",
-         "description":  "ListSellTrade allows users to access online auctions and fixed price listings."},
-        {"row_index": 161, "encoded_label": 49,
-         "text_preview": "commercejs powerful cross device ecommerce api developer designer commercejs all",
-         "description":  "CommerceJS is a powerful cross-device eCommerce API for developers."},
-    ],
 }
 
 
@@ -321,143 +231,93 @@ def get_shared_samples(
     force_rebuild: bool = False,
 ) -> List[Tuple[int, str]]:
     """
-    Return the canonical list of (row_index, category_name) tuples that every
-    explainability module must iterate over — 15 rows, same for all 5 models.
+    Return exactly 5 (row_index, category_name) tuples — 1 per FIXED_CATEGORIES entry.
 
-    Self-healing: if the hardcoded indices no longer match the current test_df
-    (because the data split changed), the index is automatically re-discovered
-    by scanning test_df for correct rows per category, and _SHARED_SAMPLE_INDEX
-    is patched in-memory before returning. No ERROR is raised; a WARNING is
-    logged so the operator is informed.
+    Scans test_df LIVE by 'Service Classification' column. No hardcoded indices.
+    No stale data possible. Always returns exactly 5 tuples matching the config
+    category list, so all 5 explainability models explain the exact same rows.
 
     Parameters
     ----------
-    test_df       : test split DataFrame — used for ground-truth validation
-                    and, when stale indices are found, for re-discovery.
-    n_categories  : experiment size (50) — used for JSON filename only
-    results_root  : directory for the companion JSON / CSV files
-    n_per_cat     : respected for slicing (max = 3, hardcoded limit)
-    force_rebuild : if True, re-write the JSON/CSV files even if they exist
+    test_df      : test-split DataFrame (must contain 'encoded_label')
+    n_categories : used for companion file names only
+    results_root : directory for companion JSON + CSV
+    n_per_cat    : ignored — always 1 per category (from config)
+    force_rebuild: re-write companion files even if they exist
 
     Returns
     -------
-    List of (row_index: int, category_name: str) — length 5 × n_per_cat.
-    Order: Payments, Messaging, Social, Storage, eCommerce.
+    List of (row_index: int, category_name: str), length = len(FIXED_CATEGORIES)
+    Order: Payments → Messaging → Social → Storage → eCommerce
     """
-    n_per_cat = min(n_per_cat, N_SAMPLES_PER_CATEGORY)
-    json_path = _shared_index_json_path(results_root, n_categories)
-
-    # Work on a 0-based positional index so iloc == CSV row number.
     df = test_df.reset_index(drop=True)
 
-    # ── Validate + auto-heal stale indices ────────────────────────────────────
-    needs_rebuild = False
+    if "encoded_label" not in df.columns:
+        raise RuntimeError(
+            "[get_shared_samples] 'encoded_label' not in test_df. "
+            f"Available: {list(df.columns)}"
+        )
 
-    if "encoded_label" in df.columns:
-        for cat, entries in list(_SHARED_SAMPLE_INDEX.items()):
-            expected_lbl = EXPL_LABEL_IDS.get(cat)
-            if expected_lbl is None:
-                continue
+    has_target_col = _TARGET_COL in df.columns
+    label_to_id    = {name: idx for idx, name in enumerate(
+        df["encoded_label"].unique()
+    )}
+    # Build from EXPL_LABEL_IDS for reliable fallback
+    label_to_id_fallback = {v: k for k, v in EXPL_LABEL_IDS.items()}
 
-            bad_entries = []
-            for e in entries[:n_per_cat]:
-                ri = e["row_index"]
-                if ri >= len(df):
-                    bad_entries.append(e)
-                    continue
-                actual_lbl = int(df.iloc[ri]["encoded_label"])
-                if actual_lbl != expected_lbl:
-                    bad_entries.append(e)
+    result:   List[Tuple[int, str]] = []
+    rows_out: List[Dict]            = []
 
-            if not bad_entries:
-                _log.debug(f"  get_shared_samples: {cat} — all {n_per_cat} rows OK")
-                continue
+    for cat in FIXED_CATEGORIES:
+        row_i = None
 
-            # ── Re-discover rows for this category from current test_df ───────
-            _log.warning(
-                f"  get_shared_samples: {len(bad_entries)}/{n_per_cat} stale indices "
-                f"for '{cat}' (split changed). Re-discovering from test_df…"
-            )
+        # Primary: match by Service Classification text column
+        if has_target_col:
+            matches = df[df[_TARGET_COL] == cat]
+            if not matches.empty:
+                row_i = int(matches.index[0])
 
-            # Determine the target_column — try Service Classification first
-            target_col = None
-            for col in ["Service Classification", "service_classification",
-                        "category", "label"]:
-                if col in df.columns:
-                    target_col = col
-                    break
+        # Fallback: match by encoded_label
+        if row_i is None:
+            enc_lbl = EXPL_LABEL_IDS.get(cat)
+            if enc_lbl is not None:
+                matches = df[df["encoded_label"] == enc_lbl]
+                if not matches.empty:
+                    row_i = int(matches.index[0])
 
-            new_entries: List[Dict] = []
-            if target_col:
-                cat_rows = df[df[target_col] == cat]
-                for pos_idx, row in cat_rows.head(N_SAMPLES_PER_CATEGORY).iterrows():
-                    new_entries.append({
-                        "row_index":     int(pos_idx),
-                        "encoded_label": int(row["encoded_label"]),
-                        "text_preview":  str(row.get("cleaned_text", ""))[:80],
-                        "description":   f"Auto-discovered: {cat} row {pos_idx}",
-                    })
-            else:
-                # Fall back: scan by encoded_label
-                cat_rows = df[df["encoded_label"] == expected_lbl]
-                for pos_idx, row in cat_rows.head(N_SAMPLES_PER_CATEGORY).iterrows():
-                    new_entries.append({
-                        "row_index":     int(pos_idx),
-                        "encoded_label": int(row["encoded_label"]),
-                        "text_preview":  str(row.get("cleaned_text", ""))[:80],
-                        "description":   f"Auto-discovered: {cat} row {pos_idx}",
-                    })
+        if row_i is None:
+            _log.warning(f"  get_shared_samples: '{cat}' not found in test_df — skipped.")
+            continue
 
-            if new_entries:
-                _SHARED_SAMPLE_INDEX[cat] = new_entries
-                _log.warning(
-                    f"  get_shared_samples: '{cat}' patched → "
-                    f"{[e['row_index'] for e in new_entries]}"
-                )
-                needs_rebuild = True
-            else:
-                _log.error(
-                    f"  get_shared_samples: '{cat}' not found in test_df "
-                    f"— cannot auto-heal. Check category names."
-                )
-
-    # ── Write companion files if needed ──────────────────────────────────────
-    results_root = Path(results_root)
-    if not json_path.exists() or force_rebuild or needs_rebuild:
-        results_root.mkdir(parents=True, exist_ok=True)
-
-        enriched = {}
-        for cat, entries in _SHARED_SAMPLE_INDEX.items():
-            enriched[cat] = []
-            for e in entries[:n_per_cat]:
-                entry = dict(e)
-                ri = e["row_index"]
-                if ri < len(df):
-                    entry["full_text"] = str(df.iloc[ri].get("cleaned_text", ""))
-                enriched[cat].append(entry)
-
-        with open(json_path, "w", encoding="utf-8") as fh:
-            json.dump(enriched, fh, indent=2, ensure_ascii=False)
-        _log.info(f"  get_shared_samples: JSON saved → {json_path}")
-
-        csv_path = results_root / f"shared_expl_samples_{n_categories}.csv"
-        rows_flat = [e for entries in enriched.values() for e in entries]
-        if rows_flat:
-            pd.DataFrame(rows_flat).to_csv(csv_path, index=False)
-            _log.info(f"  get_shared_samples: CSV saved  → {csv_path}")
-    else:
-        _log.info(f"  get_shared_samples: using existing index ({json_path.name})")
-
-    # ── Return flat list of (row_index, category) ────────────────────────────
-    result: List[Tuple[int, str]] = []
-    for cat in EXPL_TARGET_CATEGORIES:
-        for entry in _SHARED_SAMPLE_INDEX.get(cat, [])[:n_per_cat]:
-            result.append((entry["row_index"], cat))
+        enc_lbl_actual = int(df.iloc[row_i]["encoded_label"])
+        result.append((row_i, cat))
+        rows_out.append({
+            "category":      cat,
+            "encoded_label": enc_lbl_actual,
+            "row_index":     row_i,
+            "text_preview":  str(df.iloc[row_i].get("cleaned_text", ""))[:80],
+        })
+        _log.info(f"  get_shared_samples: '{cat}' → row {row_i} (label={enc_lbl_actual})")
 
     _log.info(
         f"  get_shared_samples: returning {len(result)} samples "
-        f"({len(EXPL_TARGET_CATEGORIES)} categories × {n_per_cat} each)"
+        f"({len(FIXED_CATEGORIES)} categories × 1 each)"
     )
+
+    # ── Write companion files ─────────────────────────────────────────────────
+    results_root = Path(results_root)
+    json_path    = _shared_index_json_path(results_root, n_categories)
+
+    if not json_path.exists() or force_rebuild:
+        results_root.mkdir(parents=True, exist_ok=True)
+        with open(json_path, "w", encoding="utf-8") as fh:
+            json.dump({r["category"]: r for r in rows_out}, fh, indent=2, ensure_ascii=False)
+        _log.info(f"  get_shared_samples: JSON → {json_path}")
+
+        csv_path = results_root / f"shared_expl_samples_{n_categories}.csv"
+        pd.DataFrame(rows_out).to_csv(csv_path, index=False)
+        _log.info(f"  get_shared_samples: CSV  → {csv_path}")
+
     return result
 
 

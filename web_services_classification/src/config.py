@@ -504,13 +504,26 @@ EXPLAINABILITY_CONFIG = {
     'max_features_display': 15,   # top-15 tokens displayed on every bar chart
 
     # ── Shared explainability sample set ─────────────────────────────────────
-    # 5 categories × 3 samples = 15 rows.  ALL five model modules explain the
-    # EXACT same 15 rows so SHAP/LIME outputs are directly comparable.
-    # Row indices are hardcoded in explainability_utils.py (validated against
-    # test.csv random_state=42 split). Change only if the split is regenerated.
-    'n_expl_categories':       5,   # Payments · Social · Cloud · Medical · eCommerce
-    'n_samples_per_category':  3,   # 3 rows per category
-    'n_expl_samples_total':   15,   # = n_expl_categories × n_samples_per_category
+    # 5 fixed categories, 1 representative sample each = 5 rows total.
+    # ALL five model modules explain the EXACT same 5 rows so SHAP/LIME
+    # outputs are directly comparable.
+    #
+    # No hardcoded row indices — get_shared_samples() scans test_df live
+    # by 'Service Classification' column name, picking the first matching row.
+    # This is robust to any data-split change.
+    #
+    # These are the CANONICAL category names used throughout the project.
+    # shared_samples.py and data_preprocessing.py both import this list.
+    'expl_categories': [
+        "Payments",   # label 30 — financial transactions
+        "Messaging",  # label 25 — communication / SMS
+        "Social",     # label 39 — social networks
+        "Storage",    # label 42 — data / cloud storage
+        "eCommerce",  # label 49 — commerce / retail
+    ],
+    'n_expl_categories':       5,   # Payments · Messaging · Social · Storage · eCommerce
+    'n_samples_per_category':  1,   # 1 representative row per category (no hardcoding)
+    'n_expl_samples_total':    5,   # = n_expl_categories × n_samples_per_category
 
     # ── SHAP settings ─────────────────────────────────────────────────────────
     'shap_background_samples': 50,   # kmeans clusters for KernelExplainer background

@@ -135,6 +135,19 @@ class MLExplainability:
         pipeline_fn    = self.get_prediction_pipeline(model, feature_type)
         lime_explainer = LimeTextExplainer(class_names=class_labels)
 
+        # ── Clean stale dashboard files from previous runs ────────────────────
+        # Without this, old dashboards from different row indices accumulate
+        # and make it impossible to tell which files belong to the current run.
+        stale = list(self.dirs['extra_lime'].glob(
+            f"dashboard_{model_name}_{feature_type}_*.html"))
+        for f in stale:
+            try:
+                f.unlink()
+            except Exception:
+                pass
+        if stale:
+            logger.info(f"Cleaned {len(stale)} stale dashboard(s) for {model_name}/{feature_type}")
+
         # ── 1. Global SHAP ────────────────────────────────────────────────────
         logger.info(f"Running Global SHAP for {model_name}...")
         bg = X_train[:5].toarray() if hasattr(X_train, "toarray") else X_train[:5]
@@ -186,15 +199,8 @@ class MLExplainability:
             n_categories=self.n_categories,
             results_root=self.dirs['reports'],
         )
-        # One representative per category for waterfall + local bars
-        indices_to_explain = []
-        seen_cats = set()
-        for row_i, cat_name in shared:
-            if cat_name not in seen_cats:
-                indices_to_explain.append(row_i)
-                seen_cats.add(cat_name)
-            if len(seen_cats) >= 5:
-                break
+        # shared already returns exactly 1 row per category (5 total) — use directly
+        indices_to_explain = list(shared)  # [(row_i, cat_name), ...]
 
         sbert_model = None
         if feature_type == "sbert":
@@ -204,7 +210,7 @@ class MLExplainability:
         beeswarm_rows = []
         waterfall_done = False
 
-        for idx_count, i in enumerate(indices_to_explain):
+        for idx_count, (i, shared_cat) in enumerate(indices_to_explain):
             try:
                 text    = test_df.iloc[i]['cleaned_text']
                 probs   = pipeline_fn([text])[0]
@@ -216,8 +222,11 @@ class MLExplainability:
                     text, pipeline_fn, num_features=30,
                     labels=[top_cls], num_samples=1000)
                 try:
+                    # filename: dashboard_{model}_{feat}_{category}_{row_i}.html
+                    # category name makes the file immediately identifiable
+                    safe_cat = shared_cat.replace(" ", "_")
                     exp.save_to_file(str(
-                        self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_{i}.html"))
+                        self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_{safe_cat}_{i}.html"))
                 except Exception:
                     pass
 
@@ -240,7 +249,11 @@ class MLExplainability:
                     if isinstance(local_shap, list):   sv = local_shap[top_cls][0]
                     elif local_shap.ndim == 3:         sv = local_shap[0, :, top_cls]
                     else:                              sv = local_shap[0]
-                    shap_clean_for_metrics = top15_tokens(feature_names, sv)
+                    # SBERT: feature_names = dim_0..dim_383 — strip before waterfall
+                    shap_clean_for_metrics = [
+                        (tok, w) for tok, w in top15_tokens(feature_names, sv)
+                        if not str(tok).startswith('dim_')
+                    ]
                     self._plot_bar(
                         lime_clean,  # proxy words for SBERT visual
                         f"SHAP Tokens (Text Proxy) · {model_name} · {cat_name}",
@@ -259,7 +272,11 @@ class MLExplainability:
                     if np.max(np.abs(sv)) > 1000:
                         sv = sv / (np.sum(np.abs(sv)) + 1e-9)
 
-                    shap_clean_for_metrics = top15_tokens(feature_names, sv)
+                    # Guard: strip dim_ (tfidf=real words, but defensive)
+                    shap_clean_for_metrics = [
+                        (tok, w) for tok, w in top15_tokens(feature_names, sv)
+                        if not str(tok).startswith('dim_')
+                    ]
                     self._plot_bar(
                         shap_clean_for_metrics,
                         f"SHAP Tokens · {model_name} · {cat_name}",

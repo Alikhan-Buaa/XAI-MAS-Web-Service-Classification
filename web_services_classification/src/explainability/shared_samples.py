@@ -3,50 +3,31 @@ shared_samples.py  —  src/explainability/shared_samples.py
 ===========================================================
 Single reproducible set of (row_index, category_name) pairs used by ALL five
 explainability modules (ML · DL · BERT · DeepSeek · Fusion) to explain the
-exact same 15 test-set rows → SHAP / LIME outputs are directly comparable.
+exact same 5 test-set rows → SHAP / LIME outputs are directly comparable.
 
 Design
 ------
-Row indices are HARDCODED from the real test.csv
-(data/splits/top_50_categories/test.csv, random_state=42 split).
+NO hardcoded row indices. get_shared_samples() SCANS the live test_df at
+call time, finding the FIRST available row for each of the 5 fixed categories.
+This is robust to any data-split change — no stale index maintenance needed.
 
-5 categories × 3 samples = 15 total rows.
+Category list is defined ONCE in config.py → EXPLAINABILITY_CONFIG['expl_categories'].
+shared_samples.py reads it from there. No duplication anywhere.
 
-Categories — chosen for maximum semantic diversity + large test counts:
-  Payments   (label 30) — financial transactions        60 test rows
-  Messaging  (label 25) — communication                 60 test rows
-  Social     (label 39) — social networks               60 test rows
-  Storage    (label 42) — data / cloud storage          40 test rows
-  eCommerce  (label 49) — commerce / retail             60 test rows
-
-Hardcoded index (every row_index validated against encoded_label in test.csv):
-  Category    label   row_indices
-  ─────────   ─────   ───────────
-  Payments      30    28, 64, 100
-  Messaging     25    49, 141, 263
-  Social        39    14, 19, 25
-  Storage       42    36, 132, 139
-  eCommerce     49    70, 113, 161
-
-Runtime validation
-------------------
-get_shared_samples() checks encoded_label for every hardcoded row at call
-time. Logs ERROR if a mismatch is found (signals data-split change). Raises
-RuntimeError only if more than half the rows fail validation.
+5 categories × 1 sample = 5 total rows.
 
 Public API
 ----------
     indices = get_shared_samples(
-        test_df      = test_df,       # pd.DataFrame with encoded_label column
-        class_labels = class_labels,  # list[str] — used only for logging
+        test_df      = test_df,
+        class_labels = class_labels,
         n_categories = 50,
-        results_root = RESULTS_PATH,  # pathlib.Path
+        results_root = results_root,
     )
-    # returns list[tuple[int, str]]  →  [(row_idx, category_name), ...]
-    # length = 15  (5 categories × 3 samples)
+    # returns list[tuple[int, str]] — [(row_idx, category_name), ...], length = 5
 
-    FIXED_CATEGORIES        # list[str] — the 5 category names in order
-    N_SAMPLES_PER_CATEGORY  # int — 3
+    FIXED_CATEGORIES        # list[str] — the 5 category names (from config)
+    N_SAMPLES_PER_CATEGORY  # int — 1
 """
 
 from __future__ import annotations
@@ -54,47 +35,34 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
+# ── Single source of truth: category list comes from config ───────────────────
 try:
-    from src.config import PREPROCESSING_CONFIG
+    from src.config import EXPLAINABILITY_CONFIG, PREPROCESSING_CONFIG, DATA_CONFIG
+    _cfg              = EXPLAINABILITY_CONFIG
     _PROC_DATA_TEMPLATE = str(PREPROCESSING_CONFIG.get("processed_data", ""))
+    _TARGET_COL       = DATA_CONFIG.get("target_column", "Service Classification")
 except ImportError:
+    _cfg              = {}
     _PROC_DATA_TEMPLATE = ""
+    _TARGET_COL       = "Service Classification"
 
 logger = logging.getLogger(__name__)
 
 
 # ==============================================================================
-#  PUBLIC CONSTANTS
+#  PUBLIC CONSTANTS  —  derived from config, not hardcoded here
 # ==============================================================================
 
-FIXED_CATEGORIES: List[str] = [
-    "Payments",   # label 30
-    "Messaging",  # label 25
-    "Social",     # label 39
-    "Storage",    # label 42
-    "eCommerce",  # label 49
-]
+FIXED_CATEGORIES: List[str] = _cfg.get("expl_categories", [
+    # Fallback if config cannot be imported (should not happen in normal use)
+    "Payments", "Messaging", "Social", "Storage", "eCommerce",
+])
 
-N_SAMPLES_PER_CATEGORY: int = 3
-
-
-# ==============================================================================
-#  HARDCODED INDEX
-#  Validated from real test.csv — DO NOT CHANGE unless the split is regenerated.
-#  Each entry: (row_index_in_test_csv, expected_encoded_label)
-# ==============================================================================
-
-_HARDCODED: Dict[str, List[Tuple[int, int]]] = {
-    "Payments":  [(28,  30), (64,  30), (100, 30)],
-    "Messaging": [(49,  25), (141, 25), (263, 25)],
-    "Social":    [(14,  39), (19,  39), (25,  39)],
-    "Storage":   [(36,  42), (132, 42), (139, 42)],
-    "eCommerce": [(70,  49), (113, 49), (161, 49)],
-}
+N_SAMPLES_PER_CATEGORY: int = _cfg.get("n_samples_per_category", 1)
 
 
 # ==============================================================================
@@ -108,148 +76,93 @@ def get_shared_samples(
     results_root: Path,
 ) -> List[Tuple[int, str]]:
     """
-    Return the canonical list of (row_index, category_name) tuples.
+    Return N_SAMPLES_PER_CATEGORY × FIXED_CATEGORIES (row_index, category_name) tuples.
 
-    All five model families call this and receive identical results —
-    ensuring SHAP / LIME explanations cover the exact same 15 rows.
+    Scans test_df live: finds the first row whose 'Service Classification'
+    column matches each category in FIXED_CATEGORIES. Falls back to
+    encoded_label scan if the text column is absent. No hardcoded indices —
+    always correct regardless of data-split changes.
 
     Parameters
     ----------
-    test_df      : test-split DataFrame (must contain 'encoded_label' column)
-    class_labels : list[str] — used only for log context, not for selection
-    n_categories : int — used only for companion JSON/CSV filename
+    test_df      : test-split DataFrame
+    class_labels : list[str] — used to resolve encoded_label → name if needed
+    n_categories : int — used for companion JSON/CSV filename only
     results_root : Path — companion JSON + CSV written here for traceability
 
     Returns
     -------
     list of (row_index: int, category_name: str)
-    Order: Payments → Messaging → Social → Storage → eCommerce (3 rows each)
-    Total length: 15
-
-    Raises
-    ------
-    RuntimeError if encoded_label column is absent OR if more than half
-    the hardcoded rows fail ground-truth validation (split change detected).
+    Order follows FIXED_CATEGORIES: Payments → Messaging → Social → Storage → eCommerce
     """
     df = test_df.reset_index(drop=True)
 
-    # ── Ground-truth validation ───────────────────────────────────────────────
     if "encoded_label" not in df.columns:
         raise RuntimeError(
             "[shared_samples] 'encoded_label' column not found in test_df. "
             f"Available: {list(df.columns)}"
         )
 
-    mismatches = 0
-    total_checks = sum(len(v) for v in _HARDCODED.values())
+    # Build encoded_label lookup from class_labels
+    label_to_id: Dict[str, int] = {name: idx for idx, name in enumerate(class_labels)}
+    has_target_col = _TARGET_COL in df.columns
 
-    for cat, entries in _HARDCODED.items():
-        for row_i, expected_lbl in entries:
-            if row_i >= len(df):
-                logger.warning(
-                    f"  [shared_samples] row {row_i} ({cat}) out of bounds "
-                    f"(test_df has {len(df)} rows). Split may differ."
-                )
-                mismatches += 1
-                continue
-            actual = int(df.iloc[row_i]["encoded_label"])
-            if actual != expected_lbl:
-                logger.error(
-                    f"  [shared_samples] MISMATCH — {cat} row {row_i}: "
-                    f"expected label {expected_lbl}, got {actual}. "
-                    f"Data split may have changed."
-                )
-                mismatches += 1
+    indices:  List[Tuple[int, str]] = []
+    rows_out: List[dict]            = []
 
-    if mismatches > total_checks // 2:
-        raise RuntimeError(
-            f"[shared_samples] {mismatches}/{total_checks} ground-truth checks "
-            "failed — the test split appears to have changed. "
-            "Re-generate the hardcoded index."
-        )
+    for cat in FIXED_CATEGORIES:
+        row_i: Optional[int] = None
 
-    if mismatches:
-        logger.warning(
-            f"  [shared_samples] {mismatches}/{total_checks} validation "
-            "warning(s). Proceeding with hardcoded index."
-        )
-    else:
-        logger.info(
-            f"  [shared_samples] Ground-truth: all {total_checks} rows validated ✓"
-        )
+        # Primary: match by Service Classification text column
+        if has_target_col:
+            matches = df[df[_TARGET_COL] == cat]
+            if not matches.empty:
+                row_i = int(matches.index[0])
 
-    # ── Build flat output list ────────────────────────────────────────────────
-    indices: List[Tuple[int, str]] = [
-        (row_i, cat)
-        for cat in FIXED_CATEGORIES
-        for row_i, _ in _HARDCODED[cat]
-    ]
+        # Fallback: match by encoded_label
+        if row_i is None:
+            enc_lbl = label_to_id.get(cat)
+            if enc_lbl is not None:
+                matches = df[df["encoded_label"] == enc_lbl]
+                if not matches.empty:
+                    row_i = int(matches.index[0])
+
+        if row_i is None:
+            logger.warning(f"  [shared_samples] '{cat}' not found in test_df — skipped.")
+            continue
+
+        enc_lbl_actual = int(df.iloc[row_i]["encoded_label"])
+        indices.append((row_i, cat))
+        rows_out.append({
+            "category":      cat,
+            "encoded_label": enc_lbl_actual,
+            "row_index":     row_i,
+            "text_preview":  str(df.iloc[row_i].get("cleaned_text", ""))[:80],
+        })
+        logger.info(f"  [shared_samples] '{cat}' → row {row_i} (label={enc_lbl_actual})")
 
     logger.info(
-        f"  [shared_samples] {len(indices)} samples returned "
-        f"({len(FIXED_CATEGORIES)} categories × {N_SAMPLES_PER_CATEGORY} each)"
+        f"  [shared_samples] {len(indices)}/{len(FIXED_CATEGORIES)} categories "
+        f"selected ({N_SAMPLES_PER_CATEGORY} sample each)"
     )
 
-    # ── Copy pre-built explainability_test_samples files to results_root ──────
-    # During preprocessing, data_preprocessing.py writes:
-    #   data/processed/top_{n}_categories/explainability_test_samples.csv
-    #   data/processed/top_{n}_categories/explainability_test_samples.json
-    # We copy them here so every model's results directory has easy reference.
-    if _PROC_DATA_TEMPLATE:
-        _src_dir = Path(_PROC_DATA_TEMPLATE.format(n=n_categories))
-        _dst_dir = Path(results_root)
-        _dst_dir.mkdir(parents=True, exist_ok=True)
-        for _fname in ("explainability_test_samples.csv",
-                       "explainability_test_samples.json"):
-            _src_file = _src_dir / _fname
-            _dst_file = _dst_dir / _fname
-            if _src_file.exists() and not _dst_file.exists():
-                import shutil as _shutil
-                _shutil.copy2(_src_file, _dst_file)
-                logger.info(
-                    f"  [shared_samples] copied {_fname} → {_dst_dir}"
-                )
-
-    # ── Write companion files ─────────────────────────────────────────────────
+    # ── Write companion files ──────────────────────────────────────────────────
     results_root = Path(results_root)
     results_root.mkdir(parents=True, exist_ok=True)
 
-    json_path = results_root / f"shared_sample_index_top{n_categories}.json"
-    try:
-        payload = {}
-        for cat, entries in _HARDCODED.items():
-            payload[cat] = [
-                {
-                    "row_index":     row_i,
-                    "encoded_label": lbl,
-                    "category":      cat,
-                    "text_preview":  str(df.iloc[row_i].get("cleaned_text", ""))[:80]
-                                     if row_i < len(df) else "",
-                }
-                for row_i, lbl in entries
-            ]
-        with open(json_path, "w", encoding="utf-8") as fh:
-            json.dump(payload, fh, indent=2, ensure_ascii=False)
-        logger.info(f"  [shared_samples] JSON → {json_path}")
-    except Exception as exc:
-        logger.warning(f"  [shared_samples] JSON write failed: {exc}")
-
     csv_path = results_root / f"shared_sample_index_top{n_categories}.csv"
     try:
-        rows_flat = [
-            {
-                "category":      cat,
-                "encoded_label": lbl,
-                "row_index":     row_i,
-                "text_preview":  str(df.iloc[row_i].get("cleaned_text", ""))[:80]
-                                 if row_i < len(df) else "",
-            }
-            for cat, entries in _HARDCODED.items()
-            for row_i, lbl in entries
-        ]
-        pd.DataFrame(rows_flat).to_csv(csv_path, index=False)
+        pd.DataFrame(rows_out).to_csv(csv_path, index=False)
         logger.info(f"  [shared_samples] CSV  → {csv_path}")
     except Exception as exc:
         logger.warning(f"  [shared_samples] CSV write failed: {exc}")
+
+    json_path = results_root / f"shared_sample_index_top{n_categories}.json"
+    try:
+        with open(json_path, "w", encoding="utf-8") as fh:
+            json.dump({r["category"]: r for r in rows_out}, fh, indent=2, ensure_ascii=False)
+        logger.info(f"  [shared_samples] JSON → {json_path}")
+    except Exception as exc:
+        logger.warning(f"  [shared_samples] JSON write failed: {exc}")
 
     return indices

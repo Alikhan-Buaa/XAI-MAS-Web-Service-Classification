@@ -259,13 +259,8 @@ class FusionExplainability:
             test_df=test_df, n_categories=self.n_categories,
             results_root=self.dirs['reports'])
 
-        indices_to_explain, seen_cats = [], set()
-        for row_i, cat_name in shared:
-            if cat_name not in seen_cats:
-                indices_to_explain.append((row_i, cat_name))
-                seen_cats.add(cat_name)
-            if len(seen_cats) >= 5:
-                break
+        # shared already returns exactly 1 row per category (5 total) — use directly
+        indices_to_explain = list(shared)  # [(row_i, cat_name), ...]
 
         for i, category_name in indices_to_explain:
             try:

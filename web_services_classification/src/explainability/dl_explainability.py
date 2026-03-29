@@ -184,14 +184,8 @@ class DLExplainability:
             n_categories=self.n_categories,
             results_root=self.dirs['reports'],
         )
-        indices_to_explain = []
-        seen_cats = set()
-        for row_i, cat_name in shared:
-            if cat_name not in seen_cats:
-                indices_to_explain.append(row_i)
-                seen_cats.add(cat_name)
-            if len(seen_cats) >= 5:
-                break
+        # shared already returns exactly 1 row per category (5 total) — use directly
+        indices_to_explain = list(shared)  # [(row_i, cat_name), ...]
 
         # SHAP Text Explainer for SBERT
         text_explainer = None
@@ -206,7 +200,7 @@ class DLExplainability:
         beeswarm_rows = []
         waterfall_done = False
 
-        for idx_count, i in enumerate(indices_to_explain):
+        for idx_count, (i, shared_cat) in enumerate(indices_to_explain):
             try:
                 text     = str(test_df.iloc[i]['cleaned_text'])
                 probs    = pipeline_fn([text])[0]
