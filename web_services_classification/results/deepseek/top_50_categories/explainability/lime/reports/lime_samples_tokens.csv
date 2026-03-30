@@ -1,16 +1,6 @@
 Category,Tokens_In_Plot
-Advertising,N/A
-Analytics,N/A
-Application Development,N/A
-Backend,N/A
-Banking,N/A
-Bitcoin,N/A
-Chat,N/A
-Cloud,N/A
-Data,N/A
-Database,N/A
-Domains,N/A
-Education,N/A
-Email,N/A
-Enterprise,N/A
-Entertainment,N/A
+Payments,"pay, thing, user, zipmark, online, api, interested, application, access, new, available, information, public, rent, functionality"
+Messaging,"messaging, sending, voice, provides, lookup, delivering, device, service, bulk, broadcast, using, contact, centric, receiving, oventus"
+Social,"socialsecure, api, secured, social, enhancement, system, networking, engagement, involvement, secure, participation, community, safety, protection, offer"
+Storage,"pricing, nanosdk, apis, request, document, microservices, application, set, explorer, key, supported, balance, function, price, allow"
+eCommerce,"product, staple, international, api, catalog, category, office, resource, data, web, exposing, detail, formatted, company, exposed"

@@ -1,0 +1,6 @@
+Fidelity,Jaccard,Stability,model,sample_id
+0.9238,0.3636,0.3636,DeepSeek_7B,26
+0.926,0.2,0.2,DeepSeek_7B,29
+0.8803,0.7647,0.7647,DeepSeek_7B,31
+0.8429,0.2,0.2,DeepSeek_7B,0
+0.9479,0.5789,0.5789,DeepSeek_7B,35

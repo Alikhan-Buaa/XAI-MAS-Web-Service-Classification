@@ -1,0 +1,16 @@
+Token,Score,Direction
+messaging,0.24378770659556742,positive
+sending,0.12484109946671493,positive
+voice,-0.10630406802924966,negative
+provides,0.09042520296109098,positive
+lookup,-0.07102582786302065,negative
+delivering,0.06632371667277692,positive
+device,-0.0618680375326509,negative
+service,-0.05653424855816066,negative
+bulk,0.0498845694621051,positive
+broadcast,0.04733721659579783,positive
+using,-0.047109048500005586,negative
+contact,0.04699586658848716,positive
+centric,-0.04563622135252688,negative
+receiving,0.03871668879591633,positive
+oventus,-0.03666809161769892,negative

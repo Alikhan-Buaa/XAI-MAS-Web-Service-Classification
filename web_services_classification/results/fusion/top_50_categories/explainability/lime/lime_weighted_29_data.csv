@@ -1,0 +1,16 @@
+Token,Score,Direction
+sending,0.1232509603787532,positive
+messaging,0.10915366235080265,positive
+bulk,0.10710397149738937,positive
+lookup,-0.10458813987393577,negative
+voice,-0.08753495513447614,negative
+service,-0.07217045164718891,negative
+delivering,0.060863218462531885,positive
+location,-0.05978189483668273,negative
+receiving,0.057050057071938595,positive
+api,-0.0513987945113983,negative
+requesting,-0.04800145774757793,negative
+device,-0.04638087502571215,negative
+broadcast,0.04459771423613663,positive
+mass,0.04264900923191262,positive
+functionality,-0.0421657626555718,negative
