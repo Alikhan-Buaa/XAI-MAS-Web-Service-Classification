@@ -155,7 +155,7 @@ class FusionExplainability:
 
         self.global_metrics_storage = []
         self.target_categories      = TARGET_CATEGORIES  # from utils
-        self.category_tokens        = {cat: [] for cat in self.target_categories}
+        self.category_tokens        = defaultdict(list)
 
         self.base_result_dir = RESULTS_CONFIG['fusion_category_paths'][n_categories]
         self.explain_dir     = self.base_result_dir / "explainability"
@@ -337,7 +337,7 @@ class FusionExplainability:
                 self.global_metrics_storage.append(mets)
 
             except Exception as e:
-                logger.warning(f"Failed sample {i}: {e}")
+                logger.warning(f"Failed sample {i} ({category_name}): {type(e).__name__}: {e}")
 
     def save_consolidated_tokens(self):
         rows = []

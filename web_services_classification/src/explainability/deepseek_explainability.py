@@ -85,13 +85,13 @@ class DeepSeekExplainability:
         }
         self.global_metrics_storage = []
         self.target_categories = TARGET_CATEGORIES  # from utils
-        self.category_tokens   = {cat: [] for cat in self.target_categories}
+        self.category_tokens   = defaultdict(list)
 
         # Evidence trackers (kept for evidence CSVs)
         self.evidence_data = {
             'Global_SHAP': [], 'Global_LIME': [],
-            'Local_SHAP':  {cat: [] for cat in self.target_categories},
-            'Local_LIME':  {cat: [] for cat in self.target_categories},
+            'Local_SHAP':  defaultdict(list),
+            'Local_LIME':  defaultdict(list),
         }
 
         self.base_result_dir = RESULTS_CONFIG['deepseek_category_paths'][n_categories]
@@ -303,7 +303,7 @@ class DeepSeekExplainability:
                 self.global_metrics_storage.append(mets)
 
             except Exception as e:
-                logger.warning(f"Failed sample {i}: {e}")
+                logger.warning(f"Failed sample {i} ({category_name}): {type(e).__name__}: {e}")
 
         self.save_consolidated_tokens()
         self.save_evidence_csvs()
