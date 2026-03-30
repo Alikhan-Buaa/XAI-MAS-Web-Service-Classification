@@ -262,7 +262,7 @@ class DeepSeekExplainability:
                 # SHAP local
                 shap_clean = []
                 try:
-                    local_shap = explainer([text])
+                    local_shap = explainer([text], max_evals=100)
                     raw_tokens = [str(t).replace('Ġ', '').strip().lower()
                                   for t in (local_shap.data[0]
                                             if local_shap.feature_names is None
@@ -296,7 +296,7 @@ class DeepSeekExplainability:
                                       plot_dpi=300)
 
                 except Exception as e:
-                    logger.warning(f"SHAP local failed for {i}: {e}")
+                    logger.warning(f"SHAP local failed for {category_name} row {i}: {type(e).__name__}: {e}")
 
                 mets = compute_metrics(exp1.score, shap_clean, lime_clean)
                 mets.update({'model': self.model_name, 'sample_id': i})

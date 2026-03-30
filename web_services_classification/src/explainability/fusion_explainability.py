@@ -166,10 +166,12 @@ class FusionExplainability:
             'waterfall':  self.shap_dir / "waterfall",
             'global_bar': self.shap_dir / "global_bar",
             'samples':    self.shap_dir / "samples",
+            'lime':       self.lime_dir,
             'lime_dash':  self.lime_dir / "lime_dashboards",
             'global_lime':self.lime_dir / "global",
             'metrics':    self.explain_dir / "metrics",
             'reports':    self.explain_dir / "reports",
+            'comparisons':RESULTS_CONFIG['fusion_comparisons_path'],
         }
         for d in self.dirs.values():
             d.mkdir(parents=True, exist_ok=True)
@@ -288,21 +290,22 @@ class FusionExplainability:
                 self._plot_manual_bar(
                     [t for t, _ in lime_clean], [w for _, w in lime_clean],
                     f"LIME ({category_name}) — {fusion_type.capitalize()}",
-                    self.dirs['global_lime'].parent / f"lime_{fusion_type}_{i}.png")
+                    self.dirs['lime'] / f"lime_{fusion_type}_{i}.png")
 
                 shap_clean = []
                 new_base   = 0.0
-                if shap_values is not None and i < len(shap_values):
+                try:
+                    local_shap = explainer([text], max_evals=100)
                     raw_tokens = [str(t).replace('Ġ', '').strip().lower()
-                                  for t in (shap_values.data[i]
-                                            if shap_values.feature_names is None
-                                            else shap_values.feature_names[i])]
-                    vals     = (shap_values[i].values[:, top_label]
-                                if shap_values[i].values.ndim == 2
-                                else shap_values[i].values)
-                    base_val = (shap_values[i].base_values[top_label]
-                                if isinstance(shap_values[i].base_values, (list, np.ndarray))
-                                else shap_values[i].base_values)
+                                  for t in (local_shap.data[0]
+                                            if local_shap.feature_names is None
+                                            else local_shap.feature_names[0])]
+                    vals     = (local_shap[0].values[:, top_label]
+                                if local_shap[0].values.ndim == 2
+                                else local_shap[0].values)
+                    base_val = (local_shap[0].base_values[top_label]
+                                if isinstance(local_shap[0].base_values, (list, np.ndarray))
+                                else local_shap[0].base_values)
                     shap_agg = defaultdict(float)
                     new_base = float(base_val)
                     for t, v in zip(raw_tokens, vals):
@@ -325,6 +328,9 @@ class FusionExplainability:
                                       category_name,
                                       self.dirs['waterfall'] / f"waterfall_{fusion_type}_{safe_cat_wf}.png",
                                       plot_dpi=300)
+
+                except Exception as e:
+                    logger.warning(f"SHAP local failed for {category_name} row {i}: {e}")
 
                 mets = compute_metrics(exp1.score, shap_clean, lime_clean)
                 mets.update({'model': f"{fusion_type}_fusion", 'sample_id': i})
@@ -350,6 +356,11 @@ class FusionExplainability:
             output_png=self.dirs['metrics'] / "Fusion_Comparison_Plot.png",
             title="Fusion Models XAI Metrics Comparison",
         )
+        import shutil
+        src = self.dirs['metrics'] / "Fusion_Comparison_Plot.png"
+        dst = self.dirs['comparisons'] / "Fusion_Comparison_Plot.png"
+        if src.exists():
+            shutil.copy2(src, dst)
 
     def explain_all_models(self):
         for ft in self.fusion_types:
