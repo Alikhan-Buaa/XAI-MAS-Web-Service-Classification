@@ -1,0 +1,16 @@
+Token,Score,Direction
+game,0.7453117208198194,positive
+image,0.5709577134326613,positive
+journalist,0.5591447415123945,positive
+liveperson,0.5122324880295094,positive
+storage,0.46432626928748005,positive
+bank,0.4603962371962467,positive
+mailwriter,0.29069276685032286,positive
+scholar,0.28507684051022764,positive
+cloud,0.28268653896850165,positive
+auction,0.2678612485857926,positive
+weather,0.26118696545807923,positive
+api,0.26104390374132286,positive
+bitcoin,0.24188518617271634,positive
+docker,0.21375583434570633,positive
+meteorological,0.20891426963055854,positive

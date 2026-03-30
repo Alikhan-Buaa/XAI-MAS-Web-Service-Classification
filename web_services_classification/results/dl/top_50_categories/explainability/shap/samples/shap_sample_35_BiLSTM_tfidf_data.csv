@@ -1,0 +1,16 @@
+Token,Score,Direction
+product,0.4535102796592543,positive
+product data,0.1589534275440942,positive
+product category,-0.1535558040897002,negative
+exposed,-0.139524418708277,negative
+office,-0.126386097632519,negative
+category,0.09476019406728281,positive
+catalog,0.07166194413730141,positive
+detail,0.06608895731204724,positive
+web service,-0.06217750079593032,negative
+ability,0.0,positive
+ability access,0.0,positive
+ability create,0.0,positive
+ability search,0.0,positive
+ability send,0.0,positive
+able,0.0,positive

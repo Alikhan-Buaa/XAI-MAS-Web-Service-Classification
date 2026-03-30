@@ -1,0 +1,16 @@
+Token,Score,Direction
+storage,0.2666269786552424,positive
+allow,0.15134365672494543,positive
+delete,-0.11630635779896865,negative
+user,0.11215368344412636,positive
+exclusive,-0.1000432915184258,negative
+function,-0.09842921480900137,negative
+replace,-0.08928530886833572,negative
+credit,-0.08707335430795192,negative
+service,-0.08221071049548935,negative
+moment,0.07653409573678228,positive
+expire,-0.07029490652110391,negative
+consume,-0.06611039156195384,negative
+friendly,0.06294132745153694,positive
+received,0.061334254363523674,positive
+tax,0.06002110126838831,positive

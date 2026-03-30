@@ -1,0 +1,16 @@
+Token,Score,Direction
+loyalty,1.6731961965560913,positive
+product,1.3675683736801147,positive
+commerce,1.1000276803970337,positive
+payment,-0.8857091069221497,negative
+order,0.7223168015480042,positive
+user information,0.607638955116272,positive
+developer,-0.5800175666809082,negative
+electronics,0.5570966601371765,positive
+review,0.38345032930374146,positive
+discount,0.3736632764339447,positive
+marketplace,0.29501625895500183,positive
+local,0.2783908545970917,positive
+device,0.2622406482696533,positive
+monetize,0.25943663716316223,positive
+ecommerce,0.25909534096717834,positive

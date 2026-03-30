@@ -1,0 +1,16 @@
+Token,Score,Direction
+networking,1.1578420491127897,positive
+social networking,1.1040674366846819,positive
+social,1.0281873166953417,positive
+community,0.9696429596644872,positive
+participation,0.4826679211432621,positive
+involvement,0.4723103745182731,positive
+engagement,0.4132022393857051,positive
+api offer,0.3443749695128897,positive
+safety,0.26382778115816474,positive
+feature,0.24788880186684603,positive
+offer,0.07098352466412666,positive
+enhancement,0.06192651733842393,positive
+data,0.05043593183221178,positive
+sharing,-0.04670733322720056,negative
+api provides,-0.044453407026821316,negative

@@ -1,0 +1,16 @@
+Token,Score,Direction
+office,0.3598849707499926,positive
+staple,-0.10943361320637936,negative
+product,-0.06746699083242035,negative
+xml,0.06450992917798938,positive
+resource,0.06399102546346715,positive
+api,0.0540858458014499,positive
+data,0.05246906267683796,positive
+category,0.04725840630609118,positive
+service,0.028730123164406318,positive
+international,-0.028154096914488842,negative
+detail,0.02358415441281838,positive
+company,0.02082745955292132,positive
+catalog,-0.020427403987574,negative
+functionality,0.01802007744334056,positive
+response,-0.010143770807883347,negative

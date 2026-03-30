@@ -1,0 +1,16 @@
+Token,SHAP_Value,Base_Value,Model,Category
+credit,0.4952928483838003,0.8639374221413243,LogisticRegression,Storage
+currency,0.33780586016135344,0.8639374221413243,LogisticRegression,Storage
+price,0.15009213283263612,0.8639374221413243,LogisticRegression,Storage
+stock,-0.13061684321888792,0.8639374221413243,LogisticRegression,Storage
+tax,0.08508538956562609,0.8639374221413243,LogisticRegression,Storage
+earnings,-0.07132033429752818,0.8639374221413243,LogisticRegression,Storage
+storage,-0.0697454896144625,0.8639374221413243,LogisticRegression,Storage
+zacks,-0.046665614390565116,0.8639374221413243,LogisticRegression,Storage
+document,-0.04635220352733518,0.8639374221413243,LogisticRegression,Storage
+balance,0.04280622928118297,0.8639374221413243,LogisticRegression,Storage
+estimate,-0.03773604305174148,0.8639374221413243,LogisticRegression,Storage
+earnings estimate,-0.03719747035470553,0.8639374221413243,LogisticRegression,Storage
+canadian,-0.03538622691447454,0.8639374221413243,LogisticRegression,Storage
+api offer,0.03378803521096102,0.8639374221413243,LogisticRegression,Storage
+account,-0.03256750247563166,0.8639374221413243,LogisticRegression,Storage

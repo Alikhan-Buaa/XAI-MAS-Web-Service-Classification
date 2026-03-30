@@ -1,0 +1,16 @@
+Token,Score,Direction
+storage,0.4151503837998732,positive
+document,-0.20085446978466562,negative
+nanosdk,0.10205334931197546,positive
+set,0.0685410334039083,positive
+applicable,0.06595358358246708,positive
+development,0.06114054040926996,positive
+consume,0.0453476598155724,positive
+credit,-0.04082808154357443,negative
+supported,0.04046352656904408,positive
+form,0.03958341218310749,positive
+spend,-0.03645732175687097,negative
+currency,-0.03510298448320288,negative
+create,-0.03320418314787594,negative
+request,0.03218853944343653,positive
+delete,0.0315604811824155,positive

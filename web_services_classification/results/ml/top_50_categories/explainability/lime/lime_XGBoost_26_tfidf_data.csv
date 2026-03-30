@@ -1,0 +1,16 @@
+Token,Score,Direction
+user,0.1444674756853321,positive
+developer,0.1286251712722927,positive
+pay,0.12681667678848121,positive
+allows,0.10402900760425644,positive
+create,0.09911417848145337,positive
+interested,0.08901856625087434,positive
+application,0.08705558255388395,positive
+online,0.08666283824692647,positive
+access,-0.08580252285195009,negative
+integrate,-0.06390149357728599,negative
+available,-0.06247615960707297,negative
+sign,0.049884505613144316,positive
+thing,0.044541851484066065,positive
+mobile,0.041261117557518004,positive
+functionality,0.03784460517482369,positive

@@ -1,0 +1,49 @@
+{
+  "n_categories": 50,
+  "n_samples": 5,
+  "n_per_category": 1,
+  "categories": [
+    "Payments",
+    "Messaging",
+    "Social",
+    "Storage",
+    "eCommerce"
+  ],
+  "samples": {
+    "Payments": {
+      "category": "Payments",
+      "encoded_label": 30,
+      "row_index": 26,
+      "Service Classification": "Payments",
+      "cleaned_text": "zipmark online mobile application allows user pay thing account automatically user pay thing rent bill zipmark user zipmark api allows developer access integrate functionality zipmark application create new application public documentation available interested developer sign here information"
+    },
+    "Messaging": {
+      "category": "Messaging",
+      "encoded_label": 25,
+      "row_index": 29,
+      "Service Classification": "Messaging",
+      "cleaned_text": "oventus api provides web service sending receiving sm requesting location lookup mobile device managing contact delivering report mobile centric functionality oventus enables bulk sm multi channel mass broadcast custom voice messaging geo location service using pageone messaging gateway developer integrate application device oventus service using rest soap though soap service provide functionality"
+    },
+    "Social": {
+      "category": "Social",
+      "encoded_label": 39,
+      "row_index": 31,
+      "Service Classification": "Social",
+      "cleaned_text": "socialsecure api offer secure community safety participation protection involvement secured engagement secure social networking security feature safety enhancement system"
+    },
+    "Storage": {
+      "category": "Storage",
+      "encoded_label": 42,
+      "row_index": 0,
+      "Service Classification": "Storage",
+      "cleaned_text": "nanosdk json storage api offer json document storage service function allow retrieve create replace delete document nanosdk microservices user friendly used explorer nanosdk com speed application development authenticated authorized consume service api key set nanosdk key header key request received key validated allows request form moment enough credit pricing time refill credit price simple pricing credit refill balance credit spend apis credit expire supported currency usd eur price exclusive applicable tax"
+    },
+    "eCommerce": {
+      "category": "eCommerce",
+      "encoded_label": 49,
+      "row_index": 35,
+      "Service Classification": "eCommerce",
+      "cleaned_text": "staple international office product company staple api restful web service exposing catalog functionality staple com exposed resource product data product category detail response json xml formatted"
+    }
+  }
+}

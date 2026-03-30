@@ -1,0 +1,16 @@
+Token,Score,Direction
+messaging,0.3868290513483665,positive
+sm,0.2678623227531397,positive
+managing contact,0.2170607432264428,positive
+device,-0.13414486724366945,negative
+broadcast,-0.11653453911690272,negative
+sending,0.10988380976499225,positive
+bulk sm,0.10068804006715032,positive
+geo,-0.09830895015158862,negative
+sending receiving,-0.08836579960635638,negative
+location service,-0.06890617291509941,negative
+ability,0.0,positive
+ability access,0.0,positive
+ability create,0.0,positive
+ability search,0.0,positive
+ability send,0.0,positive

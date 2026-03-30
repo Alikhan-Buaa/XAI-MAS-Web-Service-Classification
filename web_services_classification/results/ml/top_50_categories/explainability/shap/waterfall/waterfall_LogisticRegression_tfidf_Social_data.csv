@@ -1,0 +1,16 @@
+Token,SHAP_Value,Base_Value,Model,Category
+networking,1.1578420491127897,-0.8598608406962451,LogisticRegression,Social
+social networking,1.1040674366846819,-0.8598608406962451,LogisticRegression,Social
+social,1.0281873166953417,-0.8598608406962451,LogisticRegression,Social
+community,0.9696429596644872,-0.8598608406962451,LogisticRegression,Social
+participation,0.4826679211432621,-0.8598608406962451,LogisticRegression,Social
+involvement,0.4723103745182731,-0.8598608406962451,LogisticRegression,Social
+engagement,0.4132022393857051,-0.8598608406962451,LogisticRegression,Social
+api offer,0.3443749695128897,-0.8598608406962451,LogisticRegression,Social
+safety,0.26382778115816474,-0.8598608406962451,LogisticRegression,Social
+feature,0.24788880186684603,-0.8598608406962451,LogisticRegression,Social
+offer,0.07098352466412666,-0.8598608406962451,LogisticRegression,Social
+enhancement,0.06192651733842393,-0.8598608406962451,LogisticRegression,Social
+data,0.05043593183221178,-0.8598608406962451,LogisticRegression,Social
+sharing,-0.04670733322720056,-0.8598608406962451,LogisticRegression,Social
+api provides,-0.044453407026821316,-0.8598608406962451,LogisticRegression,Social

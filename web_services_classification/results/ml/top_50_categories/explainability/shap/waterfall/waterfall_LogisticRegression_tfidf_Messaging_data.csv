@@ -1,0 +1,16 @@
+Token,SHAP_Value,Base_Value,Model,Category
+sm,1.3270687719718521,-0.27984522533825146,LogisticRegression,Messaging
+messaging,0.9041295141922366,-0.27984522533825146,LogisticRegression,Messaging
+bulk,0.25585308233452153,-0.27984522533825146,LogisticRegression,Messaging
+bulk sm,0.2532870808270357,-0.27984522533825146,LogisticRegression,Messaging
+sending,0.210375069095368,-0.27984522533825146,LogisticRegression,Messaging
+mobile,0.14153911512138423,-0.27984522533825146,LogisticRegression,Messaging
+gateway,0.12683661933764134,-0.27984522533825146,LogisticRegression,Messaging
+voice,0.10882948528588161,-0.27984522533825146,LogisticRegression,Messaging
+receiving,0.08931922691002885,-0.27984522533825146,LogisticRegression,Messaging
+channel,0.08705690285086207,-0.27984522533825146,LogisticRegression,Messaging
+service sending,0.08499763902271484,-0.27984522533825146,LogisticRegression,Messaging
+managing contact,0.06428531970060061,-0.27984522533825146,LogisticRegression,Messaging
+data,0.06111821658608924,-0.27984522533825146,LogisticRegression,Messaging
+messaging gateway,0.05056247304641911,-0.27984522533825146,LogisticRegression,Messaging
+information,0.04633244722832623,-0.27984522533825146,LogisticRegression,Messaging

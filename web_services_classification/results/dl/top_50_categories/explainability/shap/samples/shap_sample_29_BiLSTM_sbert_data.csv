@@ -1,0 +1,16 @@
+Token,Score,Direction
+messaging,0.10969580362707347,positive
+location,0.07975739591638557,positive
+mobile,0.07149520621169358,positive
+custom,0.06764329654743051,positive
+voice,0.06764329654743051,positive
+requesting,0.057541487854905427,positive
+lookup,0.05350172391626984,positive
+sm,-0.04469264834187925,negative
+service,0.04071412367054563,positive
+device,0.03411745890236943,positive
+gateway,0.024476049307122594,positive
+receiving,-0.02318076475057751,negative
+bulk,-0.02151188359130174,negative
+functionality,0.020013662729934368,positive
+application,0.019944134333240982,positive

@@ -1,0 +1,16 @@
+Token,Score,Direction
+problem,1.7273997068405151,positive
+method support,-0.6212043762207031,negative
+webservice,0.5340983867645264,positive
+using,0.48738181591033936,positive
+developing,0.47411224246025085,positive
+testing service,0.4406132102012634,positive
+tablet,0.38927891850471497,positive
+speech,0.36550354957580566,positive
+service,-0.30585306882858276,negative
+create,0.3043089807033539,positive
+allows user,0.2998456656932831,positive
+file data,0.2992170453071594,positive
+tool,0.2915247678756714,positive
+product,-0.2894734740257263,negative
+access,-0.28495728969573975,negative

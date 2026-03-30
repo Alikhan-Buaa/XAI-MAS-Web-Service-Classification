@@ -1,0 +1,16 @@
+Token,Score,Direction
+credit,0.4952928483838003,positive
+currency,0.33780586016135344,positive
+price,0.15009213283263612,positive
+stock,-0.13061684321888792,negative
+tax,0.08508538956562609,positive
+earnings,-0.07132033429752818,negative
+storage,-0.0697454896144625,negative
+zacks,-0.046665614390565116,negative
+document,-0.04635220352733518,negative
+balance,0.04280622928118297,positive
+estimate,-0.03773604305174148,negative
+earnings estimate,-0.03719747035470553,negative
+canadian,-0.03538622691447454,negative
+api offer,0.03378803521096102,positive
+account,-0.03256750247563166,negative

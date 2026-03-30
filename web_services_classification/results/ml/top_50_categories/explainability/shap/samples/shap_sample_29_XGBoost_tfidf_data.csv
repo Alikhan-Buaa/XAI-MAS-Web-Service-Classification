@@ -1,0 +1,16 @@
+Token,Score,Direction
+sm,4.690291881561279,positive
+messaging,1.360388994216919,positive
+api,-0.43692439794540405,negative
+voice,0.42985808849334717,positive
+engagement,0.41577672958374023,positive
+message,-0.3640104830265045,negative
+chat,0.3468221127986908,positive
+contact,-0.2993299961090088,negative
+search,-0.2697657346725464,negative
+send receive,0.24985316395759583,positive
+directly,0.23452256619930267,positive
+used,-0.20228613913059235,negative
+service,-0.1959410458803177,negative
+based,-0.18455110490322113,negative
+access,-0.1788017451763153,negative

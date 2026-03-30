@@ -1,0 +1,16 @@
+Token,Score,Direction
+Application Development,0.9740126918482739,positive
+Entertainment,0.025745928428908722,positive
+Data,0.00012312509873388855,positive
+Backend,8.941683518458559e-05,positive
+Chat,2.250764388095364e-05,positive
+Education,3.247103253692885e-06,positive
+Cloud,3.0405417735856053e-06,positive
+Analytics,2.5854772423918846e-08,positive
+Enterprise,1.6112542544828175e-08,positive
+Email,3.9164067848619556e-10,positive
+Domains,7.923729681049014e-11,positive
+Advertising,4.546355679086037e-11,positive
+Bitcoin,1.2887295888081998e-11,positive
+Database,3.4466410496564334e-12,positive
+Banking,1.2631731455967465e-16,positive

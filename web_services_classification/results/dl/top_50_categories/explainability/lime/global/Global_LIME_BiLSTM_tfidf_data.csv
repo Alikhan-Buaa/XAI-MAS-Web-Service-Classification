@@ -1,0 +1,16 @@
+Token,Score,Direction
+photo,0.6386681062342071,positive
+journalist,0.581375032460283,positive
+government,0.515835069338416,positive
+cloud,0.4869563180517479,positive
+imagga,0.4841884916233413,positive
+researcher,0.4799494513368467,positive
+science,0.46586206230763993,positive
+weather,0.3986824962736386,positive
+create,0.30251996476547915,positive
+server,0.29791730139228556,positive
+bank,0.28981739416247176,positive
+send,0.28116244744569674,positive
+meteorological,0.26998689701186185,positive
+data,0.2631468797685553,positive
+api,0.25214806392372874,positive

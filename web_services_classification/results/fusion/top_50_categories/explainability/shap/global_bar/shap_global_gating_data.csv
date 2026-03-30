@@ -1,0 +1,16 @@
+Token,Score,Direction
+api,3.4256905490078764,positive
+image,1.9730195294360664,positive
+service,1.5823221766604214,positive
+socialevents,1.549818673563216,positive
+cloud,1.4679329561424248,positive
+user,1.3912486105492756,positive
+imagga,1.3118319514386605,positive
+provides,1.238818167846459,positive
+travel,1.1526960565876676,positive
+data,1.0496056936768667,positive
+search,0.9973326216053895,positive
+photo,0.9796045001793061,positive
+email,0.965394139556865,positive
+intrinio,0.9561725360463953,positive
+shiftmail,0.9296128256256111,positive

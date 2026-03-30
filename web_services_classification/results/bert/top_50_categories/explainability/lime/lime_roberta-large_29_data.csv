@@ -1,0 +1,16 @@
+Token,Score,Direction
+sm,0.5689472976110319,positive
+messaging,0.22347246025167156,positive
+sending,0.1144949411214202,positive
+voice,-0.09843190086101923,negative
+gateway,0.0796376923825592,positive
+device,-0.061109458558856175,negative
+integrate,0.06074362880461989,positive
+web,-0.05182042202762887,negative
+enables,0.04513134981428437,positive
+multi,0.041529280785571346,positive
+report,-0.03862234873269543,negative
+delivering,-0.035879033748810296,negative
+functionality,-0.035748956765150046,negative
+channel,-0.03217163654286683,negative
+bulk,0.03210578948916189,positive

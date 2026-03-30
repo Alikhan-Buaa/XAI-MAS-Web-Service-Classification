@@ -1,0 +1,16 @@
+Token,SHAP_Value,Base_Value,Model,Category
+product,1.7524900890436381,0.45310667298763446,LogisticRegression,eCommerce
+category,0.23166321321868152,0.45310667298763446,LogisticRegression,eCommerce
+product data,0.17047247899353107,0.45310667298763446,LogisticRegression,eCommerce
+catalog,0.1263257235620939,0.45310667298763446,LogisticRegression,eCommerce
+order,-0.11163775987783146,0.45310667298763446,LogisticRegression,eCommerce
+xml,0.07235212026677626,0.45310667298763446,LogisticRegression,eCommerce
+data product,0.06622771006719824,0.45310667298763446,LogisticRegression,eCommerce
+resource,-0.0656409094296443,0.45310667298763446,LogisticRegression,eCommerce
+exposed,-0.04804588792764705,0.45310667298763446,LogisticRegression,eCommerce
+restful,0.04619387429488737,0.45310667298763446,LogisticRegression,eCommerce
+company,-0.045945914153213425,0.45310667298763446,LogisticRegression,eCommerce
+office,-0.044430273869060115,0.45310667298763446,LogisticRegression,eCommerce
+api restful,-0.043790662382938536,0.45310667298763446,LogisticRegression,eCommerce
+json xml,0.0407396473124846,0.45310667298763446,LogisticRegression,eCommerce
+provides,0.0389430604423523,0.45310667298763446,LogisticRegression,eCommerce

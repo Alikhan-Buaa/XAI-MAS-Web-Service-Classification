@@ -1,0 +1,16 @@
+Token,Score,Direction
+oventus,0.2663571910041704,positive
+voice,0.2044830913140052,positive
+messaging,-0.1528393865320099,negative
+device,0.1406451574802622,positive
+sm,-0.13694248187822822,negative
+service,0.12280889279594909,positive
+location,0.10334055969140482,positive
+api,-0.08504161534728909,negative
+managing,-0.0672304494058361,negative
+broadcast,0.06701654713980705,positive
+soap,-0.06565762603580373,negative
+report,-0.06545356024822384,negative
+provides,0.05510764074346252,positive
+mobile,0.05210450994576881,positive
+provide,-0.04768933268429112,negative

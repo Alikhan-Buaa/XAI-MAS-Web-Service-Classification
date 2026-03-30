@@ -1,0 +1,16 @@
+Token,SHAP_Value,Base_Value,Model,Category
+pay,0.37075431991402913,-0.2719224519766952,LogisticRegression,Payments
+online mobile,0.18195205875245632,-0.2719224519766952,LogisticRegression,Payments
+mobile,0.1537919458351536,-0.2719224519766952,LogisticRegression,Payments
+online,0.11256575880833915,-0.2719224519766952,LogisticRegression,Payments
+public documentation,0.11248460930015239,-0.2719224519766952,LogisticRegression,Payments
+bill,0.11161563098167104,-0.2719224519766952,LogisticRegression,Payments
+account,0.11072317028295418,-0.2719224519766952,LogisticRegression,Payments
+interested developer,0.10692391205818938,-0.2719224519766952,LogisticRegression,Payments
+interested,0.10532776017542149,-0.2719224519766952,LogisticRegression,Payments
+documentation available,0.10393608607497393,-0.2719224519766952,LogisticRegression,Payments
+sign,0.08785753470346057,-0.2719224519766952,LogisticRegression,Payments
+developer sign,0.08014371990302864,-0.2719224519766952,LogisticRegression,Payments
+integrate functionality,0.07850233852772319,-0.2719224519766952,LogisticRegression,Payments
+mobile application,0.07288191543742646,-0.2719224519766952,LogisticRegression,Payments
+data,0.06566843038494503,-0.2719224519766952,LogisticRegression,Payments

@@ -1,0 +1,16 @@
+Token,Score,Direction
+api,1.67222448943428,positive
+video,1.264656771309177,positive
+data,0.8587207003384704,positive
+user,0.8154862890101884,positive
+platform,0.7721924483700149,positive
+developer,0.7178959419579304,positive
+information,0.707001138772235,positive
+access,0.6500604995532852,positive
+email,0.5873108950615347,positive
+rest,0.5619840529322283,positive
+application,0.5572302619872005,positive
+cloud,0.5025896724807932,positive
+provides,0.47222708387100865,positive
+response,0.41711591113371904,positive
+service,0.39603039983395366,positive

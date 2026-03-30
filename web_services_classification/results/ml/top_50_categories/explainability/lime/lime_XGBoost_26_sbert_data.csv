@@ -1,0 +1,16 @@
+Token,Score,Direction
+pay,0.4922179650109219,positive
+automatically,0.2740112722511978,positive
+account,0.18175310554519955,positive
+zipmark,-0.18057824567582623,negative
+bill,0.15001855221443716,positive
+thing,-0.12884461216329127,negative
+rent,-0.10446055315749041,negative
+user,-0.09637622432727104,negative
+information,-0.09589101498050127,negative
+application,0.07874511359665712,positive
+create,-0.06931784677891258,negative
+documentation,-0.06662466184118135,negative
+here,0.06199480480811375,positive
+allows,-0.05511988642827437,negative
+functionality,0.052962710900672894,positive
