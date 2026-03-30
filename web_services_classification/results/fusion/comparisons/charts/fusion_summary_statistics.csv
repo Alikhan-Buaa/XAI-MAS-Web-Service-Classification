@@ -1,2 +1,5 @@
 Categories,Model,Feature,Accuracy,F1-Score,Top-1,Top-3,Top-5
-50,DeepSeek_RoBERTa_Fusion,Concat,0.8118,0.8116,0.8118,0.9386,0.9717
+50,DeepSeek_RoBERTa_Fusion,Concat,0.7964,0.796,0.7964,0.9338,0.9685
+50,DeepSeek_RoBERTa_Fusion,Average,0.8037,0.8036,0.8037,0.9297,0.9653
+50,DeepSeek_RoBERTa_Fusion,Weighted,0.7981,0.7956,0.7981,0.9402,0.9645
+50,DeepSeek_RoBERTa_Fusion,Gating,0.8005,0.8009,0.8005,0.9386,0.9653

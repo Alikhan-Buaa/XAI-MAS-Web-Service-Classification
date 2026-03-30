@@ -1,7 +1,7 @@
 Categories,Model,Feature,Accuracy,F1-Score,Top-1,Top-3,Top-5
-50,LogisticRegression,tfidf,0.8037,0.8141,0.8037,0.9216,0.9467
-50,RandomForest,tfidf,0.7617,0.7667,0.7617,0.9006,0.9281
-50,XGBoost,tfidf,0.7472,0.7582,0.7472,0.874,0.9136
-50,LogisticRegression,sbert,0.7795,0.7809,0.7795,0.9208,0.9572
-50,RandomForest,sbert,0.7237,0.7246,0.7237,0.8506,0.8966
-50,XGBoost,sbert,0.7237,0.7295,0.7237,0.891,0.9378
+50,LogisticRegression,tfidf,0.7981,0.8068,0.7981,0.9208,0.9507
+50,RandomForest,tfidf,0.7601,0.7657,0.7601,0.8893,0.9233
+50,XGBoost,tfidf,0.7423,0.7536,0.7423,0.874,0.912
+50,LogisticRegression,sbert,0.7868,0.7892,0.7868,0.92,0.9556
+50,RandomForest,sbert,0.752,0.7504,0.752,0.8667,0.9055
+50,XGBoost,sbert,0.7254,0.7289,0.7254,0.9015,0.9435

@@ -1,16 +1,16 @@
 Category,Consolidated_Top_15_Tokens,Token_Source_Count
-Advertising,"advertising, digital, technology, attribution, side, bidding, duration, generating, gear, exchange, customer, mobile, server, industry, include",60
-Analytics,"rest, report, crucial, receipt, analytical, geographic location, format, format api, google, social, analytics, analysis, marketing, basic, market",56
-Application Development,"managing, manage, integrate, docker, development, kernel, run, job, construction, linux, api, process, applied, implement, additional",60
-Backend,"server, offer, api, ion, efficient, function be, order, search, scaling, resource, performance, implement, predictive, monitor, cost",60
-Banking,"loan, bank, api, advance, business, customer, industry, financial, construction, classification, institution, account, summarizes, consumer, transport",60
-Bitcoin,"order, api, cryptocurrency, exchange, trading, bitcoin, private, virtual, formatted, implement, public, provides order, into application, balance, real",60
-Chat,"api, engagement, transcript, chat, communication, searching, business, analysis, real, party, identification, history, historical, return, customer",60
-Cloud,"cloud, drive, trash, let, rest, track, order, function, server, api, ion, azon, hosting, offer, virtual",60
-Data,"github, api, deployment, software, development, status, provider, two, list, update, factor, real, offer, analytical, data data",58
-Database,"search, rest, api, database, apps, storage, building, add, setting, graph, documentation, over, auth, detailed, see",60
-Domains,"available, search, provided, domain, api, registration, server, burning, name, privacy, hosting, displayed, be provided, aspect, task",60
-Education,"api, sharing, scholar, science, community, researcher, over, mission, ire, easier, email, test, order, estimate, open",60
-Email,"account, mailing, letter, api, send, single, allowing, credit, complete, formatted, return, party, manage, email, api email",60
-Enterprise,"api, integrate, vendor, track, order management, help business, order, survey, vey, result, available, send, creates, risk, report",60
-Entertainment,"image, quote, random, video, api, database, certain, movie, length, day, meeting, verse, search, crucial, offer",60
+Advertising,"nan, sm, ad, reward, marketing, message, sm gateway, sm message, connect, pdf, managing, loyalty, integrate sm, management api, title",33
+Analytics,"nan, crucial, analytical, format, receipt, analysis, information format, google, json analysis, social, service time, geographic location, basic api, api platform, service json",33
+Application Development,"nan, manage, managing, app, platform developer, container engine, kubernetes, container, managing application, datastore api, instance, provisioning, manage create, code, user develop",33
+Backend,"nan, information, backend, implement, manages, handle, consistency, deployment, configuration, requires account, user management, medium, instance, across multiple, search",33
+Banking,"nan, account, quarterly, institutional, sm, provider, preferred, zoom, manager, holder, message, sm message, thousand, intrinio, combining",33
+Bitcoin,"nan, order, loyalty, atm, implement, market, diamond, manager, discount, based, function accessed, public api, process, unlimited, allows client",33
+Chat,"nan, team, chat, streaming api, message, time access, chatting, ca, im, group, listen, streaming, friend, team collaboration, solve",33
+Cloud,"nan, aspect, management, cloud, app user, management api, aspect data, specializes aspect, based us, shephertz, shephertz technology, cloud company, store, streaming api, ecommerce",33
+Data,"nan, datastore api, api software, github, edge data, datastore, flightstats cutting, flightstats, global flight, developer store, across travel, travel ecosystem, commercial aviation, focused commercial, company individual",33
+Database,"nan, database, data well, contains, reference, compare, helping, licensing, platform set, amount, object api, gene, flashcard, file, data management",33
+Domains,"nan, domain, godaddy, domain name, name, service domain, name service, provider domain, name name, domain connect, api domain, availability, distribution, table, sm",33
+Education,"nan, online, information, flashcard, learning, student, education, university, school, course, subject, data, date, adjusted price, image",33
+Email,"nan, email, sm, information format, receipt, crucial, sharing, analytical, sm gateway, duration, chat, bounce, geographic location, center, integrate sm",33
+Enterprise,"nan, order management, help business, management service, business, order, sm, important, zoom, message, provides order, designed help, scheduling, provided, sm message",33
+Entertainment,"nan, information video, sentence, translation, meme, basic account, video, phrase, author, regular, english, tv, mashape, service json, daily",33
