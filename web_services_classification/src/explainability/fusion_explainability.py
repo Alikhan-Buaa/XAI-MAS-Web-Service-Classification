@@ -154,7 +154,6 @@ class FusionExplainability:
         if isinstance(self.fusion_types, str): self.fusion_types = [self.fusion_types]
 
         self.global_metrics_storage = []
-        self.waterfall_generated    = {ft: False for ft in self.fusion_types}
         self.target_categories      = TARGET_CATEGORIES  # from utils
         self.category_tokens        = {cat: [] for cat in self.target_categories}
 
@@ -319,12 +318,13 @@ class FusionExplainability:
                         f"SHAP ({category_name}) — {fusion_type.capitalize()}",
                         self.dirs['samples'] / f"shap_{fusion_type}_{i}.png")
 
-                    if shap_clean and not self.waterfall_generated[fusion_type]:
+                    # Waterfall — one per category
+                    if shap_clean:
+                        safe_cat_wf = category_name.replace(" ", "_")
                         run_waterfall(shap_clean, new_base, f"{fusion_type}_fusion",
                                       category_name,
-                                      self.dirs['waterfall'] / f"waterfall_{fusion_type}.png",
+                                      self.dirs['waterfall'] / f"waterfall_{fusion_type}_{safe_cat_wf}.png",
                                       plot_dpi=300)
-                        self.waterfall_generated[fusion_type] = True
 
                 mets = compute_metrics(exp1.score, shap_clean, lime_clean)
                 mets.update({'model': f"{fusion_type}_fusion", 'sample_id': i})

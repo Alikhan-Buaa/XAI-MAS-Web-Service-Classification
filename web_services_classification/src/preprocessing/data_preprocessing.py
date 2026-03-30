@@ -363,7 +363,7 @@ class DataPreprocessor:
         No hardcoded row indices — scans test_df live by Service Classification column.
 
         CSV columns: category | encoded_label | row_index |
-                     Service Classification | cleaned_text | text_preview
+                     Service Classification | cleaned_text
         """
         # Single source of truth: category list from config
         try:
@@ -404,7 +404,6 @@ class DataPreprocessor:
                 "row_index":              pos_idx,
                 "Service Classification": str(row.get(target_col, "")),
                 "cleaned_text":           str(row.get("cleaned_text", "")),
-                "text_preview":           str(row.get("cleaned_text", ""))[:80],
             })
             logger.info(f"  save_explainability_samples: '{cat}' → row {pos_idx} (label={enc_lbl})")
 

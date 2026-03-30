@@ -86,7 +86,6 @@ class BERTExplainability:
         }
         self.all_dominant_tokens = defaultdict(dict)
         self.global_metrics_storage = []
-        self.waterfall_generated = {m: False for m in self.model_names}
         self.target_categories = TARGET_CATEGORIES  # from utils
         self.category_tokens   = {cat: [] for cat in self.target_categories}
 
@@ -238,6 +237,12 @@ class BERTExplainability:
                 exp = lime_explainer.explain_instance(
                     text, wrapper.predict_proba,
                     num_features=25, labels=[top_label], num_samples=250)
+                try:
+                    safe_cat = category_name.replace(" ", "_")
+                    exp.save_to_file(str(
+                        self.dirs['lime_dash'] / f"{model_name}_{safe_cat}_{i}.html"))
+                except Exception:
+                    pass
 
                 lime_raw   = exp.as_list(label=top_label)
                 lime_clean = top15_tokens(
@@ -274,12 +279,12 @@ class BERTExplainability:
                         f"SHAP ({category_name}) — {model_name}",
                         self.dirs['samples'] / f"shap_{model_name}_{i}.png")
 
-                    # Waterfall — once per model (utils)
-                    if not self.waterfall_generated[model_name] and shap_clean:
+                    # Waterfall — one per category
+                    if shap_clean:
+                        safe_cat_wf = category_name.replace(" ", "_")
                         run_waterfall(shap_clean, new_base, model_name, category_name,
-                                      self.dirs['waterfall'] / f"waterfall_{model_name}_{i}.png",
+                                      self.dirs['waterfall'] / f"waterfall_{model_name}_{safe_cat_wf}.png",
                                       plot_dpi=300)
-                        self.waterfall_generated[model_name] = True
 
                     self.category_tokens.setdefault(category_name, []).extend(
                         [t for t, _ in shap_clean])

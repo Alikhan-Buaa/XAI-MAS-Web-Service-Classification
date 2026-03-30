@@ -208,7 +208,6 @@ class MLExplainability:
             sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
 
         beeswarm_rows = []
-        waterfall_done = False
 
         for idx_count, (i, shared_cat) in enumerate(indices_to_explain):
             try:
@@ -287,19 +286,19 @@ class MLExplainability:
                     for tok, val in shap_clean_for_metrics:
                         beeswarm_rows.append({'Token': tok, 'SHAP Value': float(val)})
 
-                # Waterfall — first sample only (utils)
-                if not waterfall_done and shap_clean_for_metrics:
+                # Waterfall — one per category
+                if shap_clean_for_metrics:
                     base_val = 0.0
                     if hasattr(explainer, 'expected_value'):
                         ev = explainer.expected_value
                         base_val = float(
                             ev[top_cls] if isinstance(ev, (list, np.ndarray)) else ev)
+                    safe_cat_wf = shared_cat.replace(" ", "_")
                     run_waterfall(
-                        shap_clean_for_metrics, base_val, model_name, cat_name,
-                        self.dirs['waterfall'] / f"waterfall_{model_name}_{feature_type}_{i}.png",
+                        shap_clean_for_metrics, base_val, model_name, shared_cat,
+                        self.dirs['waterfall'] / f"waterfall_{model_name}_{feature_type}_{safe_cat_wf}.png",
                         plot_dpi=self.plot_dpi,
                     )
-                    waterfall_done = True
 
                 # Honest metrics (utils)
                 mets = compute_metrics(exp.score, shap_clean_for_metrics, lime_clean)

@@ -198,7 +198,6 @@ class DLExplainability:
             text_explainer = shap.Explainer(sbert_text_predict, shap.maskers.Text(r"\W+"))
 
         beeswarm_rows = []
-        waterfall_done = False
 
         for idx_count, (i, shared_cat) in enumerate(indices_to_explain):
             try:
@@ -211,8 +210,9 @@ class DLExplainability:
                     text, pipeline_fn, num_features=30,
                     labels=[top_cls], num_samples=100)
                 try:
+                    safe_cat = shared_cat.replace(" ", "_")
                     exp.save_to_file(str(
-                        self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_{i}.html"))
+                        self.dirs['extra_lime'] / f"dashboard_{model_name}_{feature_type}_{safe_cat}_{i}.html"))
                 except Exception:
                     pass
 
@@ -278,12 +278,13 @@ class DLExplainability:
                                f"SHAP Tokens · DL {model_name} · {cat_name}",
                                self.dirs['samples'] / f"shap_sample_{i}_{model_name}_{feature_type}.png")
 
-                if not waterfall_done and shap_clean:
+                # Waterfall — one per category
+                if shap_clean:
+                    safe_cat_wf = shared_cat.replace(" ", "_")
                     run_waterfall(shap_clean, float(exp_obj.base_values) if exp_obj else 0.0,
-                                  f"DL_{model_name}", cat_name,
-                                  self.dirs['waterfall'] / f"waterfall_{model_name}_{feature_type}_{i}.png",
+                                  f"DL_{model_name}", shared_cat,
+                                  self.dirs['waterfall'] / f"waterfall_{model_name}_{feature_type}_{safe_cat_wf}.png",
                                   plot_dpi=self.plot_dpi)
-                    waterfall_done = True
 
                 mets = compute_metrics(exp.score, shap_clean, lime_clean)
                 mets['model'] = f"{model_name}_{feature_type}"

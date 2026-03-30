@@ -137,7 +137,6 @@ def get_shared_samples(
             "category":      cat,
             "encoded_label": enc_lbl_actual,
             "row_index":     row_i,
-            "text_preview":  str(df.iloc[row_i].get("cleaned_text", ""))[:80],
         })
         logger.info(f"  [shared_samples] '{cat}' → row {row_i} (label={enc_lbl_actual})")
 

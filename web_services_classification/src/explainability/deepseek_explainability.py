@@ -84,7 +84,6 @@ class DeepSeekExplainability:
             'plot':    "DeepSeek_Metrics_Comparison.png",
         }
         self.global_metrics_storage = []
-        self.waterfall_generated = False
         self.target_categories = TARGET_CATEGORIES  # from utils
         self.category_tokens   = {cat: [] for cat in self.target_categories}
 
@@ -238,6 +237,12 @@ class DeepSeekExplainability:
                 exp1 = lime_explainer.explain_instance(
                     text, wrapper.predict_proba,
                     num_features=50, labels=[top_label], num_samples=250)
+                try:
+                    safe_cat = category_name.replace(" ", "_")
+                    exp1.save_to_file(str(
+                        self.dirs['lime_dash'] / f"{self.model_name}_{safe_cat}_{i}.html"))
+                except Exception:
+                    pass
 
                 lime_agg = defaultdict(float)
                 for f, w in exp1.as_list(label=top_label):
@@ -283,11 +288,12 @@ class DeepSeekExplainability:
                         f"SHAP ({category_name}) — {self.model_name}",
                         self.dirs['samples'] / f"shap_deepseek_{i}.png")
 
-                    if shap_clean and not self.waterfall_generated:
+                    # Waterfall — one per category
+                    if shap_clean:
+                        safe_cat_wf = category_name.replace(" ", "_")
                         run_waterfall(shap_clean, new_base, self.model_name, category_name,
-                                      self.dirs['waterfall'] / "waterfall_deepseek.png",
+                                      self.dirs['waterfall'] / f"waterfall_deepseek_{safe_cat_wf}.png",
                                       plot_dpi=300)
-                        self.waterfall_generated = True
 
                 except Exception as e:
                     logger.warning(f"SHAP local failed for {i}: {e}")
